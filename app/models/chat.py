@@ -7,6 +7,7 @@ from app.database.base import Base
 from app.models.mixins import TimestampMixin
 
 if TYPE_CHECKING:
+    from app.models.message import ChatMessage
     from app.models.user import User
 
 
@@ -35,4 +36,9 @@ class ChatSession(Base, TimestampMixin):
 
     user: Mapped["User"] = relationship(
         back_populates="chat_sessions",
+    )
+
+    messages: Mapped[list["ChatMessage"]] = relationship(
+        back_populates="chat_session",
+        cascade="all, delete-orphan",
     )

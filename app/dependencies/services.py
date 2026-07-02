@@ -5,9 +5,11 @@ from sqlalchemy.orm import Session
 
 from app.database.session import get_db
 from app.repositories.chat import ChatRepository
+from app.repositories.message import MessageRepository
 from app.repositories.user import UserRepository
 from app.services.auth import AuthService
 from app.services.chat import ChatService
+from app.services.message import MessageService
 from app.services.user import UserService
 
 
@@ -50,4 +52,20 @@ def get_chat_service(
 
     return ChatService(
         chat_repository=chat_repository,
+    )
+
+
+def get_message_service(
+    db: Annotated[Session, Depends(get_db)],
+) -> MessageService:
+    """
+    Dependency for MessageService.
+    """
+
+    chat_repository = ChatRepository(db)
+    message_repository = MessageRepository(db)
+
+    return MessageService(
+        chat_repository=chat_repository,
+        message_repository=message_repository,
     )
