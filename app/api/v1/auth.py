@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status
+from fastapi.security import OAuth2PasswordRequestForm
 
 from app.dependencies.services import (
     get_auth_service,
@@ -49,7 +50,36 @@ def login(
     auth_service: AuthService = Depends(get_auth_service),
 ) -> TokenResponse:
     """
-    Authenticate a user and return JWT tokens.
+    Authenticate a user using JSON.
+
+    Used by the frontend.
     """
+
+    return auth_service.authenticate(login_data)
+
+
+@router.post(
+    "/token",
+    response_model=TokenResponse,
+    status_code=status.HTTP_200_OK,
+)
+def oauth2_login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    auth_service: AuthService = Depends(get_auth_service),
+) -> TokenResponse:
+    """
+    OAuth2-compatible login endpoint.
+
+    Swagger sends:
+        username
+        password
+
+    We interpret 'username' as the user's email.
+    """
+
+    login_data = LoginRequest(
+        email=form_data.username,
+        password=form_data.password,
+    )
 
     return auth_service.authenticate(login_data)
