@@ -46,6 +46,8 @@ class Settings(BaseSettings):
     # OpenAI
     # ------------------------------------------------------------------
     OPENAI_API_KEY: str
+    OPENAI_CHAT_MODEL: str = "gpt-5"
+    OPENAI_EMBEDDING_MODEL: str = "text-embedding-3-large"
 
     # ------------------------------------------------------------------
     # Qdrant
@@ -55,7 +57,13 @@ class Settings(BaseSettings):
     # ------------------------------------------------------------------
     # LangSmith
     # ------------------------------------------------------------------
-    LANGCHAIN_API_KEY: str
+    # ------------------------------------------------------------------
+    # LangSmith
+    # ------------------------------------------------------------------
+    LANGSMITH_API_KEY: str
+    LANGSMITH_ENDPOINT: str = "https://api.smith.langchain.com"
+    LANGSMITH_PROJECT: str = "Astra-Study"
+    LANGSMITH_TRACING: bool = True
 
     # ------------------------------------------------------------------
     # Langfuse
