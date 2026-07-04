@@ -18,9 +18,21 @@ class LLMService:
         messages: list[dict[str, str]],
     ) -> str:
         """
-        Generate a response from the configured provider.
+        Generate an assistant response.
         """
 
         return self.provider.generate_response(
-            messages,
+            messages=messages,
         )
+
+    def generate_title(
+        self,
+        messages: list[dict[str, str]],
+    ) -> str:
+        """
+        Generate a concise title.
+        """
+
+        return self.provider.generate_response(
+            messages=messages,
+        ).strip()

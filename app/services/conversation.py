@@ -57,9 +57,19 @@ class ConversationService:
             chat_id,
         )
 
+        # Generate a title only for the first user message.
+        if chat.title == "New Chat":
+            title = self.ai_pipeline.generate_title(
+                first_message=message_data.content,
+            )
+
+            self.chat_repository.update_title(
+                chat_id=chat.id,
+                title=title,
+            )
+
         assistant_response = self.ai_pipeline.generate_response(
             conversation=conversation,
-            user_message=message_data.content,
         )
 
         assistant_message = ChatMessage(

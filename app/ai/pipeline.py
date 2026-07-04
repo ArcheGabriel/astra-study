@@ -1,3 +1,4 @@
+from app.ai.title_generator import TitleGenerator
 from app.ai.prompts import PromptBuilder
 from app.models.message import ChatMessage
 from app.services.llm import LLMService
@@ -17,7 +18,6 @@ class AIPipeline:
     def generate_response(
         self,
         conversation: list[ChatMessage],
-        user_message: str,
     ) -> str:
         """
         Generate an assistant response for the current conversation.
@@ -28,5 +28,22 @@ class AIPipeline:
         )
 
         return self.llm_service.generate_response(
+            messages=prompt,
+        )
+    
+
+    def generate_title(
+        self,
+        first_message: str,
+    ) -> str:
+        """
+        Generate a title for a new conversation.
+        """
+
+        prompt = TitleGenerator.build_prompt(
+            first_message=first_message,
+        )
+
+        return self.llm_service.generate_title(
             messages=prompt,
         )
