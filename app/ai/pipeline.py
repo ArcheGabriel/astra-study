@@ -1,5 +1,7 @@
-from app.ai.title_generator import TitleGenerator
+from collections.abc import Iterator
+
 from app.ai.prompts import PromptBuilder
+from app.ai.title_generator import TitleGenerator
 from app.models.message import ChatMessage
 from app.services.llm import LLMService
 
@@ -30,7 +32,6 @@ class AIPipeline:
         return self.llm_service.generate_response(
             messages=prompt,
         )
-    
 
     def generate_title(
         self,
@@ -45,5 +46,21 @@ class AIPipeline:
         )
 
         return self.llm_service.generate_title(
+            messages=prompt,
+        )
+
+    def stream_response(
+        self,
+        conversation: list[ChatMessage],
+    ) -> Iterator[str]:
+        """
+        Stream an assistant response.
+        """
+
+        prompt = PromptBuilder.build_chat_prompt(
+            conversation=conversation,
+        )
+
+        return self.llm_service.stream_response(
             messages=prompt,
         )

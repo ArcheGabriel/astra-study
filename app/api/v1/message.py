@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status
+from fastapi.responses import StreamingResponse
 
 from app.dependencies.auth import get_current_user
 from app.dependencies.services import (
@@ -33,13 +34,57 @@ def create_message(
     ),
 ) -> MessageResponse:
     """
-    Send a message and generate an AI response.
+    Send a message and receive the complete response.
     """
 
     return conversation_service.send_message(
         chat_id=chat_id,
         current_user=current_user,
         message_data=message_data,
+    )
+
+
+@router.post(
+    "/stream",
+    status_code=status.HTTP_200_OK,
+)
+def stream_message(
+    chat_id: int,
+    message_data: MessageCreate,
+    current_user: User = Depends(get_current_user),
+    conversation_service: ConversationService = Depends(
+        get_conversation_service,
+    ),
+) -> StreamingResponse:
+    """
+    Stream an assistant response using Server-Sent Events (SSE).
+    """
+
+    def event_stream():
+        try:
+            for chunk in conversation_service.stream_message(
+                chat_id=chat_id,
+                current_user=current_user,
+                message_data=message_data,
+            ):
+                yield f"data: {chunk}\n\n"
+
+            yield "event: done\ndata: [DONE]\n\n"
+
+        except Exception as exc:
+            yield (
+                "event: error\n"
+                f"data: {str(exc)}\n\n"
+            )
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
     )
 
 

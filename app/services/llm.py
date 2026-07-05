@@ -1,3 +1,5 @@
+from collections.abc import Iterator
+
 from app.ai.base import BaseLLMProvider
 from app.ai.openai_provider import OpenAIProvider
 
@@ -36,3 +38,15 @@ class LLMService:
         return self.provider.generate_response(
             messages=messages,
         ).strip()
+
+    def stream_response(
+        self,
+        messages: list[dict[str, str]],
+    ) -> Iterator[str]:
+        """
+        Stream an assistant response.
+        """
+
+        return self.provider.stream_response(
+            messages=messages,
+        )

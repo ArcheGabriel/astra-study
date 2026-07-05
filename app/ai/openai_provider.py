@@ -1,3 +1,5 @@
+from collections.abc import Iterator
+
 from openai import OpenAI
 
 from app.ai.base import BaseLLMProvider
@@ -19,7 +21,7 @@ class OpenAIProvider(BaseLLMProvider):
         messages: list[dict[str, str]],
     ) -> str:
         """
-        Generate a response using OpenAI.
+        Generate a complete response using OpenAI.
         """
 
         response = self.client.responses.create(
@@ -28,3 +30,26 @@ class OpenAIProvider(BaseLLMProvider):
         )
 
         return response.output_text
+
+    def stream_response(
+        self,
+        messages: list[dict[str, str]],
+    ) -> Iterator[str]:
+        """
+        Stream a response from OpenAI.
+        """
+
+        stream = self.client.responses.create(
+            model=settings.OPENAI_CHAT_MODEL,
+            input=messages,
+            stream=True,
+        )
+
+        for event in stream:
+
+            if event.type == "response.output_text.delta":
+                if event.delta:
+                    yield event.delta
+
+            elif event.type == "response.completed":
+                break
