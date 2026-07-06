@@ -8,11 +8,9 @@ class InvalidCredentialsError(AppException):
     Raised when the provided email or password is incorrect.
     """
 
-    def __init__(self) -> None:
-        super().__init__(
-            message="Invalid email or password.",
-            status_code=status.HTTP_401_UNAUTHORIZED,
-        )
+    status_code = status.HTTP_401_UNAUTHORIZED
+
+    detail = "Invalid email or password."
 
 
 class InactiveUserError(AppException):
@@ -20,11 +18,9 @@ class InactiveUserError(AppException):
     Raised when an inactive user attempts to log in.
     """
 
-    def __init__(self) -> None:
-        super().__init__(
-            message="Your account has been deactivated.",
-            status_code=status.HTTP_403_FORBIDDEN,
-        )
+    status_code = status.HTTP_403_FORBIDDEN
+
+    detail = "Your account has been deactivated."
 
 
 class AuthenticationError(AppException):
@@ -33,8 +29,6 @@ class AuthenticationError(AppException):
     is invalid, expired, or missing.
     """
 
-    def __init__(self) -> None:
-        super().__init__(
-            message="Could not validate credentials.",
-            status_code=status.HTTP_401_UNAUTHORIZED,
-        )
+    status_code = status.HTTP_401_UNAUTHORIZED
+
+    detail = "Could not validate credentials."

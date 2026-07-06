@@ -9,8 +9,6 @@ class ChatNotFoundError(AppException):
     does not exist or is inaccessible.
     """
 
-    def __init__(self) -> None:
-        super().__init__(
-            message="Chat session not found.",
-            status_code=status.HTTP_404_NOT_FOUND,
-        )
+    status_code = status.HTTP_404_NOT_FOUND
+
+    detail = "Chat session not found."

@@ -9,6 +9,7 @@ from app.models.mixins import TimestampMixin
 
 if TYPE_CHECKING:
     from app.models.chat import ChatSession
+    from app.models.document import Document
 
 
 class User(Base, TimestampMixin):
@@ -57,6 +58,11 @@ class User(Base, TimestampMixin):
     )
 
     chat_sessions: Mapped[list["ChatSession"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+
+    documents: Mapped[list["Document"]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan",
     )

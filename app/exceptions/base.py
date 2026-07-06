@@ -6,12 +6,23 @@ class AppException(Exception):
     Base exception for all application-specific errors.
     """
 
+    status_code = status.HTTP_400_BAD_REQUEST
+
+    detail = "Application error."
+
     def __init__(
         self,
-        message: str,
-        status_code: int = status.HTTP_400_BAD_REQUEST,
+        message: str | None = None,
     ) -> None:
-        self.message = message
-        self.status_code = status_code
+        """
+        Initialize the exception.
 
-        super().__init__(message)
+        If no message is supplied, use the class-level
+        `detail` attribute.
+        """
+
+        self.message = message or self.detail
+
+        self.status_code = self.__class__.status_code
+
+        super().__init__(self.message)

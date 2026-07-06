@@ -14,6 +14,9 @@ from app.services.conversation import ConversationService
 from app.services.llm import LLMService
 from app.services.message import MessageService
 from app.services.user import UserService
+from app.repositories.document import DocumentRepository
+from app.services.document import DocumentService
+from app.storage.local import LocalStorageService
 
 
 def get_user_service(
@@ -120,4 +123,23 @@ def get_conversation_service(
         message_repository=message_repository,
         message_service=message_service,
         ai_pipeline=ai_pipeline,
+    )
+
+
+def get_document_service(
+    db: Annotated[Session, Depends(get_db)],
+) -> DocumentService:
+    """
+    Dependency for DocumentService.
+    """
+
+    document_repository = DocumentRepository(
+        db,
+    )
+
+    storage_service = LocalStorageService()
+
+    return DocumentService(
+        document_repository=document_repository,
+        storage_service=storage_service,
     )

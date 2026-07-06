@@ -57,19 +57,22 @@ class Settings(BaseSettings):
     # ------------------------------------------------------------------
     # LangSmith
     # ------------------------------------------------------------------
-    # ------------------------------------------------------------------
-    # LangSmith
-    # ------------------------------------------------------------------
-    LANGSMITH_API_KEY: str
+    LANGSMITH_API_KEY: str | None = None
+    LANGSMITH_TRACING: bool = True
     LANGSMITH_ENDPOINT: str = "https://api.smith.langchain.com"
     LANGSMITH_PROJECT: str = "Astra-Study"
-    LANGSMITH_TRACING: bool = True
 
     # ------------------------------------------------------------------
     # Langfuse
     # ------------------------------------------------------------------
-    LANGFUSE_PUBLIC_KEY: str
-    LANGFUSE_SECRET_KEY: str
+    LANGFUSE_PUBLIC_KEY: str | None = None
+    LANGFUSE_SECRET_KEY: str | None = None
+    LANGFUSE_HOST: str | None = None
+
+    # ------------------------------------------------------------------
+    # Document Upload
+    # ------------------------------------------------------------------
+    MAX_UPLOAD_SIZE_MB: int = 50
 
     model_config = SettingsConfigDict(
         env_file=".env",
