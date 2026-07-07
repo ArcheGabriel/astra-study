@@ -6,16 +6,17 @@ from sqlalchemy.orm import Session
 from app.ai.pipeline import AIPipeline
 from app.database.session import get_db
 from app.repositories.chat import ChatRepository
+from app.repositories.document import DocumentRepository
 from app.repositories.message import MessageRepository
 from app.repositories.user import UserRepository
 from app.services.auth import AuthService
 from app.services.chat import ChatService
 from app.services.conversation import ConversationService
+from app.services.document import DocumentService
+from app.services.ingestion import IngestionService
 from app.services.llm import LLMService
 from app.services.message import MessageService
 from app.services.user import UserService
-from app.repositories.document import DocumentRepository
-from app.services.document import DocumentService
 from app.storage.local import LocalStorageService
 
 
@@ -140,6 +141,25 @@ def get_document_service(
     storage_service = LocalStorageService()
 
     return DocumentService(
+        document_repository=document_repository,
+        storage_service=storage_service,
+    )
+
+
+def get_ingestion_service(
+    db: Annotated[Session, Depends(get_db)],
+) -> IngestionService:
+    """
+    Dependency for IngestionService.
+    """
+
+    document_repository = DocumentRepository(
+        db,
+    )
+
+    storage_service = LocalStorageService()
+
+    return IngestionService(
         document_repository=document_repository,
         storage_service=storage_service,
     )

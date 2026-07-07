@@ -30,12 +30,14 @@ class DocumentService:
         *,
         files: list[UploadFile],
         current_user: User,
-    ) -> list[DocumentResponse]:
+    ) -> list[Document]:
         """
-        Upload one or more documents and persist their metadata.
+        Upload one or more documents.
+
+        Returns the created Document models.
         """
 
-        uploaded_documents: list[DocumentResponse] = []
+        uploaded_documents: list[Document] = []
 
         for file in files:
 
@@ -65,9 +67,7 @@ class DocumentService:
             )
 
             uploaded_documents.append(
-                DocumentResponse.model_validate(
-                    created_document,
-                )
+                created_document,
             )
 
         return uploaded_documents
@@ -153,7 +153,7 @@ class DocumentService:
         current_user: User,
     ) -> tuple[Path, str]:
         """
-        Return the file path and original filename for download.
+        Return the file path and original filename.
         """
 
         document = (

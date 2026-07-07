@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import (
     APIRouter,
+    BackgroundTasks,
     Depends,
     File,
     Response,
@@ -11,10 +12,14 @@ from fastapi import (
 from fastapi.responses import FileResponse
 
 from app.dependencies.auth import get_current_user
-from app.dependencies.services import get_document_service
+from app.dependencies.services import (
+    get_document_service,
+    get_ingestion_service,
+)
 from app.models.user import User
 from app.schemas.document import DocumentResponse
 from app.services.document import DocumentService
+from app.services.ingestion import IngestionService
 
 router = APIRouter(
     prefix="/documents",
@@ -28,18 +33,40 @@ router = APIRouter(
     status_code=status.HTTP_201_CREATED,
 )
 async def upload_documents(
+    background_tasks: BackgroundTasks,
     files: list[UploadFile] = File(...),
     current_user: User = Depends(get_current_user),
     document_service: DocumentService = Depends(get_document_service),
+    ingestion_service: IngestionService = Depends(
+        get_ingestion_service,
+    ),
 ) -> list[DocumentResponse]:
     """
     Upload one or more documents.
+
+    After upload, ingestion starts in the background.
     """
 
-    return await document_service.upload_documents(
-        files=files,
-        current_user=current_user,
+    uploaded_documents = (
+        await document_service.upload_documents(
+            files=files,
+            current_user=current_user,
+        )
     )
+
+    for document in uploaded_documents:
+
+        background_tasks.add_task(
+            ingestion_service.ingest_document,
+            document_id=document.id,
+        )
+
+    return [
+        DocumentResponse.model_validate(
+            document,
+        )
+        for document in uploaded_documents
+    ]
 
 
 @router.get(
@@ -48,7 +75,9 @@ async def upload_documents(
 )
 def get_documents(
     current_user: User = Depends(get_current_user),
-    document_service: DocumentService = Depends(get_document_service),
+    document_service: DocumentService = Depends(
+        get_document_service,
+    ),
 ) -> list[DocumentResponse]:
     """
     Retrieve all uploaded documents.
@@ -66,7 +95,9 @@ def get_documents(
 def get_document(
     document_id: int,
     current_user: User = Depends(get_current_user),
-    document_service: DocumentService = Depends(get_document_service),
+    document_service: DocumentService = Depends(
+        get_document_service,
+    ),
 ) -> DocumentResponse:
     """
     Retrieve a single document.
@@ -84,7 +115,9 @@ def get_document(
 def download_document(
     document_id: int,
     current_user: User = Depends(get_current_user),
-    document_service: DocumentService = Depends(get_document_service),
+    document_service: DocumentService = Depends(
+        get_document_service,
+    ),
 ) -> FileResponse:
     """
     Download a document.
@@ -111,7 +144,9 @@ def download_document(
 async def delete_document(
     document_id: int,
     current_user: User = Depends(get_current_user),
-    document_service: DocumentService = Depends(get_document_service),
+    document_service: DocumentService = Depends(
+        get_document_service,
+    ),
 ) -> Response:
     """
     Delete a document.

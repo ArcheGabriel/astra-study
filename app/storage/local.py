@@ -27,13 +27,7 @@ class LocalStorageService(BaseStorageService):
         file: UploadFile,
     ) -> tuple[str, int]:
         """
-        Save an uploaded file to local storage.
-
-        Returns:
-            (
-                stored_filename,
-                file_size,
-            )
+        Save an uploaded file.
         """
 
         extension = Path(
@@ -65,7 +59,7 @@ class LocalStorageService(BaseStorageService):
         stored_filename: str,
     ) -> None:
         """
-        Delete a stored file from local storage.
+        Delete a stored file.
         """
 
         path = (
@@ -81,7 +75,7 @@ class LocalStorageService(BaseStorageService):
         stored_filename: str,
     ) -> Path:
         """
-        Return the path to a stored file.
+        Return the absolute path of a stored file.
         """
 
         return (
