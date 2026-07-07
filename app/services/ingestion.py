@@ -1,5 +1,6 @@
 import time
 
+from app.chunking.pipeline import ChunkPipeline
 from app.enums.document import DocumentStatus
 from app.ingestion.factory import ProcessorFactory
 from app.repositories.document import DocumentRepository
@@ -58,41 +59,56 @@ class IngestionService:
             )
         )
 
+        chunk_pipeline = ChunkPipeline()
+
+        chunks = chunk_pipeline.run(
+            extraction_result,
+        )
+
         print("=" * 60)
-        print("Extraction Completed")
+        print("Chunking Completed")
         print("=" * 60)
-
-        print(extraction_result.metadata)
-
-        print(f"Pages extracted: {len(extraction_result.pages)}")
-
-        total_paragraphs = 0
-
-        page = extraction_result.pages[1]
 
         print()
-        print("=" * 80)
-        print("PAGE 2")
-        print("=" * 80)
 
-        for paragraph in page.paragraphs:
+        print(
+            f"Chunks generated : {len(chunks)}"
+        )
+
+        print()
+
+        for chunk in chunks[:10]:
 
             print("-" * 60)
 
             print(
-                f"Block {paragraph.block_index}"
+                f"Chunk #{chunk.chunk_index}"
             )
 
             print(
-                f"Type : {paragraph.block_type}"
+                f"Page : {chunk.metadata.page_number}"
+            )
+
+            print(
+                f"Block : {chunk.metadata.block_index}"
+            )
+
+            print(
+                f"Type : {chunk.metadata.block_type.value}"
             )
 
             print()
 
-            print(paragraph.text)
+            preview = (
+                chunk.text[:250]
+                .replace("\n", " ")
+            )
+
+            print(preview)
 
             print()
 
+        # Simulate the remaining indexing work
         time.sleep(10)
 
         self.document_repository.update_status(
