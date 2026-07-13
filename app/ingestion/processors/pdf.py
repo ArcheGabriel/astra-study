@@ -2,58 +2,52 @@ from pathlib import Path
 
 import fitz
 
+from app.document.converter import DocumentConverter
+from app.document.parser import DocumentParser
 from app.ingestion.base import BaseProcessor
+from app.ingestion.extractors.markdown import (
+    MarkdownExtractor,
+)
 from app.ingestion.models import (
     DocumentMetadata,
-    ExtractedPage,
-    ExtractedParagraph,
     ExtractionResult,
 )
 from app.utils.hash import calculate_sha256
-from app.enums.block import BlockType
 
 
 class PDFProcessor(BaseProcessor):
     """
-    Handles PDF document extraction using PyMuPDF.
+    PDF processor.
+
+    Responsibilities
+    ----------------
+    1. Read PDF metadata
+    2. Extract page-wise Markdown
+    3. Parse each page
+    4. Convert tokens into semantic DocumentBlocks
+    5. Return ExtractionResult
     """
 
-    def _classify_block(
+    def __init__(
         self,
-        text: str,
-        page_number: int,
-    ) -> BlockType:
-        """
-        Classify an extracted text block.
-        """
+    ) -> None:
 
-        stripped = text.strip()
+        self.markdown_extractor = (
+            MarkdownExtractor()
+        )
 
-        if not stripped:
-            return BlockType.UNKNOWN
+        self.parser = (
+            DocumentParser()
+        )
 
-        if stripped == str(page_number):
-            return BlockType.FOOTER
-
-        if stripped.lower().startswith(
-            "figure "
-        ):
-            return BlockType.CAPTION
-
-        if stripped.startswith(
-            "•"
-        ):
-            return BlockType.LIST
-
-        return BlockType.TEXT
+        self.converter = (
+            DocumentConverter()
+        )
 
     def extract(
         self,
         file_path: Path,
     ) -> ExtractionResult:
-        """
-        Extract text and metadata from a PDF.
-        """
 
         pdf = fitz.open(
             file_path,
@@ -88,87 +82,36 @@ class PDFProcessor(BaseProcessor):
             language=None,
         )
 
-        pages: list[ExtractedPage] = []
-
-        for page_number, page in enumerate(
-            pdf,
-            start=1,
-        ):
-
-            page_dict = page.get_text(
-                "dict",
-            )
-
-            paragraphs: list[
-                ExtractedParagraph
-            ] = []
-
-            block_index = 0
-
-            for block in page_dict["blocks"]:
-
-                if block["type"] != 0:
-                    continue
-
-                paragraph_lines: list[str] = []
-
-                for line in block["lines"]:
-
-                    line_text: list[str] = []
-
-                    for span in line["spans"]:
-
-                        text = span["text"].strip()
-
-                        if text:
-                            line_text.append(
-                                text,
-                            )
-
-                    if line_text:
-
-                        paragraph_lines.append(
-                            " ".join(
-                                line_text,
-                            )
-                        )
-
-                paragraph_text = "\n".join(
-                    paragraph_lines,
-                ).strip()
-
-                if not paragraph_text:
-                    continue
-
-                paragraphs.append(
-                    ExtractedParagraph(
-                        text=paragraph_text,
-                        block_index=block_index,
-                        block_type=self._classify_block(
-                            paragraph_text,
-                            page_number,
-                        ),
-                    )
-                )
-
-                block_index += 1
-
-            page_text = "\n\n".join(
-                paragraph.text
-                for paragraph in paragraphs
-            )
-
-            pages.append(
-                ExtractedPage(
-                    page_number=page_number,
-                    text=page_text,
-                    paragraphs=paragraphs,
-                )
-            )
-
         pdf.close()
+
+        markdown_pages = (
+            self.markdown_extractor.extract(
+                file_path,
+            )
+        )
+
+        blocks = []
+
+        for page in markdown_pages:
+
+            tokens = (
+                self.parser.parse(
+                    page.markdown,
+                )
+            )
+
+            page_blocks = (
+                self.converter.convert(
+                    tokens,
+                    page,
+                )
+            )
+
+            blocks.extend(
+                page_blocks,
+            )
 
         return ExtractionResult(
             metadata=metadata,
-            pages=pages,
+            blocks=blocks,
         )

@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from app.enums.block import BlockType
+from app.document.models import DocumentBlock
 
 
 @dataclass(slots=True)
@@ -23,7 +23,7 @@ class DocumentMetadata:
 
     file_name: str | None = None
 
-    file_extension: str | None = None
+    file_extension: str |None = None
 
     file_size: int = 0
 
@@ -35,57 +35,61 @@ class DocumentMetadata:
 
 
 @dataclass(slots=True)
-class ExtractedParagraph:
-    """
-    Represents a logical text block extracted from a page.
-    """
-
-    text: str
-
-    block_index: int
-
-    block_type: BlockType = BlockType.UNKNOWN
-
-
-@dataclass(slots=True)
 class ExtractedImage:
     """
     Represents an extracted image.
+
+    Images will later be processed by OCR,
+    caption generation and multimodal models.
     """
 
-    page_number: int
-
     image_index: int
+
+    page_number: int | None = None
 
     file_path: str | None = None
 
     caption: str | None = None
 
+    metadata: dict = field(
+        default_factory=dict,
+    )
+
 
 @dataclass(slots=True)
 class ExtractedTable:
     """
-    Represents an extracted table.
-    """
+    Represents one extracted table.
 
-    page_number: int
+    Future parsers (Docling etc.)
+    will populate this.
+    """
 
     table_index: int
 
+    page_number: int | None = None
+
     markdown: str = ""
+
+    metadata: dict = field(
+        default_factory=dict,
+    )
 
 
 @dataclass(slots=True)
-class ExtractedPage:
+class ExtractionResult:
     """
-    Represents one page inside a document.
+    Canonical output produced by every processor.
+
+    Every processor converts its native representation
+    into semantic DocumentBlocks.
     """
 
-    page_number: int
+    metadata: DocumentMetadata = field(
+        default_factory=DocumentMetadata,
+    )
 
-    text: str = ""
-
-    paragraphs: list[ExtractedParagraph] = field(
+    blocks: list[DocumentBlock] = field(
         default_factory=list,
     )
 
@@ -94,20 +98,5 @@ class ExtractedPage:
     )
 
     tables: list[ExtractedTable] = field(
-        default_factory=list,
-    )
-
-
-@dataclass(slots=True)
-class ExtractionResult:
-    """
-    Result produced by a document processor.
-    """
-
-    metadata: DocumentMetadata = field(
-        default_factory=DocumentMetadata,
-    )
-
-    pages: list[ExtractedPage] = field(
         default_factory=list,
     )

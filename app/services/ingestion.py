@@ -1,6 +1,6 @@
 import time
 
-from app.chunking.pipeline import ChunkPipeline
+from app.chunking.pipeline import ChunkingService
 from app.enums.document import DocumentStatus
 from app.ingestion.factory import ProcessorFactory
 from app.repositories.document import DocumentRepository
@@ -9,7 +9,15 @@ from app.storage.base import BaseStorageService
 
 class IngestionService:
     """
-    Handles the document ingestion workflow.
+    Coordinates the complete ingestion workflow.
+
+    Responsibilities
+    ----------------
+    1. Load uploaded document
+    2. Extract semantic blocks
+    3. Run chunk pipeline
+    4. (Later) Generate embeddings
+    5. (Later) Store vectors
     """
 
     def __init__(
@@ -17,20 +25,29 @@ class IngestionService:
         document_repository: DocumentRepository,
         storage_service: BaseStorageService,
     ) -> None:
-        self.document_repository = document_repository
-        self.storage_service = storage_service
+
+        self.document_repository = (
+            document_repository
+        )
+
+        self.storage_service = (
+            storage_service
+        )
+
+        self.chunking_service = (
+            ChunkingService()
+        )
 
     def ingest_document(
         self,
         *,
         document_id: int,
     ) -> None:
-        """
-        Run the ingestion pipeline.
-        """
 
-        document = self.document_repository.get_by_id(
-            document_id,
+        document = (
+            self.document_repository.get_by_id(
+                document_id,
+            )
         )
 
         if document is None:
@@ -59,20 +76,62 @@ class IngestionService:
             )
         )
 
-        chunk_pipeline = ChunkPipeline()
+        print("=" * 80)
+        print("DOCUMENT EXTRACTION COMPLETED")
+        print("=" * 80)
 
-        chunks = chunk_pipeline.run(
-            extraction_result,
-        )
+        print()
 
-        print("=" * 60)
-        print("Chunking Completed")
-        print("=" * 60)
+        print(extraction_result.metadata)
 
         print()
 
         print(
-            f"Chunks generated : {len(chunks)}"
+            f"Semantic Blocks : {len(extraction_result.blocks)}"
+        )
+
+        print()
+
+        print("=" * 80)
+        print("FIRST 10 BLOCKS")
+        print("=" * 80)
+
+        for block in extraction_result.blocks[:10]:
+
+            print()
+
+            print("-" * 60)
+
+            print(
+                f"Type : {block.block_type}"
+            )
+
+            print(
+                f"Level : {block.level}"
+            )
+
+            print()
+
+            print(
+                block.text[:250],
+            )
+
+        chunks = (
+            self.chunking_service.chunk(
+                extraction_result,
+            )
+        )
+
+        print()
+
+        print("=" * 80)
+        print("CHUNKING COMPLETED")
+        print("=" * 80)
+
+        print()
+
+        print(
+            f"Chunks Generated : {len(chunks)}"
         )
 
         print()
@@ -86,30 +145,24 @@ class IngestionService:
             )
 
             print(
-                f"Page : {chunk.metadata.page_number}"
-            )
-
-            print(
-                f"Block : {chunk.metadata.block_index}"
-            )
-
-            print(
-                f"Type : {chunk.metadata.block_type.value}"
+                f"Type : {chunk.block_type}"
             )
 
             print()
 
-            preview = (
-                chunk.text[:250]
-                .replace("\n", " ")
+            print(
+                chunk.text[:250],
             )
-
-            print(preview)
 
             print()
 
-        # Simulate the remaining indexing work
-        time.sleep(10)
+        # Placeholder for future stages:
+        #
+        # embeddings = ...
+        # vector_store.upsert(...)
+        # metadata_store.save(...)
+
+        time.sleep(2)
 
         self.document_repository.update_status(
             document_id=document.id,
