@@ -47,7 +47,6 @@ class Settings(BaseSettings):
     # ------------------------------------------------------------------
     OPENAI_API_KEY: str
     OPENAI_CHAT_MODEL: str = "gpt-5"
-    OPENAI_EMBEDDING_MODEL: str = "text-embedding-3-large"
 
     # ------------------------------------------------------------------
     # Qdrant
@@ -73,6 +72,16 @@ class Settings(BaseSettings):
     # Document Upload
     # ------------------------------------------------------------------
     MAX_UPLOAD_SIZE_MB: int = 50
+    
+    # ------------------------------------------------------------------
+    # Embeddings
+    # ------------------------------------------------------------------
+    EMBEDDING_MODEL: str = "text-embedding-3-large"
+    EMBEDDING_DIMENSIONS: int = 3072
+    EMBEDDING_MAX_BATCH_SIZE: int = 100
+    EMBEDDING_MAX_RETRIES: int = 3
+    EMBEDDING_TIMEOUT_SECONDS: int = 60
+    EMBEDDING_PRICE_PER_MILLION_INPUT_TOKENS: float = 0.13
 
     model_config = SettingsConfigDict(
         env_file=".env",
