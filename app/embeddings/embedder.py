@@ -350,3 +350,23 @@ class OpenAIEmbedder:
         return self.embed(
             batches,
         )
+    
+    def embed_query(
+        self,
+        query: str,
+    ) -> list[float]:
+        """
+        Generate an embedding for a user query.
+        """
+
+        if not query.strip():
+
+            raise ValueError(
+                "Query cannot be empty."
+            )
+
+        response = self._embed_texts(
+            [query],
+        )
+
+        return response.data[0].embedding

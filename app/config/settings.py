@@ -52,6 +52,9 @@ class Settings(BaseSettings):
     # Qdrant
     # ------------------------------------------------------------------
     QDRANT_URL: str
+    QDRANT_API_KEY: str | None = None
+    QDRANT_COLLECTION_NAME: str = "astra_study"
+    QDRANT_VECTOR_NAME: str = "dense"
 
     # ------------------------------------------------------------------
     # LangSmith
@@ -72,6 +75,19 @@ class Settings(BaseSettings):
     # Document Upload
     # ------------------------------------------------------------------
     MAX_UPLOAD_SIZE_MB: int = 50
+    ALLOWED_DOCUMENT_EXTENSIONS: tuple[str, ...] = (
+        ".pdf",
+        ".docx",
+        ".txt",
+        ".md",
+    )
+
+    ALLOWED_CONTENT_TYPES: tuple[str, ...] = (
+        "application/pdf",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "text/plain",
+        "text/markdown",
+    )
     
     # ------------------------------------------------------------------
     # Embeddings
