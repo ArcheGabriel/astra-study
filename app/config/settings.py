@@ -110,6 +110,14 @@ class Settings(BaseSettings):
     SPARSE_EMBEDDING_MODEL: str = (
         "Qdrant/bm42-all-minilm-l6-v2-attentions"
     )
+    
+    # ------------------------------------------------------------------
+    # Cross Encoder Reranker
+    # ------------------------------------------------------------------
+    RERANKER_MODEL: str = "BAAI/bge-reranker-v2-m3"
+    RERANKER_BATCH_SIZE: int = 32
+    RERANKER_MAX_LENGTH: int = 512
+    RERANK_TOP_K: int = 5
 
     model_config = SettingsConfigDict(
         env_file=".env",
