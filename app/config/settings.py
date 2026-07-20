@@ -54,7 +54,12 @@ class Settings(BaseSettings):
     QDRANT_URL: str
     QDRANT_API_KEY: str | None = None
     QDRANT_COLLECTION_NAME: str = "astra_study"
+    # Dense vector name
     QDRANT_VECTOR_NAME: str = "dense"
+    # Sparse vector name
+    QDRANT_SPARSE_VECTOR_NAME: str = "sparse"
+    # settings.py
+    QDRANT_HYBRID_CANDIDATE_LIMIT: int = 50
 
     # ------------------------------------------------------------------
     # LangSmith
@@ -98,6 +103,13 @@ class Settings(BaseSettings):
     EMBEDDING_MAX_RETRIES: int = 3
     EMBEDDING_TIMEOUT_SECONDS: int = 60
     EMBEDDING_PRICE_PER_MILLION_INPUT_TOKENS: float = 0.13
+    
+    # ------------------------------------------------------------------
+    # Sparse Embeddings
+    # ------------------------------------------------------------------
+    SPARSE_EMBEDDING_MODEL: str = (
+        "Qdrant/bm42-all-minilm-l6-v2-attentions"
+    )
 
     model_config = SettingsConfigDict(
         env_file=".env",
