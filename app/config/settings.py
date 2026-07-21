@@ -118,6 +118,11 @@ class Settings(BaseSettings):
     RERANKER_BATCH_SIZE: int = 32
     RERANKER_MAX_LENGTH: int = 512
     RERANK_TOP_K: int = 5
+    
+    # ------------------------------------------------------------------
+    # Retrieval
+    # ------------------------------------------------------------------
+    RETRIEVAL_TOP_K: int = 5
 
     model_config = SettingsConfigDict(
         env_file=".env",
