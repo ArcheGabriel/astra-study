@@ -5,10 +5,12 @@ from sqlalchemy.orm import Session
 
 from app.ai.pipeline import AIPipeline
 from app.database.session import get_db
+
 from app.repositories.chat import ChatRepository
 from app.repositories.document import DocumentRepository
 from app.repositories.message import MessageRepository
 from app.repositories.user import UserRepository
+
 from app.services.auth import AuthService
 from app.services.chat import ChatService
 from app.services.conversation import ConversationService
@@ -17,15 +19,20 @@ from app.services.ingestion import IngestionService
 from app.services.llm import LLMService
 from app.services.message import MessageService
 from app.services.user import UserService
+
 from app.storage.local import LocalStorageService
+
+from app.generation.prompt_builder import PromptBuilder
+from app.generation.service import GenerationService
+
+from app.search.hybrid.service import HybridService
+from app.reranking.service import RerankingService
+from app.retrieval.service import RetrievalService
 
 
 def get_user_service(
     db: Annotated[Session, Depends(get_db)],
 ) -> UserService:
-    """
-    Dependency for UserService.
-    """
 
     user_repository = UserRepository(db)
 
@@ -37,9 +44,6 @@ def get_user_service(
 def get_auth_service(
     db: Annotated[Session, Depends(get_db)],
 ) -> AuthService:
-    """
-    Dependency for AuthService.
-    """
 
     user_repository = UserRepository(db)
 
@@ -51,9 +55,6 @@ def get_auth_service(
 def get_chat_service(
     db: Annotated[Session, Depends(get_db)],
 ) -> ChatService:
-    """
-    Dependency for ChatService.
-    """
 
     chat_repository = ChatRepository(db)
 
@@ -65,9 +66,6 @@ def get_chat_service(
 def get_message_service(
     db: Annotated[Session, Depends(get_db)],
 ) -> MessageService:
-    """
-    Dependency for MessageService.
-    """
 
     chat_repository = ChatRepository(db)
     message_repository = MessageRepository(db)
@@ -78,15 +76,97 @@ def get_message_service(
     )
 
 
+# ----------------------------------------------------------------------
+# LLM
+# ----------------------------------------------------------------------
+
 def get_llm_service() -> LLMService:
-    """
-    Dependency for LLMService.
-    """
 
     return LLMService()
 
 
+# ----------------------------------------------------------------------
+# Prompt Builder
+# ----------------------------------------------------------------------
+
+def get_prompt_builder() -> PromptBuilder:
+
+    return PromptBuilder()
+
+
+# ----------------------------------------------------------------------
+# Hybrid Search
+# ----------------------------------------------------------------------
+
+def get_hybrid_service() -> HybridService:
+
+    return HybridService()
+
+
+# ----------------------------------------------------------------------
+# Reranker
+# ----------------------------------------------------------------------
+
+def get_reranking_service() -> RerankingService:
+
+    return RerankingService()
+
+
+# ----------------------------------------------------------------------
+# Retrieval
+# ----------------------------------------------------------------------
+
+def get_retrieval_service(
+    hybrid_service: Annotated[
+        HybridService,
+        Depends(get_hybrid_service),
+    ],
+    reranking_service: Annotated[
+        RerankingService,
+        Depends(get_reranking_service),
+    ],
+) -> RetrievalService:
+
+    return RetrievalService(
+        hybrid_service=hybrid_service,
+        reranking_service=reranking_service,
+    )
+
+
+# ----------------------------------------------------------------------
+# Generation
+# ----------------------------------------------------------------------
+
+def get_generation_service(
+    prompt_builder: Annotated[
+        PromptBuilder,
+        Depends(get_prompt_builder),
+    ],
+    llm_service: Annotated[
+        LLMService,
+        Depends(get_llm_service),
+    ],
+) -> GenerationService:
+
+    return GenerationService(
+        prompt_builder=prompt_builder,
+        llm_service=llm_service,
+    )
+
+
+# ----------------------------------------------------------------------
+# AI Pipeline
+# ----------------------------------------------------------------------
+
 def get_ai_pipeline(
+    retrieval_service: Annotated[
+        RetrievalService,
+        Depends(get_retrieval_service),
+    ],
+    generation_service: Annotated[
+        GenerationService,
+        Depends(get_generation_service),
+    ],
     llm_service: Annotated[
         LLMService,
         Depends(get_llm_service),
@@ -97,9 +177,15 @@ def get_ai_pipeline(
     """
 
     return AIPipeline(
+        retrieval_service=retrieval_service,
+        generation_service=generation_service,
         llm_service=llm_service,
     )
 
+
+# ----------------------------------------------------------------------
+# Conversation
+# ----------------------------------------------------------------------
 
 def get_conversation_service(
     db: Annotated[Session, Depends(get_db)],
@@ -112,9 +198,6 @@ def get_conversation_service(
         Depends(get_ai_pipeline),
     ],
 ) -> ConversationService:
-    """
-    Dependency for ConversationService.
-    """
 
     chat_repository = ChatRepository(db)
     message_repository = MessageRepository(db)
@@ -127,16 +210,15 @@ def get_conversation_service(
     )
 
 
+# ----------------------------------------------------------------------
+# Document
+# ----------------------------------------------------------------------
+
 def get_document_service(
     db: Annotated[Session, Depends(get_db)],
 ) -> DocumentService:
-    """
-    Dependency for DocumentService.
-    """
 
-    document_repository = DocumentRepository(
-        db,
-    )
+    document_repository = DocumentRepository(db)
 
     storage_service = LocalStorageService()
 
@@ -146,16 +228,15 @@ def get_document_service(
     )
 
 
+# ----------------------------------------------------------------------
+# Ingestion
+# ----------------------------------------------------------------------
+
 def get_ingestion_service(
     db: Annotated[Session, Depends(get_db)],
 ) -> IngestionService:
-    """
-    Dependency for IngestionService.
-    """
 
-    document_repository = DocumentRepository(
-        db,
-    )
+    document_repository = DocumentRepository(db)
 
     storage_service = LocalStorageService()
 

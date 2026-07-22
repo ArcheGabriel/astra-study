@@ -1,6 +1,6 @@
 import time
 
-from app.chunking.pipeline import ChunkingService
+from app.chunking.pipeline import ChunkPipeline
 from app.enums.document import DocumentStatus
 from app.ingestion.factory import ProcessorFactory
 from app.repositories.document import DocumentRepository
@@ -34,8 +34,8 @@ class IngestionService:
             storage_service
         )
 
-        self.chunking_service = (
-            ChunkingService()
+        self.chunking_pipeline = (
+            ChunkPipeline()
         )
 
     def ingest_document(
@@ -117,7 +117,7 @@ class IngestionService:
             )
 
         chunks = (
-            self.chunking_service.chunk(
+            self.chunking_pipeline.run(
                 extraction_result,
             )
         )
@@ -145,7 +145,7 @@ class IngestionService:
             )
 
             print(
-                f"Type : {chunk.block_type}"
+                f"Type : {chunk.metadata.block_type.value}"
             )
 
             print()

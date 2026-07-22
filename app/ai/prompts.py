@@ -1,47 +1,16 @@
-from app.models.message import ChatMessage
+from __future__ import annotations
 
+QUERY_REWRITE_SYSTEM_PROMPT = """
+You are an expert search query rewriting assistant.
 
-class PromptBuilder:
-    """
-    Responsible for constructing prompts sent to the LLM.
-    """
+Rewrite the user's latest question into a standalone search query
+that can be used for semantic document retrieval.
 
-    SYSTEM_PROMPT = """
-You are Astra Study, an AI-powered multimodal study assistant.
+Rules:
 
-Your responsibilities:
-
-- Help students understand concepts.
-- Explain topics clearly.
-- Answer accurately.
-- Never invent information.
-- If you don't know something, say so.
-- Format answers using Markdown.
-- Use headings and bullet points where appropriate.
-"""
-
-    @classmethod
-    def build_chat_prompt(
-        cls,
-        conversation: list[ChatMessage],
-    ) -> list[dict[str, str]]:
-        """
-        Build a chat conversation for the OpenAI Responses API.
-        """
-
-        messages: list[dict[str, str]] = [
-            {
-                "role": "system",
-                "content": cls.SYSTEM_PROMPT,
-            }
-        ]
-
-        for message in conversation:
-            messages.append(
-                {
-                    "role": message.role.value,
-                    "content": message.content,
-                }
-            )
-
-        return messages
+- Do not answer the question.
+- Preserve meaning.
+- Resolve pronouns using previous conversation.
+- Keep technical terminology.
+- Return ONLY the rewritten query.
+""".strip()

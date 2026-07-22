@@ -1,3 +1,7 @@
+from app.enums.message import MessageRole
+from app.generation.models import LLMMessage
+
+
 class TitleGenerator:
     """
     Responsible for generating prompts used to create chat titles.
@@ -18,18 +22,18 @@ Rules:
     def build_prompt(
         cls,
         first_message: str,
-    ) -> list[dict[str, str]]:
+    ) -> list[LLMMessage]:
         """
         Build the prompt used to generate a chat title.
         """
 
         return [
-            {
-                "role": "system",
-                "content": cls.SYSTEM_PROMPT,
-            },
-            {
-                "role": "user",
-                "content": first_message,
-            },
+            LLMMessage(
+                role=MessageRole.SYSTEM,
+                content=cls.SYSTEM_PROMPT,
+            ),
+            LLMMessage(
+                role=MessageRole.USER,
+                content=first_message,
+            ),
         ]

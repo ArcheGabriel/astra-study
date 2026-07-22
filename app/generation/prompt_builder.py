@@ -124,12 +124,26 @@ class PromptBuilder:
     ) -> list[LLMMessage]:
         """
         Convert conversation history into LLM messages.
+
+        The latest user message is intentionally excluded because
+        it will be appended separately as the rewritten/current
+        user query after retrieval.
         """
+
+        if not conversation:
+            return []
+
+        history = conversation
+
+        last_message = conversation[-1]
+
+        if last_message.role == MessageRole.USER:
+            history = conversation[:-1]
 
         return [
             LLMMessage(
                 role=message.role,
                 content=message.content,
             )
-            for message in conversation
+            for message in history
         ]
