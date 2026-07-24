@@ -1,3 +1,4 @@
+from app.schemas.conversation import ConversationResponse
 from app.ai.pipeline import AIPipeline
 from app.enums.message import MessageRole
 from app.exceptions.chat import ChatNotFoundError
@@ -12,6 +13,7 @@ from app.schemas.message import (
 )
 from app.services.message import MessageService
 from collections.abc import Iterator
+from app.schemas.conversation import ConversationResponse
 
 
 class ConversationService:
@@ -37,7 +39,7 @@ class ConversationService:
         chat_id: int,
         current_user: User,
         message_data: MessageCreate,
-    ) -> MessageResponse:
+    ) -> ConversationResponse:
         """
         Process a complete conversation turn.
         """
@@ -62,16 +64,23 @@ class ConversationService:
             chat.id,
         )
 
-        assistant_response = self.ai_pipeline.generate_response(
+        ai_response = self.ai_pipeline.generate_response(
             conversation=conversation,
+            user_id=current_user.id,
         )
 
-        self._save_assistant_message(
+        assistant_message = self._save_assistant_message(
             chat=chat,
-            content=assistant_response,
+            content=ai_response.answer,
         )
 
-        return user_message
+        return ConversationResponse(
+            user_message=user_message,
+            assistant_message=MessageResponse.model_validate(
+                assistant_message,
+            ),
+            citations=ai_response.citations,
+        )
     
     def stream_message(
         self,
@@ -108,6 +117,7 @@ class ConversationService:
 
         for chunk in self.ai_pipeline.stream_response(
             conversation=conversation,
+            user_id=current_user.id,
         ):
             chunks.append(chunk)
             yield chunk
@@ -163,7 +173,7 @@ class ConversationService:
         *,
         chat: ChatSession,
         content: str,
-    ) -> None:
+    ) -> ChatMessage:
         """
         Persist the assistant response.
         """
@@ -174,6 +184,6 @@ class ConversationService:
             content=content,
         )
 
-        self.message_repository.create(
+        return self.message_repository.create(
             assistant_message,
         )

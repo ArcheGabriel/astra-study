@@ -55,7 +55,9 @@ class RetrievalService(BaseRetrievalService):
 
     def retrieve(
         self,
+        *,
         query: str,
+        user_id: int,
     ) -> RetrievalResult:
         """
         Execute the complete retrieval pipeline.
@@ -69,8 +71,9 @@ class RetrievalService(BaseRetrievalService):
             )
 
         logger.info(
-            "Starting retrieval for query='%s'.",
+            "Starting retrieval for query='%s' for user_id=%d.",
             query,
+            user_id,
         )
 
         start = perf_counter()
@@ -80,6 +83,7 @@ class RetrievalService(BaseRetrievalService):
         #
         hybrid_results = self._hybrid_service(
             query=query,
+            user_id=user_id,
             limit=settings.QDRANT_HYBRID_CANDIDATE_LIMIT,
         )
 
@@ -87,6 +91,20 @@ class RetrievalService(BaseRetrievalService):
             "Hybrid retrieval returned %d candidates.",
             len(hybrid_results),
         )
+        
+        if not hybrid_results:
+            latency = perf_counter() - start
+
+            logger.info(
+                "No contexts retrieved for query='%s'.",
+                query,
+            )
+
+            return RetrievalResult(
+                query=query,
+                contexts=[],
+                retrieval_latency=latency,
+            )
 
         #
         # Cross Encoder Reranking
@@ -98,8 +116,16 @@ class RetrievalService(BaseRetrievalService):
         )
 
         if not reranked.results:
-            raise NoRetrievalResultsError(
-                "No relevant contexts found."
+            latency = perf_counter() - start
+
+            logger.info(
+                "All candidates filtered out during reranking."
+            )
+
+            return RetrievalResult(
+                query=query,
+                contexts=[],
+                retrieval_latency=latency,
             )
 
         contexts: list[RetrievedContext] = []
@@ -156,7 +182,9 @@ class RetrievalService(BaseRetrievalService):
 
     def __call__(
         self,
+        *,
         query: str,
+        user_id: int,
     ) -> RetrievalResult:
         """
         Callable wrapper.
@@ -164,4 +192,5 @@ class RetrievalService(BaseRetrievalService):
 
         return self.retrieve(
             query=query,
+            user_id=user_id,
         )

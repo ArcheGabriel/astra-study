@@ -5,6 +5,7 @@ from collections.abc import Iterator
 from app.generation.base import BaseGenerationService
 from app.generation.exceptions import EmptyResponseError
 from app.generation.models import (
+    Citation,
     GenerationRequest,
     GenerationResponse,
 )
@@ -21,6 +22,7 @@ class GenerationService(BaseGenerationService):
     - Build prompts using the PromptBuilder.
     - Delegate response generation to the LLMService.
     - Convert provider responses into GenerationResponse.
+    - Produce deterministic source citations from retrieved contexts.
 
     This service intentionally contains no provider-specific logic.
     """
@@ -40,6 +42,16 @@ class GenerationService(BaseGenerationService):
         """
         Generate a complete assistant response.
         """
+        
+        if not request.retrieval:
+            return GenerationResponse(
+                answer=(
+                    "I couldn't find any relevant information "
+                    "in your uploaded documents that answers "
+                    "this question."
+                ),
+                citations=[],
+            )
 
         messages = self._prompt_builder.build(
             request=request,
@@ -56,8 +68,18 @@ class GenerationService(BaseGenerationService):
                 "The language model returned an empty response."
             )
 
+        citations = [
+            Citation(
+                source=context.source,
+                page=context.page,
+                section=context.section,
+            )
+            for context in request.retrieval
+        ]
+
         return GenerationResponse(
             answer=response,
+            citations=citations,
         )
 
     def stream(
@@ -67,12 +89,21 @@ class GenerationService(BaseGenerationService):
         """
         Stream the assistant response.
         """
+        
+        if not request.retrieval:
+            return GenerationResponse(
+                answer=(
+                    "I couldn't find any relevant information "
+                    "in your uploaded documents that answers "
+                    "this question."
+                ),
+                citations=[],
+            )
 
         messages = self._prompt_builder.build(
             request=request,
         )
 
-        for chunk in self._llm_service.stream_response(
+        yield from self._llm_service.stream_response(
             messages=messages,
-        ):
-            yield chunk
+        )

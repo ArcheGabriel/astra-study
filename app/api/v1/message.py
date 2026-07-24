@@ -7,6 +7,7 @@ from app.dependencies.services import (
     get_message_service,
 )
 from app.models.user import User
+from app.schemas.conversation import ConversationResponse
 from app.schemas.message import (
     MessageCreate,
     MessageResponse,
@@ -22,7 +23,7 @@ router = APIRouter(
 
 @router.post(
     "",
-    response_model=MessageResponse,
+    response_model=ConversationResponse,
     status_code=status.HTTP_201_CREATED,
 )
 def create_message(
@@ -32,9 +33,9 @@ def create_message(
     conversation_service: ConversationService = Depends(
         get_conversation_service,
     ),
-) -> MessageResponse:
+) -> ConversationResponse:
     """
-    Send a message and receive the complete response.
+    Send a message and receive the assistant response.
     """
 
     return conversation_service.send_message(

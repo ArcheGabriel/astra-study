@@ -41,6 +41,12 @@ class ChunkMetadata:
     source: str | None = None
 
     language: str | None = None
+    
+    # ==================================================
+    # Ownership Information
+    # ==================================================
+
+    user_id: int | None = None
 
     # ==================================================
     # Chunk Information

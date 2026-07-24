@@ -63,6 +63,8 @@ class HybridMapper:
             ),
 
             "document_name": metadata.document_name,
+            
+            "user_id": metadata.user_id,
 
             "checksum": metadata.checksum,
 

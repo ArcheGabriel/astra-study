@@ -324,6 +324,7 @@ class DenseRepository:
         dense_vector: list[float],
         sparse_indices: list[int],
         sparse_values: list[float],
+        user_id: int,
         limit: int = 10,
     ) -> list[HybridSearchResult]:
         """
@@ -352,6 +353,11 @@ class DenseRepository:
         retrieval_filter = Filter(
 
             must=[
+                
+                FieldCondition(
+                    key="user_id",
+                    match=MatchValue(value=user_id),
+                ),
 
                 FieldCondition(
                     key="is_reference",

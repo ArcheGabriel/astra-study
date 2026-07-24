@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Iterator
 
+from app.ai.schemas import AIResponse
 from app.ai.title_generator import TitleGenerator
 from app.generation.models import (
     ConversationMessage,
@@ -38,8 +39,10 @@ class AIPipeline:
 
     def generate_response(
         self,
+        *,
         conversation: list[ChatMessage],
-    ) -> str:
+        user_id: int,
+    ) -> AIResponse:
         """
         Generate an assistant response using Retrieval-Augmented Generation.
         """
@@ -52,7 +55,8 @@ class AIPipeline:
         latest_message = conversation[-1]
 
         retrieval = self._retrieval_service.retrieve(
-            latest_message.content,
+            query=latest_message.content,
+            user_id=user_id,
         )
 
         request = GenerationRequest(
@@ -67,11 +71,16 @@ class AIPipeline:
             request,
         )
 
-        return response.answer
+        return AIResponse(
+            answer=response.answer,
+            citations=response.citations,
+        )
 
     def stream_response(
         self,
+        *,
         conversation: list[ChatMessage],
+        user_id: int,
     ) -> Iterator[str]:
         """
         Stream an assistant response using Retrieval-Augmented Generation.
@@ -85,7 +94,8 @@ class AIPipeline:
         latest_message = conversation[-1]
 
         retrieval = self._retrieval_service.retrieve(
-            latest_message.content,
+            query=latest_message.content,
+            user_id=user_id,
         )
 
         request = GenerationRequest(

@@ -46,6 +46,7 @@ class HybridService:
 
     def search(
         self,
+        user_id: int,
         query: str,
         limit: int = 10,
     ) -> list[HybridSearchResult]:
@@ -72,6 +73,8 @@ class HybridService:
             sparse_indices=sparse_vector.indices,
 
             sparse_values=sparse_vector.values,
+            
+            user_id=user_id,
 
             limit=limit,
 
@@ -80,10 +83,12 @@ class HybridService:
     def __call__(
         self,
         query: str,
+        user_id: int,
         limit: int = 10,
     ) -> list[HybridSearchResult]:
 
         return self.search(
             query=query,
+            user_id=user_id,
             limit=limit,
         )
