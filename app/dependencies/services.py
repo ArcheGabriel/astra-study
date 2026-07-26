@@ -28,6 +28,7 @@ from app.generation.service import GenerationService
 from app.search.hybrid.service import HybridService
 from app.reranking.service import RerankingService
 from app.retrieval.service import RetrievalService
+from app.services.conversation_summary import ConversationSummaryService
 
 
 def get_user_service(
@@ -182,6 +183,27 @@ def get_ai_pipeline(
         llm_service=llm_service,
     )
 
+# ----------------------------------------------------------------------
+# Conversation Summary
+# ----------------------------------------------------------------------
+
+def get_conversation_summary_service(
+    db: Annotated[Session, Depends(get_db)],
+    ai_pipeline: Annotated[
+        AIPipeline,
+        Depends(get_ai_pipeline),
+    ],
+) -> ConversationSummaryService:
+
+    chat_repository = ChatRepository(db)
+    message_repository = MessageRepository(db)
+
+    return ConversationSummaryService(
+        chat_repository=chat_repository,
+        message_repository=message_repository,
+        ai_pipeline=ai_pipeline,
+    )
+
 
 # ----------------------------------------------------------------------
 # Conversation
@@ -197,6 +219,10 @@ def get_conversation_service(
         AIPipeline,
         Depends(get_ai_pipeline),
     ],
+    conversation_summary_service: Annotated[
+        ConversationSummaryService,
+        Depends(get_conversation_summary_service),
+    ],
 ) -> ConversationService:
 
     chat_repository = ChatRepository(db)
@@ -207,8 +233,8 @@ def get_conversation_service(
         message_repository=message_repository,
         message_service=message_service,
         ai_pipeline=ai_pipeline,
+        conversation_summary_service=conversation_summary_service,
     )
-
 
 # ----------------------------------------------------------------------
 # Document

@@ -8,6 +8,7 @@ from app.generation.models import (
 )
 from app.generation.prompts import (
     CONTEXT_TEMPLATE,
+    SUMMARY_TEMPLATE,
     SYSTEM_PROMPT,
     USER_PROMPT_TEMPLATE,
 )
@@ -21,7 +22,8 @@ class PromptBuilder:
     Responsibilities
     ----------------
     - Convert retrieved contexts into a readable context block.
-    - Preserve conversation history.
+    - Inject long-term conversation summary when available.
+    - Preserve recent conversation history.
     - Append the current user question.
     - Produce provider-agnostic LLM messages.
     """
@@ -50,6 +52,18 @@ class PromptBuilder:
                 LLMMessage(
                     role=MessageRole.SYSTEM,
                     content=context,
+                )
+            )
+
+        summary = self._build_summary(
+            request,
+        )
+
+        if summary:
+            messages.append(
+                LLMMessage(
+                    role=MessageRole.SYSTEM,
+                    content=summary,
                 )
             )
 
@@ -116,6 +130,21 @@ class PromptBuilder:
 
         return CONTEXT_TEMPLATE.format(
             context="\n\n------------------------------\n\n".join(parts)
+        ).strip()
+
+    def _build_summary(
+        self,
+        request: GenerationRequest,
+    ) -> str:
+        """
+        Build the optional long-term conversation summary.
+        """
+
+        if not request.summary:
+            return ""
+
+        return SUMMARY_TEMPLATE.format(
+            summary=request.summary.strip(),
         ).strip()
 
     def _build_history(

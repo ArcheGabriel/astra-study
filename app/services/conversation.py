@@ -1,4 +1,5 @@
-from app.schemas.conversation import ConversationResponse
+from collections.abc import Iterator
+
 from app.ai.pipeline import AIPipeline
 from app.enums.message import MessageRole
 from app.exceptions.chat import ChatNotFoundError
@@ -7,13 +8,13 @@ from app.models.message import ChatMessage
 from app.models.user import User
 from app.repositories.chat import ChatRepository
 from app.repositories.message import MessageRepository
+from app.schemas.conversation import ConversationResponse
 from app.schemas.message import (
     MessageCreate,
     MessageResponse,
 )
+from app.services.conversation_summary import ConversationSummaryService
 from app.services.message import MessageService
-from collections.abc import Iterator
-from app.schemas.conversation import ConversationResponse
 
 
 class ConversationService:
@@ -27,11 +28,13 @@ class ConversationService:
         message_repository: MessageRepository,
         message_service: MessageService,
         ai_pipeline: AIPipeline,
+        conversation_summary_service: ConversationSummaryService,
     ):
         self.chat_repository = chat_repository
         self.message_repository = message_repository
         self.message_service = message_service
         self.ai_pipeline = ai_pipeline
+        self.conversation_summary_service = conversation_summary_service
 
     def send_message(
         self,
@@ -67,12 +70,23 @@ class ConversationService:
         ai_response = self.ai_pipeline.generate_response(
             conversation=conversation,
             user_id=current_user.id,
+            summary=chat.summary,
         )
 
         assistant_message = self._save_assistant_message(
             chat=chat,
             content=ai_response.answer,
         )
+
+        # Update conversation summary (if threshold reached)
+        try:
+            self.conversation_summary_service.update_summary(
+                chat=chat,
+            )
+        except Exception:
+            # Summary generation is a background enhancement.
+            # Never fail the primary chat request because of it.
+            pass
 
         return ConversationResponse(
             user_message=user_message,
@@ -81,7 +95,7 @@ class ConversationService:
             ),
             citations=ai_response.citations,
         )
-    
+
     def stream_message(
         self,
         *,
@@ -118,6 +132,7 @@ class ConversationService:
         for chunk in self.ai_pipeline.stream_response(
             conversation=conversation,
             user_id=current_user.id,
+            summary=chat.summary,
         ):
             chunks.append(chunk)
             yield chunk
@@ -128,6 +143,16 @@ class ConversationService:
             chat=chat,
             content=complete_response,
         )
+
+        # Update conversation summary (if threshold reached)
+        try:
+            self.conversation_summary_service.update_summary(
+                chat=chat,
+            )
+        except Exception:
+            # Summary generation is a background enhancement.
+            # Never fail the primary chat request because of it.
+            pass
 
     def _validate_chat(
         self,

@@ -49,16 +49,23 @@ class Settings(BaseSettings):
     OPENAI_CHAT_MODEL: str = "gpt-5"
 
     # ------------------------------------------------------------------
+    # Conversation Memory
+    # ------------------------------------------------------------------
+    SUMMARY_INJECTION_THRESHOLD: int = 20
+
+    # ------------------------------------------------------------------
     # Qdrant
     # ------------------------------------------------------------------
     QDRANT_URL: str
     QDRANT_API_KEY: str | None = None
     QDRANT_COLLECTION_NAME: str = "astra_study"
+
     # Dense vector name
     QDRANT_VECTOR_NAME: str = "dense"
+
     # Sparse vector name
     QDRANT_SPARSE_VECTOR_NAME: str = "sparse"
-    # settings.py
+
     QDRANT_HYBRID_CANDIDATE_LIMIT: int = 50
 
     # ------------------------------------------------------------------
@@ -80,6 +87,7 @@ class Settings(BaseSettings):
     # Document Upload
     # ------------------------------------------------------------------
     MAX_UPLOAD_SIZE_MB: int = 50
+
     ALLOWED_DOCUMENT_EXTENSIONS: tuple[str, ...] = (
         ".pdf",
         ".docx",
@@ -93,7 +101,7 @@ class Settings(BaseSettings):
         "text/plain",
         "text/markdown",
     )
-    
+
     # ------------------------------------------------------------------
     # Embeddings
     # ------------------------------------------------------------------
@@ -103,14 +111,14 @@ class Settings(BaseSettings):
     EMBEDDING_MAX_RETRIES: int = 3
     EMBEDDING_TIMEOUT_SECONDS: int = 60
     EMBEDDING_PRICE_PER_MILLION_INPUT_TOKENS: float = 0.13
-    
+
     # ------------------------------------------------------------------
     # Sparse Embeddings
     # ------------------------------------------------------------------
     SPARSE_EMBEDDING_MODEL: str = (
         "Qdrant/bm42-all-minilm-l6-v2-attentions"
     )
-    
+
     # ------------------------------------------------------------------
     # Cross Encoder Reranker
     # ------------------------------------------------------------------
@@ -118,7 +126,7 @@ class Settings(BaseSettings):
     RERANKER_BATCH_SIZE: int = 32
     RERANKER_MAX_LENGTH: int = 512
     RERANK_TOP_K: int = 5
-    
+
     # ------------------------------------------------------------------
     # Retrieval
     # ------------------------------------------------------------------

@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
 
 from app.models.message import ChatMessage
@@ -42,3 +42,34 @@ class MessageRepository(BaseRepository[ChatMessage]):
         result = self.db.execute(statement)
 
         return list(result.scalars().all())
+
+    def get_recent_messages(
+        self,
+        *,
+        chat_session_id: int,
+        limit: int,
+    ) -> list[ChatMessage]:
+        """
+        Retrieve the most recent messages from a chat session.
+
+        Returned in chronological order.
+        """
+
+        statement = (
+            select(ChatMessage)
+            .where(
+                ChatMessage.chat_session_id == chat_session_id,
+            )
+            .order_by(
+                desc(ChatMessage.created_at),
+            )
+            .limit(limit)
+        )
+
+        result = self.db.execute(statement)
+
+        messages = list(result.scalars().all())
+
+        messages.reverse()
+
+        return messages

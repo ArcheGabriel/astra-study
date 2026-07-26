@@ -67,6 +67,12 @@ class GenerationRequest:
 
     conversation: list[ConversationMessage] = field(default_factory=list)
 
+    # Long-term conversational memory.
+    # This is optional and is injected only when the AI pipeline
+    # determines that the conversation is long enough to benefit
+    # from summarized history.
+    summary: str | None = None
+
     temperature: float = 0.2
 
     max_tokens: int = 2048

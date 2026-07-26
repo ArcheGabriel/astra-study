@@ -31,6 +31,23 @@ When answering:
 """
 
 
+SUMMARY_TEMPLATE = """
+Conversation Summary
+
+The following summary represents the long-term memory of this conversation.
+
+Use it only to maintain continuity across previous interactions.
+
+Rules:
+- Treat this summary as conversational memory, not as factual evidence.
+- Always prioritize the retrieved document context over the summary.
+- If the recent conversation contradicts the summary, trust the recent conversation.
+- Use the summary only when it helps answer the user's question or maintain continuity.
+
+{summary}
+"""
+
+
 CONTEXT_TEMPLATE = """
 Retrieved Context:
 

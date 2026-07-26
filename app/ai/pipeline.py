@@ -3,7 +3,9 @@ from __future__ import annotations
 from collections.abc import Iterator
 
 from app.ai.schemas import AIResponse
+from app.ai.summary_generator import SummaryGenerator
 from app.ai.title_generator import TitleGenerator
+from app.config.settings import settings
 from app.generation.models import (
     ConversationMessage,
     GenerationRequest,
@@ -21,10 +23,12 @@ class AIPipeline:
     Responsibilities
     ----------------
     - Convert ORM chat messages into domain conversation messages.
-    - Execute document retrieval.
-    - Delegate answer generation.
-    - Preserve title generation.
-    - Provide streaming responses.
+    - Execute Retrieval-Augmented Generation.
+    - Decide when long-term conversation memory should be injected.
+    - Generate assistant responses.
+    - Stream assistant responses.
+    - Generate chat titles.
+    - Generate conversation summaries.
     """
 
     def __init__(
@@ -42,6 +46,7 @@ class AIPipeline:
         *,
         conversation: list[ChatMessage],
         user_id: int,
+        summary: str | None = None,
     ) -> AIResponse:
         """
         Generate an assistant response using Retrieval-Augmented Generation.
@@ -65,6 +70,10 @@ class AIPipeline:
             conversation=self._to_conversation_messages(
                 conversation,
             ),
+            summary=self._resolve_summary(
+                conversation=conversation,
+                summary=summary,
+            ),
         )
 
         response = self._generation_service.generate(
@@ -81,6 +90,7 @@ class AIPipeline:
         *,
         conversation: list[ChatMessage],
         user_id: int,
+        summary: str | None = None,
     ) -> Iterator[str]:
         """
         Stream an assistant response using Retrieval-Augmented Generation.
@@ -104,6 +114,10 @@ class AIPipeline:
             conversation=self._to_conversation_messages(
                 conversation,
             ),
+            summary=self._resolve_summary(
+                conversation=conversation,
+                summary=summary,
+            ),
         )
 
         yield from self._generation_service.stream(
@@ -112,10 +126,11 @@ class AIPipeline:
 
     def generate_title(
         self,
+        *,
         first_message: str,
     ) -> str:
         """
-        Generate a title for a newly created conversation.
+        Generate a short AI title for a new conversation.
         """
 
         prompt = TitleGenerator.build_prompt(
@@ -126,12 +141,33 @@ class AIPipeline:
             messages=prompt,
         )
 
+    def generate_summary(
+        self,
+        *,
+        existing_summary: str | None,
+        conversation: list[ChatMessage],
+    ) -> str:
+        """
+        Generate or update the conversation summary.
+        """
+
+        prompt = SummaryGenerator.build_prompt(
+            existing_summary=existing_summary,
+            conversation=self._to_conversation_messages(
+                conversation,
+            ),
+        )
+
+        return self._llm_service.generate_summary(
+            messages=prompt,
+        )
+
     @staticmethod
     def _to_conversation_messages(
         conversation: list[ChatMessage],
     ) -> list[ConversationMessage]:
         """
-        Convert ORM ChatMessage objects into generation domain models.
+        Convert ORM ChatMessage models into generation domain models.
         """
 
         return [
@@ -141,3 +177,35 @@ class AIPipeline:
             )
             for message in conversation
         ]
+
+    @staticmethod
+    def _resolve_summary(
+        *,
+        conversation: list[ChatMessage],
+        summary: str | None,
+    ) -> str | None:
+        """
+        Decide whether the conversation summary should be
+        injected into the prompt.
+
+        The summary is only used when:
+
+        - A summary exists.
+        - The conversation length exceeds the configured threshold.
+        """
+
+        if not summary:
+            return None
+
+        summary = summary.strip()
+
+        if not summary:
+            return None
+
+        if (
+            len(conversation)
+            < settings.SUMMARY_INJECTION_THRESHOLD
+        ):
+            return None
+
+        return summary

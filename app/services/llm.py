@@ -57,6 +57,18 @@ class LLMService:
             messages=self._convert_messages(messages),
         ).strip()
 
+    def generate_summary(
+        self,
+        messages: list[LLMMessage],
+    ) -> str:
+        """
+        Generate or update a rolling conversation summary.
+        """
+
+        return self.provider.generate_response(
+            messages=self._convert_messages(messages),
+        ).strip()
+
     def stream_response(
         self,
         messages: list[LLMMessage],

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
 
@@ -53,6 +55,29 @@ class ChatRepository(BaseRepository[ChatSession]):
             raise ChatNotFoundError()
 
         chat.title = title
+
+        self.db.commit()
+        self.db.refresh(chat)
+
+        return chat
+
+    def update_summary(
+        self,
+        *,
+        chat_id: int,
+        summary: str,
+    ) -> ChatSession:
+        """
+        Update the rolling summary of a chat session.
+        """
+
+        chat = self.get_by_id(chat_id)
+
+        if chat is None:
+            raise ChatNotFoundError()
+
+        chat.summary = summary
+        chat.summary_updated_at = datetime.utcnow()
 
         self.db.commit()
         self.db.refresh(chat)
