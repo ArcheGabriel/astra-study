@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Iterator
 
+from app.ai.query_rewriter import QueryRewriter
 from app.ai.schemas import AIResponse
 from app.ai.summary_generator import SummaryGenerator
 from app.ai.title_generator import TitleGenerator
@@ -14,6 +15,7 @@ from app.generation.service import GenerationService
 from app.models.message import ChatMessage
 from app.retrieval.service import RetrievalService
 from app.services.llm import LLMService
+from app.enums.message import MessageRole
 
 
 class AIPipeline:
@@ -23,6 +25,7 @@ class AIPipeline:
     Responsibilities
     ----------------
     - Convert ORM chat messages into domain conversation messages.
+    - Rewrite conversational queries into standalone retrieval queries.
     - Execute Retrieval-Augmented Generation.
     - Decide when long-term conversation memory should be injected.
     - Generate assistant responses.
@@ -59,8 +62,12 @@ class AIPipeline:
 
         latest_message = conversation[-1]
 
+        retrieval_query = self._build_retrieval_query(
+            conversation=conversation,
+        )
+
         retrieval = self._retrieval_service.retrieve(
-            query=latest_message.content,
+            query=retrieval_query,
             user_id=user_id,
         )
 
@@ -103,8 +110,12 @@ class AIPipeline:
 
         latest_message = conversation[-1]
 
+        retrieval_query = self._build_retrieval_query(
+            conversation=conversation,
+        )
+
         retrieval = self._retrieval_service.retrieve(
-            query=latest_message.content,
+            query=retrieval_query,
             user_id=user_id,
         )
 
@@ -161,6 +172,57 @@ class AIPipeline:
         return self._llm_service.generate_summary(
             messages=prompt,
         )
+
+    def _build_retrieval_query(
+        self,
+        *,
+        conversation: list[ChatMessage],
+    ) -> str:
+        """
+        Build the query used for document retrieval.
+
+        Conversational follow-up questions are rewritten into
+        standalone queries before retrieval.
+
+        The original user question is preserved for generation.
+        """
+
+        latest_message = conversation[-1]
+
+        user_message_count = sum(
+            1
+            for message in conversation
+            if message.role == MessageRole.USER
+        )
+
+        if user_message_count <= 1:
+            return latest_message.content
+
+        history_window = conversation[
+            -settings.QUERY_REWRITE_HISTORY_WINDOW :
+        ]
+
+        prompt = QueryRewriter.build_prompt(
+            conversation=self._to_conversation_messages(
+                history_window,
+            ),
+        )
+
+        rewritten_query = (
+            self._llm_service.rewrite_query(
+                messages=prompt,
+            )
+        )
+        
+        print("\n==============================")
+        print("Original Query :", latest_message.content)
+        print("Retrieval Query:", rewritten_query)
+        print("==============================\n")
+
+        if not rewritten_query:
+            return latest_message.content
+
+        return rewritten_query
 
     @staticmethod
     def _to_conversation_messages(

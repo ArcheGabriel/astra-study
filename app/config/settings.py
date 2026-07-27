@@ -52,6 +52,7 @@ class Settings(BaseSettings):
     # Conversation Memory
     # ------------------------------------------------------------------
     SUMMARY_INJECTION_THRESHOLD: int = 20
+    QUERY_REWRITE_HISTORY_WINDOW: int = 20
 
     # ------------------------------------------------------------------
     # Qdrant

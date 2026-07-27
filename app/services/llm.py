@@ -69,6 +69,19 @@ class LLMService:
             messages=self._convert_messages(messages),
         ).strip()
 
+    def rewrite_query(
+        self,
+        messages: list[LLMMessage],
+    ) -> str:
+        """
+        Rewrite the latest user query into a standalone
+        retrieval query.
+        """
+
+        return self.provider.generate_response(
+            messages=self._convert_messages(messages),
+        ).strip()
+
     def stream_response(
         self,
         messages: list[LLMMessage],
