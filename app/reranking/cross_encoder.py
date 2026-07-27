@@ -128,7 +128,7 @@ class CrossEncoderReranker(BaseReranker):
         try:
 
             self._model = CrossEncoder(
-                model_name=self._model_name,
+                model_name_or_path=self._model_name,
                 device=self._device,
                 max_length=self._max_length,
             )

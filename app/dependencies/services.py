@@ -29,6 +29,8 @@ from app.search.hybrid.service import HybridService
 from app.reranking.service import RerankingService
 from app.retrieval.service import RetrievalService
 from app.services.conversation_summary import ConversationSummaryService
+from app.dependencies.resources import get_llm_resource
+from app.dependencies.resources import get_reranking_resource
 
 
 def get_user_service(
@@ -83,7 +85,7 @@ def get_message_service(
 
 def get_llm_service() -> LLMService:
 
-    return LLMService()
+    return get_llm_resource()
 
 
 # ----------------------------------------------------------------------
@@ -110,7 +112,7 @@ def get_hybrid_service() -> HybridService:
 
 def get_reranking_service() -> RerankingService:
 
-    return RerankingService()
+    return get_reranking_resource()
 
 
 # ----------------------------------------------------------------------
