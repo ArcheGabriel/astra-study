@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     - Hybrid Search
     """
 
+    APP_ENV: str = "development"
+
     # ------------------------------------------------------------------
     # API
     # ------------------------------------------------------------------
@@ -61,10 +63,7 @@ class Settings(BaseSettings):
     QDRANT_API_KEY: str | None = None
     QDRANT_COLLECTION_NAME: str = "astra_study"
 
-    # Dense vector name
     QDRANT_VECTOR_NAME: str = "dense"
-
-    # Sparse vector name
     QDRANT_SPARSE_VECTOR_NAME: str = "sparse"
 
     QDRANT_HYBRID_CANDIDATE_LIMIT: int = 50
@@ -72,17 +71,32 @@ class Settings(BaseSettings):
     # ------------------------------------------------------------------
     # LangSmith
     # ------------------------------------------------------------------
+    LANGSMITH_ENABLED: bool = True
+
     LANGSMITH_API_KEY: str | None = None
-    LANGSMITH_TRACING: bool = True
-    LANGSMITH_ENDPOINT: str = "https://api.smith.langchain.com"
+
+    LANGSMITH_ENDPOINT: str = (
+        "https://api.smith.langchain.com"
+    )
+
     LANGSMITH_PROJECT: str = "Astra-Study"
+
+    LANGSMITH_TRACING: bool = True
+
+    LANGSMITH_SAMPLING_RATE: float = 1.0
 
     # ------------------------------------------------------------------
     # Langfuse
     # ------------------------------------------------------------------
+    LANGFUSE_ENABLED: bool = True
+
     LANGFUSE_PUBLIC_KEY: str | None = None
+
     LANGFUSE_SECRET_KEY: str | None = None
-    LANGFUSE_HOST: str | None = None
+
+    LANGFUSE_HOST: str = "https://cloud.langfuse.com"
+
+    LANGFUSE_SAMPLING_RATE: float = 1.0
 
     # ------------------------------------------------------------------
     # Document Upload
@@ -107,10 +121,15 @@ class Settings(BaseSettings):
     # Embeddings
     # ------------------------------------------------------------------
     EMBEDDING_MODEL: str = "text-embedding-3-large"
+
     EMBEDDING_DIMENSIONS: int = 3072
+
     EMBEDDING_MAX_BATCH_SIZE: int = 100
+
     EMBEDDING_MAX_RETRIES: int = 3
+
     EMBEDDING_TIMEOUT_SECONDS: int = 60
+
     EMBEDDING_PRICE_PER_MILLION_INPUT_TOKENS: float = 0.13
 
     # ------------------------------------------------------------------
@@ -121,11 +140,14 @@ class Settings(BaseSettings):
     )
 
     # ------------------------------------------------------------------
-    # Cross Encoder Reranker
+    # Cross Encoder
     # ------------------------------------------------------------------
     RERANKER_MODEL: str = "BAAI/bge-reranker-v2-m3"
+
     RERANKER_BATCH_SIZE: int = 32
+
     RERANKER_MAX_LENGTH: int = 512
+
     RERANK_TOP_K: int = 5
 
     # ------------------------------------------------------------------

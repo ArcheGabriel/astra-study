@@ -16,6 +16,7 @@ from app.models.message import ChatMessage
 from app.retrieval.service import RetrievalService
 from app.services.llm import LLMService
 from app.enums.message import MessageRole
+from langsmith import traceable
 
 
 class AIPipeline:
@@ -44,6 +45,10 @@ class AIPipeline:
         self._generation_service = generation_service
         self._llm_service = llm_service
 
+    @traceable(
+        name="Generate AI Response",
+        run_type="chain",
+    )
     def generate_response(
         self,
         *,
@@ -92,6 +97,10 @@ class AIPipeline:
             citations=response.citations,
         )
 
+    @traceable(
+        name="Generate Streaming Response",
+        run_type="chain",
+    )
     def stream_response(
         self,
         *,
@@ -135,6 +144,10 @@ class AIPipeline:
             request,
         )
 
+    @traceable(
+        name="Generate Chat Title",
+        run_type="llm",
+    )
     def generate_title(
         self,
         *,
@@ -152,6 +165,10 @@ class AIPipeline:
             messages=prompt,
         )
 
+    @traceable(
+        name="Generate Conversation Summary",
+        run_type="llm",
+    )
     def generate_summary(
         self,
         *,
@@ -173,6 +190,10 @@ class AIPipeline:
             messages=prompt,
         )
 
+    @traceable(
+        name="Build Retrieval Query",
+        run_type="chain",
+    )
     def _build_retrieval_query(
         self,
         *,
@@ -240,8 +261,12 @@ class AIPipeline:
             for message in conversation
         ]
 
-    @staticmethod
+    @traceable(
+        name="Resolve Conversation Summary",
+        run_type="chain",
+    )
     def _resolve_summary(
+        self,
         *,
         conversation: list[ChatMessage],
         summary: str | None,

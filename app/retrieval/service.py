@@ -5,16 +5,18 @@ from time import perf_counter
 
 from app.config.settings import settings
 from app.retrieval.base import BaseRetrievalService
-from app.retrieval.exceptions import (
-    EmptyQueryError,
-    NoRetrievalResultsError,
-)
+from app.retrieval.exceptions import EmptyQueryError
 from app.retrieval.models import (
     RetrievedContext,
     RetrievalResult,
 )
 from app.reranking.service import RerankingService
 from app.search.hybrid.service import HybridService
+
+from langsmith import (
+    traceable,
+    get_current_run_tree,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -40,9 +42,10 @@ class RetrievalService(BaseRetrievalService):
         ▼
     RetrievalResult
 
-    This service is intentionally lightweight.
-    It orchestrates the retrieval pipeline without
-    containing search or reranking logic itself.
+    This service intentionally contains no search logic.
+    It orchestrates the retrieval pipeline while delegating
+    the heavy lifting to the Hybrid Search and Reranking
+    services.
     """
 
     def __init__(
@@ -53,6 +56,61 @@ class RetrievalService(BaseRetrievalService):
         self._hybrid_service = hybrid_service
         self._reranking_service = reranking_service
 
+    @traceable(
+        name="Build Retrieved Context",
+        run_type="chain",
+    )
+    def _build_contexts(
+        self,
+        *,
+        reranked,
+    ) -> list[RetrievedContext]:
+        """
+        Convert reranked search results into RetrievedContext
+        objects consumed by downstream generation.
+
+        This span exists purely to make LangSmith traces
+        easier to inspect.
+        """
+
+        contexts: list[RetrievedContext] = []
+
+        for reranked_chunk in reranked.results:
+
+            result = reranked_chunk.result
+
+            payload = result.payload or {}
+
+            contexts.append(
+                RetrievedContext(
+                    text=result.text,
+                    source=payload.get(
+                        "document_name",
+                        "Unknown Document",
+                    ),
+                    chunk_uuid=result.chunk_uuid,
+                    retrieval_score=result.score,
+                    reranker_score=reranked_chunk.reranker_score,
+                    page=payload.get(
+                        "page_start",
+                    ),
+                    section=payload.get(
+                        "section_title",
+                    ),
+                )
+            )
+
+        logger.info(
+            "Constructed %d retrieved contexts.",
+            len(contexts),
+        )
+
+        return contexts
+
+    @traceable(
+        name="Document Retrieval",
+        run_type="retriever",
+    )
     def retrieve(
         self,
         *,
@@ -61,6 +119,14 @@ class RetrievalService(BaseRetrievalService):
     ) -> RetrievalResult:
         """
         Execute the complete retrieval pipeline.
+
+        Steps
+        -----
+        1. Validate query
+        2. Hybrid Search
+        3. CrossEncoder reranking
+        4. Build RetrievedContext objects
+        5. Return RetrievalResult
         """
 
         query = query.strip()
@@ -91,9 +157,24 @@ class RetrievalService(BaseRetrievalService):
             "Hybrid retrieval returned %d candidates.",
             len(hybrid_results),
         )
-        
+
         if not hybrid_results:
+
             latency = perf_counter() - start
+
+            run = get_current_run_tree()
+
+            if run:
+                run.metadata.update(
+                    {
+                        "query": query,
+                        "contexts_returned": 0,
+                        "retrieval_latency_ms": round(
+                            latency * 1000,
+                            2,
+                        ),
+                    }
+                )
 
             logger.info(
                 "No contexts retrieved for query='%s'.",
@@ -116,7 +197,22 @@ class RetrievalService(BaseRetrievalService):
         )
 
         if not reranked.results:
+
             latency = perf_counter() - start
+
+            run = get_current_run_tree()
+
+            if run:
+                run.metadata.update(
+                    {
+                        "query": query,
+                        "contexts_returned": 0,
+                        "retrieval_latency_ms": round(
+                            latency * 1000,
+                            2,
+                        ),
+                    }
+                )
 
             logger.info(
                 "All candidates filtered out during reranking."
@@ -128,42 +224,89 @@ class RetrievalService(BaseRetrievalService):
                 retrieval_latency=latency,
             )
 
-        contexts: list[RetrievedContext] = []
-
-        for reranked_chunk in reranked.results:
-
-            result = reranked_chunk.result
-
-            payload = result.payload or {}
-
-            context = RetrievedContext(
-                text=result.text,
-
-                source=payload.get(
-                    "document_name",
-                    "Unknown Document",
-                ),
-
-                chunk_uuid=result.chunk_uuid,
-
-                retrieval_score=result.score,
-
-                reranker_score=reranked_chunk.reranker_score,
-
-                page=payload.get(
-                    "page_start",
-                ),
-
-                section=payload.get(
-                    "section_title",
-                ),
-            )
-
-            contexts.append(
-                context,
-            )
+        #
+        # Build Retrieved Contexts
+        #
+        contexts = self._build_contexts(
+            reranked=reranked,
+        )
 
         latency = perf_counter() - start
+
+        run = get_current_run_tree()
+
+        if run:
+
+            scores = [
+                context.reranker_score
+                for context in contexts
+                if context.reranker_score is not None
+            ]
+
+            run.metadata.update(
+                {
+                    "query": query,
+                    "contexts_returned": len(contexts),
+                    "unique_sources": len(
+                        {
+                            context.source
+                            for context in contexts
+                        }
+                    ),
+                    "sources": sorted(
+                        {
+                            context.source
+                            for context in contexts
+                        }
+                    ),
+                    "pages": sorted(
+                        {
+                            context.page
+                            for context in contexts
+                            if context.page is not None
+                        }
+                    ),
+                    "sections": sorted(
+                        {
+                            context.section
+                            for context in contexts
+                            if context.section
+                        }
+                    ),
+                    "retrieval_latency_ms": round(
+                        latency * 1000,
+                        2,
+                    ),
+                    "average_reranker_score": (
+                        round(
+                            sum(scores) / len(scores),
+                            4,
+                        )
+                        if scores
+                        else None
+                    ),
+                    "highest_reranker_score": (
+                        round(
+                            max(scores),
+                            4,
+                        )
+                        if scores
+                        else None
+                    ),
+                    "lowest_reranker_score": (
+                        round(
+                            min(scores),
+                            4,
+                        )
+                        if scores
+                        else None
+                    ),
+                    "total_context_characters": sum(
+                        len(context.text)
+                        for context in contexts
+                    ),
+                }
+            )
 
         logger.info(
             (
@@ -188,6 +331,9 @@ class RetrievalService(BaseRetrievalService):
     ) -> RetrievalResult:
         """
         Callable wrapper.
+
+        Allows RetrievalService to be invoked like a function while
+        preserving the tracing performed inside `retrieve()`.
         """
 
         return self.retrieve(

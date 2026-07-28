@@ -34,6 +34,8 @@ from app.embeddings.validator import (
     validate_embedded_chunk,
 )
 
+from langsmith import traceable
+
 
 class OpenAIEmbedder:
     """
@@ -225,6 +227,10 @@ class OpenAIEmbedder:
 
         return embedded_chunks
     
+    @traceable(
+        name="Generate Batch Embeddings",
+        run_type="embedding",
+    )
     def embed_batch(
         self,
         chunks: list[DocumentChunk],
@@ -351,6 +357,10 @@ class OpenAIEmbedder:
             batches,
         )
     
+    @traceable(
+    name="Generate Dense Embedding",
+    run_type="embedding",
+    )
     def embed_query(
         self,
         query: str,
@@ -369,4 +379,6 @@ class OpenAIEmbedder:
             [query],
         )
 
-        return response.data[0].embedding
+        embedding = response.data[0].embedding
+
+        return embedding

@@ -16,6 +16,8 @@ from app.schemas.message import (
 from app.services.conversation_summary import ConversationSummaryService
 from app.services.message import MessageService
 
+from langsmith import traceable
+
 
 class ConversationService:
     """
@@ -36,6 +38,10 @@ class ConversationService:
         self.ai_pipeline = ai_pipeline
         self.conversation_summary_service = conversation_summary_service
 
+    @traceable(
+        name="Conversation Turn",
+        run_type="chain",
+    )
     def send_message(
         self,
         *,
@@ -154,6 +160,10 @@ class ConversationService:
             # Never fail the primary chat request because of it.
             pass
 
+    @traceable(
+        name="Validate Chat",
+        run_type="chain",
+    )
     def _validate_chat(
         self,
         *,
@@ -171,6 +181,10 @@ class ConversationService:
 
         return chat
 
+    @traceable(
+        name="Initialize Chat Title",
+        run_type="chain",
+    )
     def _generate_chat_title_if_needed(
         self,
         *,
@@ -193,6 +207,10 @@ class ConversationService:
             title=title,
         )
 
+    @traceable(
+        name="Persist Assistant Message",
+        run_type="chain",
+    )
     def _save_assistant_message(
         self,
         *,

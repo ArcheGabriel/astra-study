@@ -1,5 +1,6 @@
 from collections.abc import Iterator
 
+from langsmith.wrappers import wrap_openai
 from openai import OpenAI
 
 from app.ai.base import BaseLLMProvider
@@ -12,8 +13,10 @@ class OpenAIProvider(BaseLLMProvider):
     """
 
     def __init__(self) -> None:
-        self.client = OpenAI(
-            api_key=settings.OPENAI_API_KEY,
+        self.client = wrap_openai(
+            OpenAI(
+                api_key=settings.OPENAI_API_KEY,
+            )
         )
 
     def generate_response(

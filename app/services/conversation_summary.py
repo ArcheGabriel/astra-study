@@ -1,3 +1,4 @@
+from langsmith import traceable
 from app.ai.pipeline import AIPipeline
 from app.models.chat import ChatSession
 from app.repositories.chat import ChatRepository
@@ -25,6 +26,10 @@ class ConversationSummaryService:
         self.message_repository = message_repository
         self.ai_pipeline = ai_pipeline
 
+    @traceable(
+        name="Update Conversation Summary",
+        run_type="chain",
+    )
     def update_summary(
         self,
         *,

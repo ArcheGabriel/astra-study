@@ -28,6 +28,8 @@ from app.search.dense.models import DenseSearchResult
 from app.search.hybrid.mapper import HybridMapper
 from app.search.hybrid.models import HybridSearchResult
 
+from langsmith import traceable
+
 
 class DenseRepository:
     """
@@ -318,6 +320,10 @@ class DenseRepository:
             response.points,
         )
     
+    @traceable(
+        name="Qdrant Hybrid Search",
+        run_type="retriever",
+    )
     def hybrid_search(
         self,
         *,

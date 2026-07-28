@@ -21,6 +21,8 @@ from app.reranking.cross_encoder import CrossEncoderReranker
 from app.reranking.models import RerankingResult
 from app.search.hybrid.models import HybridSearchResult
 
+from langsmith import traceable
+
 logger = logging.getLogger(__name__)
 
 
@@ -78,6 +80,10 @@ class RerankingService:
 
         return self._reranker
 
+    @traceable(
+        name="CrossEncoder Reranking",
+        run_type="retriever",
+    )
     def rerank(
         self,
         *,

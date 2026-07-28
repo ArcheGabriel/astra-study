@@ -9,6 +9,8 @@ from app.search.sparse.models import (
     SparseVector,
 )
 
+from langsmith import traceable
+
 
 class SparseEncoder:
     """
@@ -103,6 +105,10 @@ class SparseEncoder:
 
         return sparse_chunks
 
+    @traceable(
+        name="Generate Sparse Embedding",
+        run_type="embedding",
+    )
     def encode_query(
         self,
         query: str,

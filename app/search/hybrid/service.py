@@ -4,6 +4,7 @@ from app.embeddings.embedder import OpenAIEmbedder
 from app.search.dense.repository import DenseRepository
 from app.search.hybrid.models import HybridSearchResult
 from app.search.sparse.encoder import SparseEncoder
+from langsmith import traceable
 
 
 class HybridService:
@@ -44,6 +45,10 @@ class HybridService:
             or DenseRepository()
         )
 
+    @traceable(
+        name="Hybrid Search",
+        run_type="retriever",
+    )
     def search(
         self,
         user_id: int,
@@ -66,7 +71,7 @@ class HybridService:
             query,
         )
 
-        return self.repository.hybrid_search(
+        results = self.repository.hybrid_search(
 
             dense_vector=dense_vector,
 
@@ -79,6 +84,8 @@ class HybridService:
             limit=limit,
 
         )
+        
+        return results
 
     def __call__(
         self,

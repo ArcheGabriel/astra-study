@@ -14,6 +14,8 @@ from app.generation.prompts import (
 )
 from app.enums.message import MessageRole
 
+from langsmith import traceable
+
 
 class PromptBuilder:
     """
@@ -28,6 +30,10 @@ class PromptBuilder:
     - Produce provider-agnostic LLM messages.
     """
 
+    @traceable(
+        name="Build Prompt",
+        run_type="prompt",
+    )
     def build(
         self,
         request: GenerationRequest,
@@ -67,19 +73,23 @@ class PromptBuilder:
                 )
             )
 
+        history = self._build_history(
+            request.conversation,
+        )
+
         messages.extend(
-            self._build_history(
-                request.conversation,
-            )
+            history,
+        )
+
+        user_message = LLMMessage(
+            role=MessageRole.USER,
+            content=USER_PROMPT_TEMPLATE.format(
+                question=request.query.strip(),
+            ).strip(),
         )
 
         messages.append(
-            LLMMessage(
-                role=MessageRole.USER,
-                content=USER_PROMPT_TEMPLATE.format(
-                    question=request.query.strip(),
-                ).strip(),
-            )
+            user_message,
         )
 
         if not messages:
