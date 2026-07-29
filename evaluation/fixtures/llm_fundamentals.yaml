@@ -1,0 +1,24 @@
+name: Astra Study Evaluation
+
+version: 1
+
+document: LLM.pdf
+
+domain: Artificial Intelligence
+
+examples:
+
+  - id: llm-001
+    question: What is a Large Language Model?
+
+  - id: llm-002
+    question: Explain the evolution from traditional NLP models to LLMs.
+
+  - id: llm-003
+    question: Explain Transformer architecture.
+
+  - id: llm-004
+    question: What are emergent abilities in LLMs?
+
+  - id: llm-005
+    question: Compare pre-trained language models and LLMs.
