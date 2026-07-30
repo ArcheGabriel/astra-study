@@ -1,38 +1,57 @@
 from __future__ import annotations
 
+from app.config.settings import settings
+
+from evaluation.evaluators import (
+    answer_length,
+    citation_count,
+    exact_match,
+)
+from evaluation.fixtures.manager import FixtureManager
+from evaluation.provider import LangSmithProvider
 from evaluation.service import EvaluationService
+
+
+FIXTURE = "llm_fundamentals.yaml"
 
 
 def main() -> None:
 
-    service = EvaluationService()
+    print("=" * 70)
+    print("Astra Study Evaluation")
+    print("=" * 70)
 
-    result = service.sync_fixture(
-        "llm_fundamentals.yaml",
+    fixture_manager = FixtureManager()
+
+    provider = LangSmithProvider()
+
+    service = EvaluationService(
+        fixture_manager=fixture_manager,
+        provider=provider,
     )
 
-    print()
+    print("\nSynchronizing LangSmith dataset...\n")
 
-    print("Evaluation Synchronization")
-    print("--------------------------")
-
-    print(
-        f"Dataset          : {result['dataset_name']}"
+    service.sync_fixture(
+        fixture_path=FIXTURE,
     )
 
-    print(
-        f"Fixture Examples : {result['total_examples']}"
+    print("✓ Dataset synchronized.\n")
+
+    print("Running evaluation...\n")
+
+    experiment = service.run_experiment(
+        evaluation_user_id=settings.EVALUATION_USER_ID,
+        evaluators=[
+            exact_match,
+            answer_length,
+            citation_count,
+        ],
     )
 
-    print(
-        f"Uploaded         : {result['uploaded']}"
-    )
+    print("\n✓ Evaluation completed.\n")
 
-    print(
-        f"Skipped          : {result['skipped']}"
-    )
-
-    print()
+    print(experiment)
 
 
 if __name__ == "__main__":

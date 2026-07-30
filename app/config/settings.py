@@ -155,6 +155,11 @@ class Settings(BaseSettings):
     # ------------------------------------------------------------------
     RETRIEVAL_TOP_K: int = 5
 
+    # ------------------------------------------------------------------
+    # Evaluation
+    # ------------------------------------------------------------------
+    EVALUATION_USER_ID: int = 5
+
     model_config = SettingsConfigDict(
         env_file=".env",
         extra="ignore",

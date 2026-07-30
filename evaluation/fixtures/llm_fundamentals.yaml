@@ -1,5 +1,8 @@
 name: Astra Study Evaluation
 
+description: >
+  Evaluation dataset covering the fundamentals of Large Language Models.
+
 version: 1
 
 document: LLM.pdf
@@ -9,16 +12,65 @@ domain: Artificial Intelligence
 examples:
 
   - id: llm-001
+
+    category: definition
+
+    difficulty: easy
+
     question: What is a Large Language Model?
 
+    answer: >
+      A Large Language Model (LLM) is a deep learning model trained on
+      massive text corpora to understand and generate natural language.
+
   - id: llm-002
+
+    category: history
+
+    difficulty: medium
+
     question: Explain the evolution from traditional NLP models to LLMs.
 
+    answer: >
+      Traditional NLP relied on handcrafted rules and statistical models.
+      Deep learning introduced neural networks, followed by Transformers,
+      enabling today's Large Language Models trained on enormous datasets.
+
   - id: llm-003
+
+    category: architecture
+
+    difficulty: medium
+
     question: Explain Transformer architecture.
 
+    answer: >
+      Transformer architecture replaces recurrence with self-attention,
+      allowing efficient parallel processing while capturing long-range
+      dependencies in text.
+
   - id: llm-004
+
+    category: capabilities
+
+    difficulty: medium
+
     question: What are emergent abilities in LLMs?
 
+    answer: >
+      Emergent abilities are capabilities that appear unexpectedly when
+      language models become sufficiently large, including reasoning,
+      coding and in-context learning.
+
   - id: llm-005
+
+    category: comparison
+
+    difficulty: easy
+
     question: Compare pre-trained language models and LLMs.
+
+    answer: >
+      Large Language Models are significantly larger than traditional
+      pre-trained language models, trained on far more data and capable
+      of broader reasoning and generation tasks.

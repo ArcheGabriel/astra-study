@@ -1,126 +1,113 @@
 from __future__ import annotations
 
-import logging
+from collections.abc import Callable, Sequence
+from typing import Any
 
 from langsmith import Client
-from langsmith.schemas import Dataset
+from langsmith.evaluation import evaluate
 
 from app.config.settings import settings
 
-logger = logging.getLogger(__name__)
+from evaluation.schemas.fixture import EvaluationFixture
 
 
 class LangSmithProvider:
     """
-    Thin wrapper around the LangSmith SDK.
-
-    Responsibilities
-    ----------------
-    - Initialize LangSmith client.
-    - Perform SDK operations.
-    - No business logic.
+    Handles all LangSmith interactions.
     """
 
     def __init__(self) -> None:
-
         self._client = Client(
             api_key=settings.LANGSMITH_API_KEY,
             api_url=settings.LANGSMITH_ENDPOINT,
         )
 
-    @property
-    def client(self) -> Client:
-        return self._client
+    # ------------------------------------------------------------------
+    # Dataset
+    # ------------------------------------------------------------------
 
-    # ---------------------------------------------------------
-    # Dataset Operations
-    # ---------------------------------------------------------
-
-    def list_datasets(self) -> list[Dataset]:
-
-        datasets = list(
-            self._client.list_datasets()
-        )
-
-        logger.info(
-            "Retrieved %d dataset(s).",
-            len(datasets),
-        )
-
-        return datasets
-
-    def get_dataset_by_name(
+    def _get_dataset(
         self,
-        name: str,
-    ) -> Dataset | None:
-
+        dataset_name: str,
+    ):
         for dataset in self._client.list_datasets():
-
-            if dataset.name == name:
+            if dataset.name == dataset_name:
                 return dataset
 
-        return None
-
-    def create_dataset(
-        self,
-        *,
-        name: str,
-        description: str,
-    ) -> Dataset:
-
-        logger.info(
-            "Creating LangSmith dataset '%s'.",
-            name,
-        )
-
         return self._client.create_dataset(
-            dataset_name=name,
-            description=description,
+            dataset_name=dataset_name,
         )
 
-    # ---------------------------------------------------------
-    # Example Operations
-    # ---------------------------------------------------------
+    # ------------------------------------------------------------------
+    # Synchronization
+    # ------------------------------------------------------------------
 
-    def list_examples(
+    def sync_fixture(
         self,
         *,
-        dataset_id: str,
-    ) -> list:
+        dataset_name: str,
+        fixture: EvaluationFixture,
+    ) -> None:
 
-        examples = list(
+        dataset = self._get_dataset(
+            dataset_name,
+        )
+
+        existing_examples = list(
             self._client.list_examples(
-                dataset_id=dataset_id,
+                dataset_id=dataset.id,
             )
         )
 
-        logger.info(
-            "Retrieved %d example(s) from dataset '%s'.",
-            len(examples),
-            dataset_id,
-        )
+        existing_fixture_ids = {
+            (example.metadata or {}).get("fixture_id")
+            for example in existing_examples
+        }
 
-        return examples
+        for example in fixture.examples:
 
-    def create_example(
+            if example.id in existing_fixture_ids:
+                continue
+
+            self._client.create_example(
+                dataset_id=dataset.id,
+                inputs={
+                    "question": example.question,
+                },
+                outputs={
+                    "answer": example.answer,
+                },
+                metadata={
+                    "fixture_id": example.id,
+                    "category": example.category,
+                    "difficulty": example.difficulty,
+                },
+            )
+
+    # ------------------------------------------------------------------
+    # Evaluation
+    # ------------------------------------------------------------------
+
+    def run_evaluation(
         self,
         *,
-        dataset_id: str,
-        example_id: str,
-        question: str,
+        predictor,
+        dataset_name: str,
+        experiment_prefix: str,
+        evaluators=None,
+        metadata=None,
+        max_concurrency: int = 5,
     ):
+        """
+        Execute a LangSmith evaluation experiment.
+        """
 
-        logger.info(
-            "Creating example '%s'.",
-            example_id,
-        )
-
-        return self._client.create_example(
-            dataset_id=dataset_id,
-            inputs={
-                "question": question,
-            },
-            metadata={
-                "fixture_id": example_id,
-            },
+        return evaluate(
+            predictor,  # <-- positional argument
+            data=dataset_name,
+            evaluators=evaluators or [],
+            experiment_prefix=experiment_prefix,
+            metadata=metadata or {},
+            max_concurrency=max_concurrency,
+            client=self._client,
         )

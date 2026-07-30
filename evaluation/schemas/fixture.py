@@ -1,15 +1,17 @@
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel, Field
 
 
 class EvaluationExample(BaseModel):
     """
-    Represents a single evaluation question.
+    Represents a single evaluation example stored inside a fixture.
     """
 
     id: str = Field(
-        description="Unique example identifier.",
+        description="Unique example identifier."
     )
 
     question: str = Field(
@@ -17,13 +19,31 @@ class EvaluationExample(BaseModel):
         description="Evaluation question.",
     )
 
+    answer: str = Field(
+        min_length=1,
+        description="Expected reference answer.",
+    )
+
+    category: str = Field(
+        default="general",
+        description="Question category.",
+    )
+
+    difficulty: Literal[
+        "easy",
+        "medium",
+        "hard",
+    ] = "medium"
+
 
 class EvaluationFixture(BaseModel):
     """
-    Represents a version-controlled evaluation fixture.
+    Represents an evaluation fixture.
     """
 
     name: str
+
+    description: str
 
     version: int = Field(
         ge=1,
