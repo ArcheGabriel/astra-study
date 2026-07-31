@@ -40,6 +40,19 @@ async def lifespan(app: FastAPI):
     )
     print("===========================================\n")
 
+    # ------------------------------------------------------------------
+    # Preload the shared reranking service (warms the @lru_cache singleton
+    # so the CrossEncoder model is already loaded on the first request)
+    # ------------------------------------------------------------------
+    try:
+        from app.dependencies.resources import get_reranking_resource
+        print("📥 Preloading CrossEncoder Reranker model...")
+        # Must access .reranker to trigger lazy CrossEncoderReranker init
+        get_reranking_resource().reranker
+        print("✅ CrossEncoder Reranker model preloaded successfully.\n")
+    except Exception as e:
+        print(f"⚠️ Failed to preload CrossEncoder Reranker: {e}\n")
+
     yield
 
     print("🛑 Astra Study is shutting down...")
