@@ -100,6 +100,11 @@ def sidebar() -> None:
     Left navigation panel.
     """
 
+    st.markdown(
+        '<span class="layout-marker sidebar-panel"></span>',
+        unsafe_allow_html=True,
+    )
+
     panel = st.container()
 
     with panel:

@@ -27,8 +27,8 @@ def main() -> None:
         return
 
     left, center, right = st.columns(
-        [1.15, 2.45, 1.2],
-        gap="medium",
+        [1.05, 2.7, 1.15],
+        gap="small",
     )
 
     with left:

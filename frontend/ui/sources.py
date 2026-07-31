@@ -239,9 +239,19 @@ def sources_panel() -> None:
     Render the right-side panel.
     """
 
+    st.markdown(
+        '<span class="layout-marker sources-panel"></span>',
+        unsafe_allow_html=True,
+    )
+
     panel = st.container()
 
     with panel:
+
+        st.markdown(
+            '<div class="panel-heading">Sources</div>',
+            unsafe_allow_html=True,
+        )
 
         _render_citations()
 

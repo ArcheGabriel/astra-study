@@ -45,8 +45,14 @@ def login_screen() -> None:
 
     with center:
 
+        # Keep the login heading below Streamlit's fixed top toolbar.
         st.markdown(
-            "<div class='brand'>Astra <span>Study</span></div>",
+            '<div class="login-top-spacer"></div>',
+            unsafe_allow_html=True,
+        )
+
+        st.markdown(
+            "<div class='login-brand'>Astra <span>Study</span></div>",
             unsafe_allow_html=True,
         )
 

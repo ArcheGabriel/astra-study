@@ -95,12 +95,9 @@ def _render_header(
 
     st.markdown(
         f"""
-<div class="chat-title">
-{title}
-</div>
-
-<div class="chat-subtitle">
-Ask questions grounded in your uploaded documents.
+<div class="workspace-header">
+  <div class="chat-title">{title}</div>
+  <div class="chat-subtitle">Ask questions grounded in your uploaded documents.</div>
 </div>
 """,
         unsafe_allow_html=True,
@@ -143,6 +140,11 @@ def workspace() -> None:
     Main workspace.
     """
 
+    st.markdown(
+        '<span class="layout-marker workspace-panel"></span>',
+        unsafe_allow_html=True,
+    )
+
     chat = _active_chat()
 
     #
@@ -161,6 +163,11 @@ def workspace() -> None:
 
         _render_history()
 
+        # This placeholder is deliberately created before st.chat_input.
+        # Streamlit can stream the pending user message and spinner here while
+        # the generation request is in progress, keeping both above composer.
+        pending_message = st.empty()
+
     #
     # Chat Input
     #
@@ -174,10 +181,6 @@ def workspace() -> None:
 
         return
 
-    #
-    # Temporary user message
-    #
-
     user_message = Message(
         id=-1,
         role="user",
@@ -185,54 +188,22 @@ def workspace() -> None:
         created_at=None,
     )
 
-    #
-    # Immediately display the user message.
-    #
-
-    with st.chat_message("user"):
-
-        st.markdown(
-            prompt,
-        )
-
-    #
-    # Assistant placeholder
-    #
-
-    assistant_placeholder = st.empty()
-
     try:
 
-        with assistant_placeholder.container():
+        with pending_message.container():
 
-            with st.chat_message(
-                "assistant"
-            ):
+            with st.chat_message("user"):
 
-                with st.spinner(
-                    "Astra is thinking..."
-                ):
+                st.markdown(prompt)
+
+            with st.chat_message("assistant"):
+
+                with st.spinner("Astra is thinking..."):
 
                     conversation = _send_message(
                         chat.id,
                         prompt,
                     )
-
-        #
-        # Replace placeholder
-        #
-
-        assistant_placeholder.empty()
-
-        with assistant_placeholder.container():
-
-            with st.chat_message(
-                "assistant"
-            ):
-
-                st.markdown(
-                    conversation.assistant_message.content,
-                )
 
         #
         # Persist conversation
@@ -256,26 +227,17 @@ def workspace() -> None:
 
         _refresh_chat_list()
 
+        # Render the complete history above the composer on the next run.
+        # This replaces the temporary pending message without placing a
+        # completed response after st.chat_input.
+        st.rerun()
+
     except ApiException as exc:
 
-        assistant_placeholder.empty()
-
-        with st.chat_message(
-            "assistant"
-        ):
-
-            st.error(
-                str(exc),
-            )
+        pending_message.empty()
+        st.error(str(exc))
 
     except Exception as exc:
 
-        assistant_placeholder.empty()
-
-        with st.chat_message(
-            "assistant"
-        ):
-
-            st.error(
-                f"Unexpected error: {exc}"
-            )
+        pending_message.empty()
+        st.error(f"Unexpected error: {exc}")
