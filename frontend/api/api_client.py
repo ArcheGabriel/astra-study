@@ -195,6 +195,29 @@ class ApiClient:
             response,
         )
 
+    def stream_post(
+        self,
+        endpoint: str,
+        *,
+        json: dict,
+    ):
+        """
+        Open a Server-Sent Events POST request.
+        """
+
+        response = self._request(
+            "POST",
+            endpoint,
+            json=json,
+            stream=True,
+        )
+
+        if response.ok:
+            return response
+
+        self._handle_json_response(response)
+        raise ApiException("Streaming request failed.")
+
     def patch(
         self,
         endpoint: str,

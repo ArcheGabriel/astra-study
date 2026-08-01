@@ -1,3 +1,5 @@
+import json
+
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import StreamingResponse
 
@@ -68,14 +70,14 @@ def stream_message(
                 current_user=current_user,
                 message_data=message_data,
             ):
-                yield f"data: {chunk}\n\n"
+                yield f"data: {json.dumps({'text': chunk})}\n\n"
 
-            yield "event: done\ndata: [DONE]\n\n"
+            yield "event: done\ndata: {}\n\n"
 
         except Exception as exc:
             yield (
                 "event: error\n"
-                f"data: {str(exc)}\n\n"
+                f"data: {json.dumps({'detail': str(exc)})}\n\n"
             )
 
     return StreamingResponse(

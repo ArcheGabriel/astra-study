@@ -11,8 +11,6 @@ from frontend.api.chat_service import ChatService
 from frontend.api.message_service import MessageService
 
 from frontend.models.chat import Chat
-from frontend.models.conversation import Conversation
-from frontend.models.message import Message
 
 
 def _client() -> ApiClient:
@@ -37,28 +35,6 @@ def _refresh_chat_list() -> None:
 
     st.session_state.chats = (
         chat_service.list_chats()
-    )
-
-
-def _send_message(
-    chat_id: int,
-    prompt: str,
-) -> Conversation:
-    """
-    Send a message to the backend.
-    """
-
-    client = ApiClient(
-        base_url=st.session_state.api_url,
-        access_token=st.session_state.token,
-        timeout=GENERATION_TIMEOUT,
-    )
-
-    return MessageService(
-        client
-    ).send_message(
-        chat_id=chat_id,
-        content=prompt,
     )
 
 
@@ -181,13 +157,6 @@ def workspace() -> None:
 
         return
 
-    user_message = Message(
-        id=-1,
-        role="user",
-        content=prompt,
-        created_at=None,
-    )
-
     try:
 
         with pending_message.container():
@@ -198,28 +167,38 @@ def workspace() -> None:
 
             with st.chat_message("assistant"):
 
-                with st.spinner("Astra is thinking..."):
+                thinking_placeholder = st.empty()
+                answer_placeholder = st.empty()
+                response_parts: list[str] = []
 
-                    conversation = _send_message(
-                        chat.id,
-                        prompt,
-                    )
+                with thinking_placeholder:
+                    with st.spinner("Astra is thinking..."):
+                        for chunk in MessageService(
+                            ApiClient(
+                                base_url=st.session_state.api_url,
+                                access_token=st.session_state.token,
+                                timeout=GENERATION_TIMEOUT,
+                            )
+                        ).stream_message(chat.id, prompt):
+                            response_parts.append(chunk)
+                            thinking_placeholder.empty()
+                            answer_placeholder.markdown(
+                                "".join(response_parts) + "▌"
+                            )
+
+                if response_parts:
+                    answer_placeholder.markdown("".join(response_parts))
 
         #
         # Persist conversation
         #
 
-        st.session_state.messages.append(
-            user_message,
+        st.session_state.messages = MessageService(
+            _client()
+        ).list_messages(
+            chat.id,
         )
-
-        st.session_state.messages.append(
-            conversation.assistant_message,
-        )
-
-        st.session_state.citations = (
-            conversation.citations
-        )
+        st.session_state.citations = []
 
         #
         # Refresh sidebar chat titles

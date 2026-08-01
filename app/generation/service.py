@@ -44,14 +44,12 @@ class GenerationService(BaseGenerationService):
         """
         
         if not request.retrieval:
-            return GenerationResponse(
-                answer=(
-                    "I couldn't find any relevant information "
-                    "in your uploaded documents that answers "
-                    "this question."
-                ),
-                citations=[],
+            yield (
+                "I couldn't find any relevant information "
+                "in your uploaded documents that answers "
+                "this question."
             )
+            return
 
         messages = self._prompt_builder.build(
             request=request,
