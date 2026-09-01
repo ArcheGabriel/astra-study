@@ -9,6 +9,7 @@ from frontend.api.api_client import (
 )
 from frontend.api.chat_service import ChatService
 from frontend.api.message_service import MessageService
+from frontend.models.conversation import Citation
 
 from frontend.models.chat import Chat
 
@@ -173,13 +174,19 @@ def workspace() -> None:
 
                 with thinking_placeholder:
                     with st.spinner("Astra is thinking..."):
+                        streamed_citations: list[Citation] = []
                         for chunk in MessageService(
                             ApiClient(
                                 base_url=st.session_state.api_url,
                                 access_token=st.session_state.token,
                                 timeout=GENERATION_TIMEOUT,
                             )
-                        ).stream_message(chat.id, prompt):
+                        ).stream_message(
+                            chat.id, prompt,
+                            on_citations=lambda data: streamed_citations.extend(
+                                Citation.from_dict(item) for item in data
+                            ),
+                        ):
                             response_parts.append(chunk)
                             thinking_placeholder.empty()
                             answer_placeholder.markdown(
@@ -198,7 +205,7 @@ def workspace() -> None:
         ).list_messages(
             chat.id,
         )
-        st.session_state.citations = []
+        st.session_state.citations = streamed_citations
 
         #
         # Refresh sidebar chat titles

@@ -85,8 +85,10 @@ class RetrievalService(BaseRetrievalService):
                 RetrievedContext(
                     text=result.text,
                     source=payload.get(
-                        "document_name",
+                        "source",
+                        payload.get("document_name",
                         "Unknown Document",
+                        ),
                     ),
                     chunk_uuid=result.chunk_uuid,
                     retrieval_score=result.score,
@@ -97,6 +99,11 @@ class RetrievalService(BaseRetrievalService):
                     section=payload.get(
                         "section_title",
                     ),
+                    source_type=payload.get("source_type"),
+                    sheet_name=payload.get("sheet_name"),
+                    heading_path=payload.get("heading_path") or None,
+                    block_type=payload.get("block_type"),
+                    provenance=payload.get("provenance") or None,
                 )
             )
 

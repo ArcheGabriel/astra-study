@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from uuid import UUID
+from dataclasses import asdict
 
 from qdrant_client.models import (
     PointStruct,
@@ -40,7 +41,7 @@ class DenseMapper:
 
         payload = {
             
-            "schema_version": 1,
+            "schema_version": 2,
 
             #
             # Document
@@ -58,6 +59,10 @@ class DenseMapper:
             "language": metadata.language,
 
             "source_type": metadata.source_type,
+
+            "source": metadata.source or metadata.document_name,
+
+            "parser": metadata.parser,
 
             "sheet_name": metadata.sheet_name,
 
@@ -105,6 +110,8 @@ class DenseMapper:
             "heading_level": metadata.heading_level,
 
             "heading_path": metadata.heading_path,
+
+            "provenance": [asdict(reference) for reference in metadata.provenance],
 
             #
             # Retrieval

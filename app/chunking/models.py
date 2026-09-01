@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from uuid import UUID
 
 from app.enums.block import BlockType
+from app.document.models import BlockProvenance
 
 
 @dataclass(slots=True)
@@ -43,6 +44,8 @@ class ChunkMetadata:
     source_type: str | None = None
 
     sheet_name: str | None = None
+
+    parser: str | None = None
 
     language: str | None = None
     
@@ -87,6 +90,10 @@ class ChunkMetadata:
     section_id: str | None = None
 
     section_title: str | None = None
+
+    # References are deliberately compact: one entry per source block, with
+    # optional Docling page coordinates rather than copied parser objects.
+    provenance: list[BlockProvenance] = field(default_factory=list)
 
     # ==================================================
     # Retrieval Information

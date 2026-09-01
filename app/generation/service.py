@@ -44,12 +44,11 @@ class GenerationService(BaseGenerationService):
         """
         
         if not request.retrieval:
-            yield (
-                "I couldn't find any relevant information "
-                "in your uploaded documents that answers "
-                "this question."
+            return GenerationResponse(
+                answer=("I couldn't find any relevant information in your uploaded "
+                        "documents that answers this question."),
+                citations=[],
             )
-            return
 
         messages = self._prompt_builder.build(
             request=request,
@@ -66,19 +65,30 @@ class GenerationService(BaseGenerationService):
                 "The language model returned an empty response."
             )
 
-        citations = [
-            Citation(
-                source=context.source,
-                page=context.page,
-                section=context.section,
-            )
-            for context in request.retrieval
-        ]
+        citations = self.citations_for(request)
 
         return GenerationResponse(
             answer=response,
             citations=citations,
         )
+
+    @staticmethod
+    def citations_for(request: GenerationRequest) -> list[Citation]:
+        """Create clean, deduplicated citations only from retrieved provenance."""
+        seen: set[tuple[str, int | None, str | None, str | None]] = set()
+        citations: list[Citation] = []
+        for context in request.retrieval:
+            key = (context.source, context.page, context.section, context.sheet_name)
+            if key in seen:
+                continue
+            seen.add(key)
+            citations.append(Citation(
+                source=context.source, page=context.page, section=context.section,
+                source_type=context.source_type, sheet_name=context.sheet_name,
+                heading_path=context.heading_path, block_type=context.block_type,
+                chunk_id=str(context.chunk_uuid), provenance=context.provenance,
+            ))
+        return citations
 
     def stream(
         self,
@@ -89,14 +99,11 @@ class GenerationService(BaseGenerationService):
         """
         
         if not request.retrieval:
-            return GenerationResponse(
-                answer=(
-                    "I couldn't find any relevant information "
-                    "in your uploaded documents that answers "
-                    "this question."
-                ),
-                citations=[],
+            yield (
+                "I couldn't find any relevant information in your uploaded "
+                "documents that answers this question."
             )
+            return
 
         messages = self._prompt_builder.build(
             request=request,

@@ -86,6 +86,10 @@ class ParagraphStage(BaseChunkStage):
 
                 source_type=block.metadata.get("source_type"),
 
+                source=data.metadata.file_name,
+
+                parser=block.metadata.get("parser"),
+
                 sheet_name=block.metadata.get("sheet_name"),
 
                 #
@@ -130,6 +134,8 @@ class ParagraphStage(BaseChunkStage):
                 block_type=block.block_type,
 
                 heading_level=block.level,
+
+                provenance=list(block.provenance),
 
             )
 

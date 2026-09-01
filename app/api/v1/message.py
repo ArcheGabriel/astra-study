@@ -1,4 +1,5 @@
 import json
+from dataclasses import asdict
 
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import StreamingResponse
@@ -65,12 +66,16 @@ def stream_message(
 
     def event_stream():
         try:
-            for chunk in conversation_service.stream_message(
+            for event in conversation_service.stream_message(
                 chat_id=chat_id,
                 current_user=current_user,
                 message_data=message_data,
             ):
-                yield f"data: {json.dumps({'text': chunk})}\n\n"
+                if event.text is not None:
+                    yield f"data: {json.dumps({'text': event.text})}\n\n"
+                elif event.citations is not None:
+                    data = [asdict(citation) for citation in event.citations]
+                    yield f"event: citations\ndata: {json.dumps({'citations': data})}\n\n"
 
             yield "event: done\ndata: {}\n\n"
 

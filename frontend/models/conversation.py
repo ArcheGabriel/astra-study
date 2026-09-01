@@ -12,6 +12,11 @@ class Citation:
     section: str | None = None
     score: float | None = None
     chunk_id: str | None = None
+    source_type: str | None = None
+    sheet_name: str | None = None
+    heading_path: list[str] | None = None
+    block_type: str | None = None
+    provenance: list[dict] | None = None
 
     @classmethod
     def from_dict(cls, data: dict) -> "Citation":

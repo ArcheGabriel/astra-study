@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Any
 
 from app.enums.message import MessageRole
 from app.retrieval.models import RetrievalResult
@@ -42,6 +43,19 @@ class Citation:
     source: str
     page: int | None = None
     section: str | None = None
+    source_type: str | None = None
+    sheet_name: str | None = None
+    heading_path: list[str] | None = None
+    block_type: str | None = None
+    chunk_id: str | None = None
+    provenance: list[dict[str, Any]] | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class StreamEvent:
+    """Internal streaming event; text and citations never share a payload."""
+    text: str | None = None
+    citations: list[Citation] | None = None
 
 
 @dataclass(frozen=True, slots=True)

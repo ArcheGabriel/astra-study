@@ -1,6 +1,19 @@
 from dataclasses import dataclass, field
+from typing import Any
 
 from app.enums.block import BlockType
+
+
+@dataclass(slots=True)
+class BlockProvenance:
+    """A compact, parser-neutral reference to the source of one block."""
+
+    page_number: int | None = None
+    bbox: dict[str, float | str] | None = None
+    source_item_id: str | None = None
+    charspan: tuple[int, int] | None = None
+    sheet_name: str | None = None
+    table_index: int | None = None
 
 
 @dataclass(slots=True)
@@ -37,6 +50,8 @@ class DocumentBlock:
     # Additional parser-specific information
     # --------------------------------------------------
 
-    metadata: dict[str, str] = field(
+    metadata: dict[str, Any] = field(
         default_factory=dict,
     )
+
+    provenance: list[BlockProvenance] = field(default_factory=list)

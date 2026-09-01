@@ -10,6 +10,7 @@ from app.embeddings.models import EmbeddedChunk
 from app.search.sparse.models import SparseEmbeddedChunk
 
 from uuid import UUID
+from dataclasses import asdict
 from qdrant_client.models import ScoredPoint
 from app.search.hybrid.models import HybridSearchResult
 
@@ -51,7 +52,7 @@ class HybridMapper:
 
         return {
 
-            "schema_version": 1,
+            "schema_version": 2,
 
             #
             # Document
@@ -71,6 +72,10 @@ class HybridMapper:
             "language": metadata.language,
 
             "source_type": metadata.source_type,
+
+            "source": metadata.source or metadata.document_name,
+
+            "parser": metadata.parser,
 
             "sheet_name": metadata.sheet_name,
 
@@ -118,6 +123,8 @@ class HybridMapper:
             "heading_level": metadata.heading_level,
 
             "heading_path": metadata.heading_path,
+
+            "provenance": [asdict(reference) for reference in metadata.provenance],
 
             #
             # Retrieval

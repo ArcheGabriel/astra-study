@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from collections.abc import Iterator
+from typing import Callable
 
 import requests
 
@@ -52,6 +53,7 @@ class MessageService:
         self,
         chat_id: int,
         content: str,
+        on_citations: Callable[[list], None] | None = None,
     ) -> Iterator[str]:
         """
         Yield assistant text chunks from the message SSE endpoint.
@@ -87,6 +89,11 @@ class MessageService:
 
                 if event == "done":
                     return
+
+                if event == "citations":
+                    if on_citations is not None:
+                        on_citations(payload.get("citations", []))
+                    continue
 
                 text = payload.get("text")
 

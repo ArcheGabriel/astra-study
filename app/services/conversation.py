@@ -9,6 +9,7 @@ from app.models.user import User
 from app.repositories.chat import ChatRepository
 from app.repositories.message import MessageRepository
 from app.schemas.conversation import ConversationResponse
+from app.generation.models import StreamEvent
 from app.schemas.message import (
     MessageCreate,
     MessageResponse,
@@ -108,7 +109,7 @@ class ConversationService:
         chat_id: int,
         current_user: User,
         message_data: MessageCreate,
-    ) -> Iterator[str]:
+    ) -> Iterator[StreamEvent]:
         """
         Stream an AI response while persisting the final assistant message.
         """
@@ -135,13 +136,14 @@ class ConversationService:
 
         chunks: list[str] = []
 
-        for chunk in self.ai_pipeline.stream_response(
+        for event in self.ai_pipeline.stream_response(
             conversation=conversation,
             user_id=current_user.id,
             summary=chat.summary,
         ):
-            chunks.append(chunk)
-            yield chunk
+            if event.text is not None:
+                chunks.append(event.text)
+            yield event
 
         complete_response = "".join(chunks)
 

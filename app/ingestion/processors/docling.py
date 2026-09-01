@@ -24,7 +24,7 @@ from docling.document_converter import (
     WordFormatOption,
 )
 
-from app.document.models import DocumentBlock
+from app.document.models import BlockProvenance, DocumentBlock
 from app.enums.block import BlockType
 from app.ingestion.base import BaseProcessor
 from app.ingestion.models import DocumentMetadata, ExtractionResult, ExtractedTable
@@ -96,6 +96,9 @@ class DoclingProcessor(BaseProcessor):
             if block is None:
                 continue
             block.block_index = len(blocks)
+            if block.block_type is BlockType.TABLE:
+                for reference in block.provenance:
+                    reference.table_index = len(tables)
             blocks.append(block)
             if block.block_type is BlockType.TABLE:
                 tables.append(
@@ -128,6 +131,8 @@ class DoclingProcessor(BaseProcessor):
         if sheet_name:
             metadata["sheet_name"] = sheet_name
 
+        provenance = self._provenance(item, sheet_name)
+
         if label == "table":
             text = item.export_to_markdown(doc=document).strip()
             block_type = BlockType.TABLE
@@ -154,6 +159,7 @@ class DoclingProcessor(BaseProcessor):
             level=max(level, 1) if block_type is BlockType.HEADING else 0,
             page_number=page_number,
             metadata=metadata,
+            provenance=provenance,
         )
 
     @staticmethod
@@ -161,6 +167,39 @@ class DoclingProcessor(BaseProcessor):
         provenance = getattr(item, "prov", None) or []
         page_no = getattr(provenance[0], "page_no", None) if provenance else None
         return page_no if isinstance(page_no, int) and page_no > 0 else None
+
+    @staticmethod
+    def _provenance(item: Any, sheet_name: str | None) -> list[BlockProvenance]:
+        """Map Docling's public ``item.prov`` records without assuming all
+        converters provide every field.  In Docling 2.124 these records expose
+        page_no, bbox and charspan; bbox coordinates remain in Docling's
+        coordinate system and carry its ``coord_origin`` when supplied.
+        """
+        references: list[BlockProvenance] = []
+        item_id = getattr(item, "self_ref", None)
+        item_id = str(item_id) if item_id is not None else None
+        for record in getattr(item, "prov", None) or []:
+            page = getattr(record, "page_no", None)
+            page = page if isinstance(page, int) and page > 0 else None
+            bbox = getattr(record, "bbox", None)
+            coordinates = None
+            if bbox is not None:
+                values = {key: getattr(bbox, key, None) for key in ("l", "t", "r", "b")}
+                if all(isinstance(value, (int, float)) for value in values.values()):
+                    coordinates = {
+                        "left": float(values["l"]), "top": float(values["t"]),
+                        "right": float(values["r"]), "bottom": float(values["b"]),
+                    }
+                    origin = getattr(bbox, "coord_origin", None)
+                    if origin is not None:
+                        coordinates["coord_origin"] = str(getattr(origin, "value", origin))
+            charspan = getattr(record, "charspan", None)
+            if not (isinstance(charspan, tuple) and len(charspan) == 2):
+                charspan = None
+            references.append(BlockProvenance(page, coordinates, item_id, charspan, sheet_name))
+        if not references and (item_id or sheet_name):
+            references.append(BlockProvenance(source_item_id=item_id, sheet_name=sheet_name))
+        return references
 
     @staticmethod
     def _sheet_name(item: Any, document: Any) -> str | None:

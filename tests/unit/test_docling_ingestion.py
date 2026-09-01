@@ -10,10 +10,10 @@ from app.ingestion.processors.docling import DoclingProcessor
 
 
 class FakeItem:
-    def __init__(self, label, text="", page_no=None, parent=None):
+    def __init__(self, label, text="", page_no=None, parent=None, bbox=None):
         self.label = SimpleNamespace(value=label)
         self.text = text
-        self.prov = [] if page_no is None else [SimpleNamespace(page_no=page_no)]
+        self.prov = [] if page_no is None else [SimpleNamespace(page_no=page_no, bbox=bbox)]
         self.parent = parent
 
     def export_to_markdown(self, doc):
@@ -87,6 +87,21 @@ def test_pdf_page_and_section_metadata_survive_chunking(tmp_path):
     chunks = ChunkPipeline().run(result)
     assert chunks[-1].metadata.page_start == 2
     assert chunks[-1].metadata.section_title == "1 Introduction"
+
+
+def test_docling_bbox_and_table_provenance_survive_chunking(tmp_path):
+    path = tmp_path / "table.pdf"
+    path.write_bytes(b"fixture")
+    bbox = SimpleNamespace(l=10, t=20, r=30, b=40, coord_origin="TOPLEFT")
+    result = DoclingProcessor(FakeConverter(FakeDocument([
+        (FakeItem("table", "| A | B |", page_no=3, bbox=bbox), 1),
+    ]))).extract(path)
+
+    reference = result.blocks[0].provenance[0]
+    assert reference.page_number == 3
+    assert reference.bbox == {"left": 10.0, "top": 20.0, "right": 30.0, "bottom": 40.0, "coord_origin": "TOPLEFT"}
+    assert reference.table_index == 0
+    assert ChunkPipeline().run(result)[0].metadata.provenance[0].bbox == reference.bbox
 
 
 def test_unsupported_extension_is_rejected_by_factory(tmp_path):

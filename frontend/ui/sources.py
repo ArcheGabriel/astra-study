@@ -134,10 +134,16 @@ def _render_citations() -> None:
         "Retrieved Sources"
     )
 
-    for index, citation in enumerate(
-        citations,
-        start=1,
-    ):
+    unique: list = []
+    seen: set[tuple] = set()
+    for citation in citations:
+        key = (getattr(citation, "source", None), getattr(citation, "page", None),
+               getattr(citation, "section", None), getattr(citation, "sheet_name", None))
+        if key not in seen:
+            seen.add(key)
+            unique.append(citation)
+
+    for index, citation in enumerate(unique, start=1):
 
         source = getattr(
             citation,
@@ -156,6 +162,9 @@ def _render_citations() -> None:
             "section",
             None,
         )
+
+        sheet_name = getattr(citation, "sheet_name", None)
+        block_type = getattr(citation, "block_type", None)
 
         score = getattr(
             citation,
@@ -177,6 +186,12 @@ def _render_citations() -> None:
                 st.write(
                     f"**Section:** {section}"
                 )
+
+            if sheet_name:
+                st.write(f"**Sheet:** {sheet_name}")
+
+            if block_type == "table":
+                st.write("**Content:** Table")
 
             if score is not None:
                 st.write(

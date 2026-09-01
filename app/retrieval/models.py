@@ -4,6 +4,7 @@ from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
 from typing import SupportsIndex
 from uuid import UUID
+from typing import Any
 
 
 @dataclass(frozen=True, slots=True)
@@ -26,6 +27,12 @@ class RetrievedContext:
     page: int | None = None
 
     section: str | None = None
+
+    source_type: str | None = None
+    sheet_name: str | None = None
+    heading_path: list[str] | None = None
+    block_type: str | None = None
+    provenance: list[dict[str, Any]] | None = None
 
 
 @dataclass(frozen=True, slots=True)

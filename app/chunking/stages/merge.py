@@ -44,6 +44,10 @@ class SemanticChunkBuilder:
                 text,
             )
 
+        for reference in chunk.metadata.provenance:
+            if reference not in self.metadata.provenance:
+                self.metadata.provenance.append(reference)
+
         #
         # Update ranges
         #

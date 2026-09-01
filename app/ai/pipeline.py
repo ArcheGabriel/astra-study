@@ -10,6 +10,7 @@ from app.config.settings import settings
 from app.generation.models import (
     ConversationMessage,
     GenerationRequest,
+    StreamEvent,
 )
 from app.generation.service import GenerationService
 from app.models.message import ChatMessage
@@ -107,7 +108,7 @@ class AIPipeline:
         conversation: list[ChatMessage],
         user_id: int,
         summary: str | None = None,
-    ) -> Iterator[str]:
+    ) -> Iterator[StreamEvent]:
         """
         Stream an assistant response using Retrieval-Augmented Generation.
         """
@@ -140,9 +141,9 @@ class AIPipeline:
             ),
         )
 
-        yield from self._generation_service.stream(
-            request,
-        )
+        for text in self._generation_service.stream(request):
+            yield StreamEvent(text=text)
+        yield StreamEvent(citations=self._generation_service.citations_for(request))
 
     @traceable(
         name="Generate Chat Title",
