@@ -16,7 +16,7 @@ class ImageHandler(BaseHandler):
     """
     Handles OCR text extracted from figures/images.
 
-    PyMuPDF4LLM emits these as HTML blocks or paragraphs
+    Markdown-based parsers may emit these as HTML blocks or paragraphs
     containing the OCR markers.
     """
 

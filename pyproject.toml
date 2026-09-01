@@ -21,8 +21,6 @@ dependencies = [
     "pwdlib[argon2]>=0.3.0",
     "pydantic-settings>=2.14.2",
     "pyjwt>=2.13.0",
-    "pymupdf>=1.28.0",
-    "pymupdf4llm>=1.28.0",
     "python-dotenv>=1.2.2",
     "python-jose[cryptography]>=3.5.0",
     "python-multipart>=0.0.32",
@@ -40,6 +38,7 @@ dependencies = [
     "pyyaml>=6.0.3",
     "requests>=2.32.0",
     "streamlit>=1.48.0",
+    "docling>=2.99.0",
 ]
 
 [dependency-groups]

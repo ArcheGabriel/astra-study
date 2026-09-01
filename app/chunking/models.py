@@ -40,6 +40,10 @@ class ChunkMetadata:
 
     source: str | None = None
 
+    source_type: str | None = None
+
+    sheet_name: str | None = None
+
     language: str | None = None
     
     # ==================================================

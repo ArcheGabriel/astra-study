@@ -12,7 +12,7 @@ class FormulaHandler(BaseHandler):
     """
     Placeholder for mathematical expressions.
 
-    PyMuPDF4LLM currently emits most formulas as text.
+    Markdown-based parsers commonly emit formulas as text.
     This handler prepares the pipeline for future
     LaTeX/MathML support.
     """

@@ -84,6 +84,10 @@ class ParagraphStage(BaseChunkStage):
 
                 language=data.metadata.language,
 
+                source_type=block.metadata.get("source_type"),
+
+                sheet_name=block.metadata.get("sheet_name"),
+
                 #
                 # Chunk
                 #

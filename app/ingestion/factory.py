@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from app.ingestion.base import BaseProcessor
-from app.ingestion.processors.pdf import PDFProcessor
+from app.ingestion.processors.docling import DoclingProcessor
 
 
 class ProcessorFactory:
@@ -16,8 +16,8 @@ class ProcessorFactory:
 
         suffix = file_path.suffix.lower()
 
-        if suffix == ".pdf":
-            return PDFProcessor()
+        if suffix in {".pdf", ".docx", ".xlsx", ".csv", ".jpg", ".jpeg", ".png"}:
+            return DoclingProcessor()
 
         raise ValueError(
             f"No processor registered for '{suffix}'."

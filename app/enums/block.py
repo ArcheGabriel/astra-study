@@ -8,7 +8,7 @@ class BlockType(StrEnum):
     This enum is parser-independent and is shared across
     ingestion, chunking, embeddings and retrieval.
 
-    Every parser (PyMuPDF4LLM, Docling, OCR, etc.)
+    Every parser (Docling, OCR, etc.)
     should map its native output into one of these types.
     """
 

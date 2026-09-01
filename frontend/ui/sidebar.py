@@ -214,6 +214,7 @@ Astra <span>Study</span>
         uploaded_files = st.file_uploader(
             "Upload Documents",
             accept_multiple_files=True,
+            type=["pdf", "docx", "xlsx", "csv", "jpg", "jpeg", "png"],
             label_visibility="collapsed",
         )
 

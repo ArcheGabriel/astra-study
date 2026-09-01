@@ -106,16 +106,28 @@ class Settings(BaseSettings):
     ALLOWED_DOCUMENT_EXTENSIONS: tuple[str, ...] = (
         ".pdf",
         ".docx",
-        ".txt",
-        ".md",
+        ".xlsx",
+        ".csv",
+        ".jpg",
+        ".jpeg",
+        ".png",
     )
 
     ALLOWED_CONTENT_TYPES: tuple[str, ...] = (
         "application/pdf",
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        "text/plain",
-        "text/markdown",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "text/csv",
+        "application/csv",
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
     )
+
+    DOCLING_OCR_ENABLED: bool = True
+    DOCLING_OCR_LANGUAGES: tuple[str, ...] = ("en",)
+    DOCLING_FORCE_FULL_PAGE_OCR: bool = False
+    DOCLING_DISABLE_HF_SYMLINKS: bool = True
 
     # ------------------------------------------------------------------
     # Embeddings

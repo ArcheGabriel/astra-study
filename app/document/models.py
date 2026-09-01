@@ -11,7 +11,7 @@ class DocumentBlock:
     This is the canonical representation produced by the
     document layer and consumed by the chunking pipeline.
 
-    Every parser (PyMuPDF4LLM, Docling, OCR, HTML, etc.)
+    Every parser (Docling, OCR, HTML, etc.)
     should map its output into this model.
     """
 

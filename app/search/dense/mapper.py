@@ -57,6 +57,10 @@ class DenseMapper:
 
             "language": metadata.language,
 
+            "source_type": metadata.source_type,
+
+            "sheet_name": metadata.sheet_name,
+
             #
             # Chunk
             #

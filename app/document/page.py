@@ -5,7 +5,7 @@ from typing import Any
 @dataclass(slots=True)
 class MarkdownPage:
     """
-    Represents one page extracted by PyMuPDF4LLM.
+    Represents one Markdown page produced by a parser.
 
     This is the canonical representation of a page before
     it is parsed into semantic DocumentBlocks.
