@@ -17,6 +17,9 @@ class Citation:
     heading_path: list[str] | None = None
     block_type: str | None = None
     provenance: list[dict] | None = None
+    page_end: int | None = None
+    parser: str | None = None
+    excerpt: str | None = None
 
     @classmethod
     def from_dict(cls, data: dict) -> "Citation":

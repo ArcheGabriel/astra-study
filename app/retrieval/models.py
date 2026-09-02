@@ -33,6 +33,8 @@ class RetrievedContext:
     heading_path: list[str] | None = None
     block_type: str | None = None
     provenance: list[dict[str, Any]] | None = None
+    page_end: int | None = None
+    parser: str | None = None
 
 
 @dataclass(frozen=True, slots=True)

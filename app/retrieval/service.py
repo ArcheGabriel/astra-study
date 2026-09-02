@@ -104,6 +104,8 @@ class RetrievalService(BaseRetrievalService):
                     heading_path=payload.get("heading_path") or None,
                     block_type=payload.get("block_type"),
                     provenance=payload.get("provenance") or None,
+                    page_end=payload.get("page_end"),
+                    parser=payload.get("parser"),
                 )
             )
 

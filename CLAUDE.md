@@ -1,0 +1,166 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Overview
+
+Astra Study is an AI-powered multimodal study assistant: a Retrieval-Augmented Generation
+(RAG) chat over user-uploaded documents. The repo contains three deployable pieces plus a
+migration and evaluation harness:
+
+- `app/` – FastAPI backend (API, RAG pipeline, auth, persistence)
+- `frontend/` – Streamlit workspace UI that talks to the backend over HTTP/SSE
+- `evaluation/` – LangSmith dataset sync + experiment runner
+- `alembic/` – database migrations
+
+Package/dependency manager is **uv**. Python 3.11–3.13.
+
+The top-level `ingestion/`, `orchestration/`, `prompts/`, `docs/`, `docker/` directories are
+empty placeholders — all real code lives under `app/`, `frontend/`, and `evaluation/`.
+
+## Commands
+
+```bash
+uv sync                                             # install deps (incl. dev group)
+cp .env.example .env                                # then fill in secrets
+
+uv run uvicorn app.main:app --reload                # backend on :8000, prefix /api/v1
+uv run python -m streamlit run frontend/app.py      # frontend (expects backend on 127.0.0.1:8000)
+
+uv run alembic upgrade head                         # apply migrations
+uv run alembic revision --autogenerate -m "msg"     # new migration
+
+uv run pytest -q                                    # full suite
+uv run pytest tests/unit -q                         # unit only (fast; ML deps are faked)
+uv run pytest tests/unit/test_provenance.py -q      # one file
+uv run pytest tests/unit/test_provenance.py::test_pdf_page_and_bbox_provenance -q   # one test
+
+uv run python -m evaluation.runner                  # run LangSmith evaluation experiment
+```
+
+Frontend API base URL is overridable with `ASTRA_API_URL`.
+
+pytest config lives in `pyproject.toml`: `pythonpath=["."]`, `testpaths=["tests"]`. Root-level
+`test_*.py` files (`test_chunk_pipeline.py`, etc.) are legacy scratch scripts and are **not**
+collected.
+
+`tests/unit/` fakes Docling and all ML models and is the fast, self-contained suite. `tests/integration/`
+are script-style tests that hit **live** services (real Qdrant, OpenAI, and the downloaded
+CrossEncoder/embedding models) and a populated vector store — run them deliberately, not as part
+of a normal check.
+
+## Architecture
+
+### Request/DI layering (backend)
+
+`app/api/v1/*` routers → `app/services/*` (orchestration) → `app/repositories/*` (DB access) +
+domain packages (`chunking`, `search`, `retrieval`, `reranking`, `generation`, `ingestion`, `ai`).
+
+- `app/dependencies/services.py` – per-request wiring of services/repositories (FastAPI `Depends`).
+- `app/dependencies/resources.py` – process-wide `@lru_cache(maxsize=1)` singletons for heavy ML
+  models: the OpenAI-backed `LLMService` and the CrossEncoder `RerankingService`. The reranker is
+  preloaded in `app/main.py`'s lifespan so the model is warm before the first request.
+- `app/dependencies/auth.py::get_current_user` – OAuth2 password bearer + JWT; every chat and
+  document route depends on it, and retrieval is always scoped to the authenticated `user_id`.
+
+### Ingestion pipeline (upload → vectors)
+
+1. `POST /api/v1/documents` stores the file and schedules ingestion via FastAPI `BackgroundTasks`
+   (`IngestionService.ingest_document`).
+2. `app/ingestion/factory.py::ProcessorFactory` selects a processor by extension. **Docling is the
+   only processor** (`app/ingestion/processors/docling.py`) and handles `.pdf .docx .xlsx .csv
+   .jpg .jpeg .png`, with RapidOCR for scanned/image input. It emits an `ExtractionResult` of
+   `DocumentBlock`s, each carrying `BlockProvenance` (`app/document/models.py`).
+3. `app/chunking/pipeline.py::ChunkPipeline` runs 8 ordered stages:
+   `Paragraph → Metadata → Merge → Recursive → Semantic → Filter → Quality → Finalize`.
+   `MetadataStage` reconstructs `heading_path`/`section_title` from numbered headings;
+   `FinalizeStage` assigns deterministic `uuid5` chunk/document IDs (derived from the file
+   checksum, so re-ingesting an identical file is idempotent).
+4. `app/search/hybrid/pipeline.py::HybridPipeline.index` embeds each chunk as a **dense** vector
+   (OpenAI embeddings) and a **sparse** vector, then upserts to Qdrant with a compact,
+   JSON-serializable payload built by `app/search/{dense,hybrid}/mapper.py` (never whole Docling
+   objects).
+
+### Retrieval + generation (`app/ai/pipeline.py::AIPipeline`)
+
+conversation history → LLM query rewrite → `RetrievalService`:
+Qdrant hybrid query filtered by `user_id` (`QDRANT_HYBRID_CANDIDATE_LIMIT` = 50) →
+CrossEncoder `RerankingService` → top `RETRIEVAL_TOP_K` (= 5) `RetrievedContext` objects →
+`GenerationService` builds the prompt (`app/generation/prompt_builder.py`), streams the answer
+from OpenAI, and derives citations.
+
+`app/ai/` is the orchestration layer (query rewriting, title/summary generation, the
+conversation `AIPipeline`); `app/generation/` is the narrower "build prompt → call LLM →
+produce `GenerationResponse` + citations" step that `AIPipeline` calls into. `ConversationService`
+(`app/services/conversation.py`) sits above `AIPipeline` and owns message persistence + the SSE
+event loop.
+
+### Citations (single source of truth)
+
+`GenerationService.citations_for(request)` (`app/generation/service.py`) is the **only** place
+citations are produced, and is used by both the streaming and non-streaming endpoints so they
+never diverge. The `Citation` model (`app/generation/models.py`) is a frozen dataclass; new
+fields must be optional/`None`-defaulted for backward compatibility.
+
+Provenance data flow, end to end:
+`Docling item.prov` → `BlockProvenance` → `ChunkMetadata.provenance` → Qdrant payload
+`provenance` → `RetrievedContext.provenance` → `Citation.provenance`.
+
+Docling 2.124 only exposes `page_no`, `bbox` (`l/t/r/b` + `coord_origin`) and `charspan` per
+item, and no per-item OCR flag. **Missing metadata must stay `null` — never fabricate pages,
+sections, sheet names, bboxes or OCR status.** DOCX/XLSX/CSV legitimately have no page number;
+lean on `heading_path`/`section` and `sheet_name` instead.
+
+Treated as frozen unless a change is explicitly required for citation correctness: retrieval
+ranking, chunking strategy, the SSE streaming protocol, and the Streamlit layout. Citation-
+precision work is deterministic (no LLM in the citation path).
+
+### Streaming protocol
+
+`POST /api/v1/chats/{chat_id}/messages/stream` returns SSE:
+
+```
+data: {"text": "..."}          # repeated
+event: citations
+data: {"citations": [...]}      # exactly once, after all text
+event: done
+data: {}
+```
+
+`POST /api/v1/chats/{chat_id}/messages` is the non-streaming equivalent and returns the same
+citation payload.
+
+### Frontend
+
+`frontend/app.py` renders a fixed 3-column Streamlit layout (sidebar / workspace / sources panel).
+`frontend/api/*` are thin HTTP clients over the backend (`api_client.py` handles auth + SSE
+parsing); `frontend/ui/*` are the view functions; `frontend/models/*` are response DTOs. All
+cross-render state (JWT token, active chat, messages, citations, documents) lives in
+`st.session_state`, initialised in `frontend/ui/state.py`. Auth is a JWT bearer token obtained
+from `/api/v1/auth` and attached to every request.
+
+### Persistence
+
+- **PostgreSQL** via SQLAlchemy 2.0 + Alembic – users, chats, messages, documents
+  (`DATABASE_URL`). A checked-in `astra_study.db` SQLite file exists for local dev.
+- **Qdrant** – one collection (`QDRANT_COLLECTION_NAME`, default `astra_study`) with named
+  vectors `dense` and `sparse`; payload includes a `schema_version` field. `docker-compose.yml`
+  is empty — run Qdrant separately (default `:6333`).
+- **Local filesystem** (`storage/`) – uploaded source files.
+
+### Observability
+
+LangSmith tracing is pervasive via `@traceable` decorators on service/pipeline methods;
+`app/main.py`'s lifespan exports the `LANGSMITH_*` env vars. Langfuse is also configured.
+
+## Environment / platform notes
+
+- All required env vars are declared in `app/config/settings.py` (`pydantic-settings`); start
+  from `.env.example`. Missing non-defaulted vars fail app startup.
+- Windows: `DOCLING_DISABLE_HF_SYMLINKS=true` makes `app/ingestion/processors/docling.py` set
+  `HF_HUB_DISABLE_SYMLINKS` before importing Docling, so first-run HuggingFace model downloads
+  work without Developer Mode.
+- Unit tests fake Docling and the ML models; do not add tests that require downloading models.
+- Known pre-existing unit failures: `tests/unit/retrieval/test_service.py` (4 tests) call
+  `RetrievalService.retrieve`/`__call__` positionally, but the signatures are keyword-only.
+  Unrelated to current work.

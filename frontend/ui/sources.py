@@ -120,6 +120,27 @@ height="650">
         )
 
 
+def _normalize_heading_path(heading_path: list[str] | None) -> list[str]:
+    """
+    Presentation-only cleanup: collapse consecutive duplicate heading
+    entries (e.g. a top-level heading repeated verbatim as its own
+    immediate child) so "Executive Summary -> Executive Summary" reads as
+    "Executive Summary". The raw heading_path sent by the backend is never
+    modified -- only what is displayed here.
+    """
+
+    if not heading_path:
+        return []
+
+    normalized: list[str] = []
+
+    for heading in heading_path:
+        if not normalized or normalized[-1] != heading:
+            normalized.append(heading)
+
+    return normalized
+
+
 def _render_citations() -> None:
     """
     Display retrieved citations.
@@ -138,7 +159,8 @@ def _render_citations() -> None:
     seen: set[tuple] = set()
     for citation in citations:
         key = (getattr(citation, "source", None), getattr(citation, "page", None),
-               getattr(citation, "section", None), getattr(citation, "sheet_name", None))
+               getattr(citation, "section", None), getattr(citation, "sheet_name", None),
+               getattr(citation, "chunk_id", None))
         if key not in seen:
             seen.add(key)
             unique.append(citation)
@@ -165,12 +187,14 @@ def _render_citations() -> None:
 
         sheet_name = getattr(citation, "sheet_name", None)
         block_type = getattr(citation, "block_type", None)
-
-        score = getattr(
-            citation,
-            "score",
-            None,
+        page_end = getattr(citation, "page_end", None)
+        parser = getattr(citation, "parser", None)
+        heading_path = _normalize_heading_path(
+            getattr(citation, "heading_path", None)
         )
+        chunk_id = getattr(citation, "chunk_id", None)
+
+        score = getattr(citation, "score", None)
 
         with st.expander(
             f"{index}. {source}",
@@ -178,39 +202,40 @@ def _render_citations() -> None:
         ):
 
             if page is not None:
-                st.write(
-                    f"**Page:** {page}"
-                )
-
-            if section:
-                st.write(
-                    f"**Section:** {section}"
-                )
+                is_range = page_end is not None and page_end != page
+                label = f"{page}–{page_end}" if is_range else f"{page}"
+                st.write(f"**{'Pages' if is_range else 'Page'}:** {label}")
 
             if sheet_name:
                 st.write(f"**Sheet:** {sheet_name}")
 
-            if block_type == "table":
-                st.write("**Content:** Table")
-
-            if score is not None:
+            if heading_path:
                 st.write(
-                    f"**Score:** {score:.4f}"
+                    "**Location:** " + " › ".join(heading_path)
                 )
+            elif section:
+                st.write(f"**Section:** {section}")
 
-            excerpt = getattr(
-                citation,
-                "text",
-                None,
+            if block_type:
+                st.write(f"**Content type:** {block_type.replace('_', ' ').title()}")
+
+            excerpt = getattr(citation, "excerpt", None) or getattr(
+                citation, "text", None
             )
 
             if excerpt:
-
                 st.markdown("---")
+                st.write(f"*“{excerpt}”*")
 
-                st.write(
-                    excerpt
-                )
+            details = []
+            if parser:
+                details.append(f"Parser: {parser}")
+            if score is not None:
+                details.append(f"Score: {score:.4f}")
+            if chunk_id:
+                details.append(f"Chunk: {chunk_id[:8]}…")
+            if details:
+                st.caption(" · ".join(details))
 
 
 def _render_uploaded_documents() -> None:

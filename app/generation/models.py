@@ -49,6 +49,11 @@ class Citation:
     block_type: str | None = None
     chunk_id: str | None = None
     provenance: list[dict[str, Any]] | None = None
+    # Additional, backward-compatible fields (None when unavailable).
+    page_end: int | None = None
+    parser: str | None = None
+    score: float | None = None
+    excerpt: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
