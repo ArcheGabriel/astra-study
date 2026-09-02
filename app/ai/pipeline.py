@@ -141,9 +141,17 @@ class AIPipeline:
             ),
         )
 
+        answer_parts: list[str] = []
         for text in self._generation_service.stream(request):
+            answer_parts.append(text)
             yield StreamEvent(text=text)
-        yield StreamEvent(citations=self._generation_service.citations_for(request))
+        # Citations are still emitted exactly once, after all answer text --
+        # now with the assembled answer so answer-grounding can be scored.
+        yield StreamEvent(
+            citations=self._generation_service.citations_for(
+                request, "".join(answer_parts),
+            )
+        )
 
     @traceable(
         name="Generate Chat Title",

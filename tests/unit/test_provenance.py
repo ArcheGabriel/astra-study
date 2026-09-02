@@ -522,3 +522,314 @@ def test_missing_metadata_is_never_fabricated_in_citations():
     assert citation.heading_path is None
     assert citation.parser is None
     assert citation.provenance is None
+
+
+# ---------------------------------------------------------------------------
+# Answer/evidence alignment: deterministic answer-grounding of citations
+#
+# `citations_for` can optionally receive the generated answer. When it does,
+# citations that the answer actually draws on are surfaced first, without
+# dropping, merging, or fabricating any evidence. When it does not, ordering
+# is byte-identical to the query-only behaviour (backward compatible).
+# ---------------------------------------------------------------------------
+
+
+def test_answer_grounding_reorders_toward_evidence_the_answer_used():
+    unused = _context(
+        text="Alpha section covers deployment pipelines and infrastructure automation tooling.",
+        source="doc.pdf", page=1, section="Alpha", heading_path=["Alpha"],
+        reranker_score=0.9,
+    )
+    used = _context(
+        text="Beta section states the mitochondrion is the powerhouse of the cell producing ATP.",
+        source="doc.pdf", page=2, section="Beta", heading_path=["Beta"],
+        reranker_score=0.9,
+    )
+    request = GenerationRequest(
+        "Tell me about cell biology",  # no overlap with either heading
+        RetrievalResult("q", [unused, used], 0.1),
+    )
+    answer = "The mitochondrion is the powerhouse of the cell and produces ATP for the cell."
+
+    citations = GenerationService.citations_for(request, answer)
+
+    assert {c.page for c in citations} == {1, 2}          # nothing dropped
+    assert citations[0].page == 2                          # answer-grounded chunk first
+    assert citations[0].answer_support > citations[1].answer_support
+
+
+def test_answer_support_is_measured_only_when_an_answer_is_supplied():
+    ctx = _context(
+        text="The primary customer segment is early-career software engineers worldwide.",
+    )
+    with_answer = GenerationService.citations_for(
+        GenerationRequest("q", RetrievalResult("q", [ctx], 0.1)),
+        "Early-career software engineers are the primary customer segment.",
+    )[0]
+    without_answer = GenerationService.citations_for(
+        GenerationRequest("q", RetrievalResult("q", [ctx], 0.1)),
+    )[0]
+
+    assert isinstance(with_answer.answer_support, float)
+    assert 0.0 <= with_answer.answer_support <= 1.0
+    assert without_answer.answer_support is None
+
+
+def test_citation_order_unchanged_without_answer_and_for_unrelated_answer():
+    a = _context(text="alpha body text that is reasonably long for scoring", page=1,
+                 section="Alpha", heading_path=["Alpha"], reranker_score=0.9)
+    b = _context(text="beta body text that is reasonably long for scoring", page=2,
+                 section="Beta", heading_path=["Beta"], reranker_score=0.7)
+    request = GenerationRequest(
+        "an unrelated question about zebra migration",
+        RetrievalResult("q", [a, b], 0.1),
+    )
+
+    assert [c.page for c in GenerationService.citations_for(request)] == [1, 2]
+    # An answer that overlaps neither chunk must not perturb the order.
+    assert [
+        c.page for c in GenerationService.citations_for(request, "zebras are striped animals")
+    ] == [1, 2]
+
+
+def test_answer_grounding_scores_short_chunks_as_none_not_zero():
+    """A bare heading chunk is too short to score -- it must come back `None`
+    (unmeasured), never a fabricated 0.0 that labels it 'unsupported'."""
+
+    ctx = _context(text="Abstract", section="Abstract", heading_path=["Abstract"])
+    citation = GenerationService.citations_for(
+        GenerationRequest("q", RetrievalResult("q", [ctx], 0.1)),
+        "Abstract discussion of BERT and its bidirectional transformer pretraining.",
+    )[0]
+    assert citation.answer_support is None
+
+
+def test_answer_grounding_keeps_chunks_distinct_and_provenance_intact():
+    a = _context(
+        text="Bidirectional encoder representations from transformers pretrained with a masked language model.",
+        page=1, section="3 BERT", heading_path=["3 BERT"],
+        provenance=[{"page_number": 1}], reranker_score=0.9,
+    )
+    b = _context(
+        text="Comparison of BERT, ELMo and OpenAI GPT across downstream benchmark tasks and datasets.",
+        page=14, section="A.4 Comparison", heading_path=["A.4 Comparison"],
+        provenance=[{"page_number": 14}], reranker_score=0.9,
+    )
+    answer = (
+        "The model uses bidirectional encoder representations from transformers, "
+        "pretrained with a masked language model objective."
+    )
+    citations = GenerationService.citations_for(
+        GenerationRequest("explain the pretraining approach", RetrievalResult("q", [a, b], 0.1)),
+        answer,
+    )
+
+    assert len(citations) == 2
+    by_page = {c.page: c for c in citations}
+    assert by_page[1].provenance == [{"page_number": 1}]     # not merged / swapped
+    assert by_page[14].provenance == [{"page_number": 14}]
+    assert citations[0].page == 1                             # the chunk the answer used
+
+
+class _FakeStreamGen:
+    citations_for = staticmethod(GenerationService.citations_for)
+
+    def __init__(self, chunks: list[str]) -> None:
+        self._chunks = chunks
+
+    def stream(self, request):
+        yield from self._chunks
+
+
+def test_streaming_citations_reflect_the_streamed_answer():
+    off_topic = _context(
+        text="Alpha section about deployment pipelines and infrastructure automation tooling.",
+        page=1, section="Alpha", heading_path=["Alpha"], reranker_score=0.9,
+    )
+    on_topic = _context(
+        text="Beta section states the mitochondrion is the powerhouse of the cell producing ATP.",
+        page=2, section="Beta", heading_path=["Beta"], reranker_score=0.9,
+    )
+    retrieval = MagicMock()
+    retrieval.retrieve.return_value = RetrievalResult("q", [off_topic, on_topic], 0.1)
+    pipeline = AIPipeline(
+        retrieval,
+        _FakeStreamGen(["The mitochondrion ", "is the powerhouse ", "of the cell."]),
+        MagicMock(),
+    )
+
+    events = list(pipeline.stream_response(conversation=_conversation(), user_id=1))
+    citation_events = [e for e in events if e.citations is not None]
+
+    assert len(citation_events) == 1
+    assert events[-1] is citation_events[0]            # SSE order unchanged
+    assert citation_events[0].citations[0].page == 2   # grounded in the streamed text
+
+
+# ---------------------------------------------------------------------------
+# Intent-weighted heading match: a heading that merely repeats the question's
+# topic/entity must not score like a heading that genuinely names the answer.
+#
+#   "What is BERT?"   -> "BERT" is the topic. A section titled "3 BERT" is
+#                        not automatically the best citation; the Abstract is.
+#   "What is the Primary Customer Segment?" -> "Primary Customer Segment" is
+#                        a real section title and must still win.
+# ---------------------------------------------------------------------------
+
+
+def test_query_term_weights_discount_topic_terms_and_reward_distinctive_ones():
+    from app.generation.service import _query_term_weights
+
+    contexts = [
+        _context(text="BERT is a transformer model for language understanding.",
+                 source="BERT.pdf", section="Abstract", heading_path=["Abstract"]),
+        _context(text="BERT uses a masked language model objective during pretraining.",
+                 source="BERT.pdf", section="1 Introduction", heading_path=["1 Introduction"]),
+        _context(text="We evaluate BERT on the SQuAD question answering benchmark.",
+                 source="BERT.pdf", section="4.2 SQuAD",
+                 heading_path=["4 Experiments", "4.2 SQuAD"]),
+    ]
+    weights = _query_term_weights(
+        GenerationRequest(
+            "What is BERT's performance on SQuAD?",
+            RetrievalResult("q", contexts, 0.1),
+        )
+    )
+
+    assert weights.get("bert", 0.0) == 0.0        # in the file name + every chunk -> topic
+    assert weights.get("performance", 0.0) == 0.0  # appears in no retrieved chunk
+    assert weights["squad"] == 1.0                # pins down exactly one section
+
+
+def test_topic_entity_in_a_heading_does_not_outrank_the_definitional_section():
+    architecture = _context(
+        text=(
+            "BERT's model architecture is a multi-layer bidirectional Transformer "
+            "encoder. We denote the number of layers as L and the hidden size as H."
+        ),
+        source="BERT.pdf", page=3, page_end=4,
+        section="3 BERT", heading_path=["3 BERT"],
+        source_type=".pdf", parser="docling", reranker_score=0.8884,
+    )
+    abstract = _context(
+        text=(
+            "We introduce a new language representation model called BERT. BERT is "
+            "designed to pre-train deep bidirectional representations from unlabeled "
+            "text by jointly conditioning on both left and right context."
+        ),
+        source="BERT.pdf", page=1,
+        section="Abstract", heading_path=["Abstract"],
+        source_type=".pdf", parser="docling", reranker_score=0.9946,
+    )
+    introduction = _context(
+        text=(
+            "Language model pre-training has been effective. BERT alleviates the "
+            "unidirectionality constraint using a masked language model objective."
+        ),
+        source="BERT.pdf", page=1, page_end=2,
+        section="1 Introduction", heading_path=["1 Introduction"],
+        source_type=".pdf", parser="docling", reranker_score=0.9744,
+    )
+    request = GenerationRequest(
+        "What is BERT?",
+        RetrievalResult("q", [architecture, abstract, introduction], 0.1),
+    )
+
+    citations = GenerationService.citations_for(request)
+
+    # Nothing dropped.
+    assert {c.section for c in citations} == {"3 BERT", "Abstract", "1 Introduction"}
+    # "3 BERT" no longer gets a heading bonus just for repeating the entity,
+    # so the definitional sources (ordered by their own reranker score) win.
+    assert citations[0].section == "Abstract"
+    assert citations[-1].section == "3 BERT"
+
+
+def test_distinctive_heading_term_still_earns_the_bonus():
+    """Proves the heading signal is discounted, not disabled: a title that
+    carries a term unique to one retrieved section still outranks a
+    higher-reranked generic section."""
+
+    generic = _context(
+        text="This report covers the whole product end to end for every reader.",
+        source="report.docx", section="Executive Summary",
+        heading_path=["Executive Summary"], reranker_score=0.97,
+    )
+    dedicated = _context(
+        text=(
+            "The onboarding flow walks a new user through account setup, resume "
+            "upload and their first mock interview."
+        ),
+        source="report.docx", section="4.3 Onboarding Flow",
+        heading_path=["4. User Experience", "4.3 Onboarding Flow"],
+        reranker_score=0.90,
+    )
+    request = GenerationRequest(
+        "What does the onboarding flow look like?",
+        RetrievalResult("q", [generic, dedicated], 0.1),
+    )
+
+    citations = GenerationService.citations_for(request)
+    assert citations[0].section == "4.3 Onboarding Flow"
+    assert len(citations) == 2
+
+
+def test_enumeration_query_prefers_the_section_that_names_the_set():
+    executive = _context(
+        text="InterviewAce AI provides end-to-end interview preparation for job seekers.",
+        source="INTERVIEWACE AI Report.docx", section="Executive Summary",
+        heading_path=["Executive Summary"], reranker_score=0.95,
+    )
+    agents = _context(
+        text=(
+            "InterviewAce AI includes four agents: the Resume Agent, the Interview "
+            "Agent, the Feedback Agent and the Scheduling Agent, each with a "
+            "distinct responsibility."
+        ),
+        source="INTERVIEWACE AI Report.docx", section="3. The Four AI Agents",
+        heading_path=["3. The Four AI Agents"], reranker_score=0.90,
+    )
+    one_agent = _context(
+        text="The Interview Agent conducts adaptive mock interviews and scores answers.",
+        source="INTERVIEWACE AI Report.docx", section="3.2 Interview Agent",
+        heading_path=["3. The Four AI Agents", "3.2 Interview Agent"],
+        reranker_score=0.88,
+    )
+    request = GenerationRequest(
+        "What are the four AI agents in InterviewAce AI?",
+        RetrievalResult("q", [executive, agents, one_agent], 0.1),
+    )
+
+    citations = GenerationService.citations_for(request)
+    assert citations[0].section == "3. The Four AI Agents"
+    assert {c.section for c in citations} == {
+        "Executive Summary", "3. The Four AI Agents", "3.2 Interview Agent",
+    }
+
+
+def test_intent_weighting_preserves_provenance_and_determinism():
+    a = _context(
+        text="Executive overview of the whole product for all stakeholders.",
+        source="report.docx", page=2, section="Executive Summary",
+        heading_path=["Executive Summary"], provenance=[{"page_number": 2}],
+        reranker_score=0.96,
+    )
+    b = _context(
+        text="Candidates lack realistic structured interview practice; that is the gap.",
+        source="report.docx", page=5, section="1.2 Problem Statement",
+        heading_path=["1. Business Problem Statement", "1.2 Problem Statement"],
+        provenance=[{"page_number": 5}], reranker_score=0.92,
+    )
+    request = GenerationRequest(
+        "What is the Business Problem Statement?",
+        RetrievalResult("q", [a, b], 0.1),
+    )
+
+    first = GenerationService.citations_for(request)
+    second = GenerationService.citations_for(request)
+
+    assert [c.chunk_id for c in first] == [c.chunk_id for c in second]  # deterministic
+    assert first[0].section == "1.2 Problem Statement"
+    by_page = {c.page: c for c in first}
+    assert by_page[2].provenance == [{"page_number": 2}]   # not merged / swapped
+    assert by_page[5].provenance == [{"page_number": 5}]

@@ -195,6 +195,7 @@ def _render_citations() -> None:
         chunk_id = getattr(citation, "chunk_id", None)
 
         score = getattr(citation, "score", None)
+        answer_support = getattr(citation, "answer_support", None)
 
         with st.expander(
             f"{index}. {source}",
@@ -231,7 +232,9 @@ def _render_citations() -> None:
             if parser:
                 details.append(f"Parser: {parser}")
             if score is not None:
-                details.append(f"Score: {score:.4f}")
+                details.append(f"Reranker score: {score:.4f}")
+            if answer_support is not None:
+                details.append(f"Answer overlap: {answer_support:.2f}")
             if chunk_id:
                 details.append(f"Chunk: {chunk_id[:8]}…")
             if details:

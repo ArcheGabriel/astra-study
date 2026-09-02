@@ -54,6 +54,11 @@ class Citation:
     parser: str | None = None
     score: float | None = None
     excerpt: str | None = None
+    # Deterministic answer/evidence alignment: fraction of this chunk's
+    # distinctive vocabulary that appears in the generated answer (0.0-1.0).
+    # `None` when not measured (no answer available, or chunk too short to
+    # score reliably). Not a probability or confidence.
+    answer_support: float | None = None
 
 
 @dataclass(frozen=True, slots=True)

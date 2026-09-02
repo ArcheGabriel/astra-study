@@ -20,6 +20,7 @@ class Citation:
     page_end: int | None = None
     parser: str | None = None
     excerpt: str | None = None
+    answer_support: float | None = None
 
     @classmethod
     def from_dict(cls, data: dict) -> "Citation":
