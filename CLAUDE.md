@@ -89,6 +89,11 @@ CrossEncoder `RerankingService` → top `RETRIEVAL_TOP_K` (= 5) `RetrievedContex
 `GenerationService` builds the prompt (`app/generation/prompt_builder.py`), streams the answer
 from OpenAI, and derives citations.
 
+`RetrievalService.retrieve` / `__call__` (and `BaseRetrievalService`) are **keyword-only and
+tenant-scoped**: `retrieve(*, query: str, user_id: int)`. An empty result (no hybrid hits, or
+everything filtered out in reranking) returns an empty `RetrievalResult` — it does **not** raise
+(`NoRetrievalResultsError` exists but is unused).
+
 `app/ai/` is the orchestration layer (query rewriting, title/summary generation, the
 conversation `AIPipeline`); `app/generation/` is the narrower "build prompt → call LLM →
 produce `GenerationResponse` + citations" step that `AIPipeline` calls into. `ConversationService`
@@ -97,10 +102,29 @@ event loop.
 
 ### Citations (single source of truth)
 
-`GenerationService.citations_for(request)` (`app/generation/service.py`) is the **only** place
-citations are produced, and is used by both the streaming and non-streaming endpoints so they
-never diverge. The `Citation` model (`app/generation/models.py`) is a frozen dataclass; new
-fields must be optional/`None`-defaulted for backward compatibility.
+`GenerationService.citations_for(request, answer=None)` (`app/generation/service.py`) is the
+**only** place citations are produced, and is used by both the streaming and non-streaming
+endpoints so they never diverge. The `Citation` model (`app/generation/models.py`) is a frozen
+dataclass; new fields must be optional/`None`-defaulted for backward compatibility.
+
+Citation **ordering** is deterministic (no LLM, no thresholds), bounded, and never drops or
+merges evidence — it only re-sorts the retrieved chunks:
+
+```
+score  =  reranker_score
+        + _heading_match(term_weights, citation)  * 0.20   # section TITLE answers the question
+        + answer_support                          * 0.15   # only when an answer is available
+```
+
+- `_query_term_weights` down-weights query terms that name the document topic (in the source
+  filename, or in most retrieved chunks — e.g. "BERT" in a BERT paper) and up-weights terms that
+  pin down one section (e.g. "Problem Statement"), so a heading merely repeating the entity gets
+  ~no bonus.
+- `answer_support` (populated when `answer` is passed) is deterministic lexical overlap between
+  the generated answer and the chunk's own text; `None` when unmeasured (no answer / chunk too
+  short) — never treated as "unsupported".
+- Dedup key includes `chunk_uuid`; only exact-duplicate chunks collapse, distinct chunks in the
+  same section stay individually traceable.
 
 Provenance data flow, end to end:
 `Docling item.prov` → `BlockProvenance` → `ChunkMetadata.provenance` → Qdrant payload
@@ -161,6 +185,6 @@ LangSmith tracing is pervasive via `@traceable` decorators on service/pipeline m
   `HF_HUB_DISABLE_SYMLINKS` before importing Docling, so first-run HuggingFace model downloads
   work without Developer Mode.
 - Unit tests fake Docling and the ML models; do not add tests that require downloading models.
-- Known pre-existing unit failures: `tests/unit/retrieval/test_service.py` (4 tests) call
-  `RetrievalService.retrieve`/`__call__` positionally, but the signatures are keyword-only.
-  Unrelated to current work.
+- `tests/unit` should be fully green. If `langsmith` emits a deprecation warning that is
+  expected. Anything script-style under `tests/integration` needs live services and is not part
+  of a normal check.

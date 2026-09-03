@@ -5,16 +5,26 @@ from uuid import uuid4
 
 import pytest
 
-from app.retrieval.exceptions import (
-    EmptyQueryError,
-    NoRetrievalResultsError,
-)
+from app.config.settings import settings
+from app.retrieval.base import BaseRetrievalService
+from app.retrieval.exceptions import EmptyQueryError
+from app.retrieval.models import RetrievalResult
 from app.retrieval.service import RetrievalService
 from app.reranking.models import (
     RerankedChunk,
     RerankingResult,
 )
 from app.search.hybrid.models import HybridSearchResult
+
+# ``RetrievalService.retrieve`` / ``__call__`` are keyword-only
+# (``*, query, user_id``) and always scoped to a tenant: this was made
+# deliberate in commit b5d8d4b ("tenant isolation and graceful empty
+# retrieval"), and every production caller (app/ai/pipeline.py) invokes it
+# that way. That same commit also replaced the ``NoRetrievalResultsError``
+# raised on an empty rerank with a graceful empty ``RetrievalResult`` that
+# the generation layer relies on. These tests encode that current contract.
+
+_USER_ID = 7
 
 
 def make_hybrid_result() -> HybridSearchResult:
@@ -79,7 +89,7 @@ def test_empty_query_raises_error() -> None:
     with pytest.raises(
         EmptyQueryError,
     ):
-        service.retrieve("")
+        service.retrieve(query="", user_id=_USER_ID)
 
 
 def test_retrieve_success() -> None:
@@ -101,7 +111,8 @@ def test_retrieve_success() -> None:
     )
 
     result = service.retrieve(
-        "semantic chunking",
+        query="semantic chunking",
+        user_id=_USER_ID,
     )
 
     assert result.query == "semantic chunking"
@@ -121,8 +132,21 @@ def test_retrieve_success() -> None:
 
     reranking_service.assert_called_once()
 
+    # Retrieval is tenant-scoped: the authenticated user_id must reach the
+    # hybrid search, together with the configured candidate limit.
+    assert hybrid_service.call_args.kwargs["user_id"] == _USER_ID
+    assert (
+        hybrid_service.call_args.kwargs["limit"]
+        == settings.QDRANT_HYBRID_CANDIDATE_LIMIT
+    )
+    assert reranking_service.call_args.kwargs["top_k"] == settings.RETRIEVAL_TOP_K
 
-def test_no_results_raise_exception() -> None:
+
+def test_empty_rerank_results_return_empty_retrieval() -> None:
+    """Graceful empty retrieval (commit b5d8d4b): when every candidate is
+    filtered out during reranking the service returns an empty
+    ``RetrievalResult`` rather than raising -- the generation layer depends
+    on this to emit its "no relevant information" answer."""
 
     (
         service,
@@ -130,11 +154,7 @@ def test_no_results_raise_exception() -> None:
         reranking_service,
     ) = make_service()
 
-    hybrid = make_hybrid_result()
-
-    hybrid_service.return_value = [
-        hybrid,
-    ]
+    hybrid_service.return_value = [make_hybrid_result()]
 
     reranking_service.return_value = RerankingResult(
         query="query",
@@ -143,12 +163,29 @@ def test_no_results_raise_exception() -> None:
         results=[],
     )
 
-    with pytest.raises(
-        NoRetrievalResultsError,
-    ):
-        service.retrieve(
-            "query",
-        )
+    result = service.retrieve(query="query", user_id=_USER_ID)
+
+    assert result.query == "query"
+    assert result.contexts == []
+    assert len(result) == 0
+
+
+def test_empty_hybrid_results_return_empty_retrieval() -> None:
+    """The other half of graceful empty retrieval: no hybrid candidates at
+    all short-circuits to an empty ``RetrievalResult`` without reranking."""
+
+    (
+        service,
+        hybrid_service,
+        reranking_service,
+    ) = make_service()
+
+    hybrid_service.return_value = []
+
+    result = service.retrieve(query="query", user_id=_USER_ID)
+
+    assert result.contexts == []
+    reranking_service.assert_not_called()
 
 
 def test_callable_wrapper() -> None:
@@ -169,8 +206,28 @@ def test_callable_wrapper() -> None:
         hybrid,
     )
 
-    result = service(
-        "semantic chunking",
-    )
+    result = service(query="semantic chunking", user_id=_USER_ID)
 
     assert len(result.contexts) == 1
+    assert result.query == "semantic chunking"
+    assert hybrid_service.call_args.kwargs["user_id"] == _USER_ID
+
+
+def test_base_contract_is_keyword_only_and_tenant_scoped() -> None:
+    """The abstract base's ``__call__`` fallback must forward the keyword-only,
+    tenant-scoped contract to ``retrieve`` for any subclass that does not
+    override it."""
+
+    seen: dict[str, object] = {}
+
+    class _Impl(BaseRetrievalService):
+        def retrieve(self, *, query: str, user_id: int) -> RetrievalResult:
+            seen["query"] = query
+            seen["user_id"] = user_id
+            return RetrievalResult(query=query, contexts=[], retrieval_latency=0.0)
+
+    _Impl()(query="hello", user_id=_USER_ID)
+    assert seen == {"query": "hello", "user_id": _USER_ID}
+
+    with pytest.raises(TypeError):
+        _Impl()("hello")  # type: ignore[call-arg]  # positional call is rejected
