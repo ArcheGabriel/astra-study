@@ -80,6 +80,31 @@ class QualityStage(BaseChunkStage):
 
         return chunks
 
+    @staticmethod
+    def _body_without_heading(
+        text: str,
+        heading: str,
+    ) -> str:
+        """Return ``text`` with a leading folded-heading line removed.
+
+        RecursiveStage prepends the section heading as ``"{heading}\\n\\n"``.
+        When the first block of ``text`` is exactly that heading, strip it so
+        content heuristics see the real body; otherwise return ``text``
+        unchanged.
+        """
+
+        heading = (heading or "").strip().lstrip("#").strip()
+
+        if not heading:
+            return text
+
+        first, sep, rest = text.partition("\n\n")
+
+        if sep and first.strip().lstrip("#").strip().casefold() == heading.casefold():
+            return rest.strip()
+
+        return text
+
     def _score_chunk(
         self,
         chunk: DocumentChunk,
@@ -145,9 +170,16 @@ class QualityStage(BaseChunkStage):
         #
         # Metadata
         #
+        # Match the chunk BODY, not a folded heading prefix. MergeStage folds
+        # the section heading in as the chunk's first line, so a section merely
+        # titled e.g. "Authorization" / "DOI Routing" / "Author Contributions"
+        # would otherwise be misclassified as front-matter. The genuine case
+        # (a standalone "Authors: ..." / "Copyright ..." block) is unchanged:
+        # when there is no folded heading line the whole text is still tested.
+        #
 
         if self.METADATA_PATTERN.match(
-            text,
+            self._body_without_heading(text, heading),
         ):
 
             metadata.is_metadata = True

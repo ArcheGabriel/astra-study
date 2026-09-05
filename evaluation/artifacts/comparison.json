@@ -1,0 +1,655 @@
+[
+  {
+    "after_determinism": true,
+    "after_effective_types": {
+      "text": 13
+    },
+    "after_prefix_status": {
+      "present": 13
+    },
+    "after_quality_dist": {
+      "1.0": 13
+    },
+    "baseline_determinism": true,
+    "baseline_effective_types": {
+      "heading": 13
+    },
+    "baseline_prefix_status": {
+      "missing": 2,
+      "present": 11
+    },
+    "baseline_quality_dist": {
+      "0.95": 13
+    },
+    "document": "apjspeech.pdf",
+    "rows": [
+      {
+        "after": 65,
+        "baseline": 65,
+        "delta": 0,
+        "metric": "source block count",
+        "path": "source_blocks.count"
+      },
+      {
+        "after": 65,
+        "baseline": 65,
+        "delta": 0,
+        "metric": "unique source item ids",
+        "path": "source_blocks.unique_source_item_ids"
+      },
+      {
+        "after": 13,
+        "baseline": 13,
+        "delta": 0,
+        "metric": "final chunk count",
+        "path": "chunks.count"
+      },
+      {
+        "after": 96,
+        "baseline": 96,
+        "delta": 0,
+        "metric": "token min",
+        "path": "chunks.token_distribution.min"
+      },
+      {
+        "after": 310,
+        "baseline": 310,
+        "delta": 0,
+        "metric": "token median",
+        "path": "chunks.token_distribution.median"
+      },
+      {
+        "after": 338.38,
+        "baseline": 337.54,
+        "delta": 0.84,
+        "metric": "token mean",
+        "path": "chunks.token_distribution.mean"
+      },
+      {
+        "after": 692,
+        "baseline": 692,
+        "delta": 0,
+        "metric": "token max",
+        "path": "chunks.token_distribution.max"
+      },
+      {
+        "after": 642,
+        "baseline": 642,
+        "delta": 0,
+        "metric": "token p90",
+        "path": "chunks.token_distribution.p90"
+      },
+      {
+        "after": 692,
+        "baseline": 692,
+        "delta": 0,
+        "metric": "token p99",
+        "path": "chunks.token_distribution.p99"
+      },
+      {
+        "after": 0,
+        "baseline": 0,
+        "delta": 0,
+        "metric": "chunks over 700 tokens",
+        "path": "chunks.over_embed_max_reference.count"
+      },
+      {
+        "after": 0,
+        "baseline": 0,
+        "delta": 0,
+        "metric": "content-free / heading-only vectors",
+        "path": "chunks.content_free_or_heading_only.count"
+      },
+      {
+        "after": 0,
+        "baseline": 0,
+        "delta": 0,
+        "metric": "table chunks",
+        "path": "chunks.type_counts.table"
+      },
+      {
+        "after": 0,
+        "baseline": 0,
+        "delta": 0,
+        "metric": "list chunks",
+        "path": "chunks.type_counts.list"
+      },
+      {
+        "after": 0,
+        "baseline": 0,
+        "delta": 0,
+        "metric": "caption chunks",
+        "path": "chunks.type_counts.caption"
+      },
+      {
+        "after": 13,
+        "baseline": 0,
+        "delta": 13,
+        "metric": "text chunks",
+        "path": "chunks.type_counts.text"
+      },
+      {
+        "after": 0,
+        "baseline": 0,
+        "delta": 0,
+        "metric": "chunks removed by FilterStage",
+        "path": "filter.removed"
+      },
+      {
+        "after": 0,
+        "baseline": 0,
+        "delta": 0,
+        "metric": "exact duplicate copies pre-filter",
+        "path": "filter.exact_duplicate_extra_copies_before_filter"
+      },
+      {
+        "after": 100.0,
+        "baseline": 100.0,
+        "delta": 0.0,
+        "metric": "provenance coverage %",
+        "path": "provenance.coverage_pct"
+      },
+      {
+        "after": 65,
+        "baseline": 65,
+        "delta": 0,
+        "metric": "unique source item ids in chunks",
+        "path": "provenance.unique_source_item_ids_in_chunks"
+      },
+      {
+        "after": 100.0,
+        "baseline": 100.0,
+        "delta": 0.0,
+        "metric": "source item id coverage %",
+        "path": "provenance.source_item_id_coverage_pct"
+      },
+      {
+        "after": 0,
+        "baseline": 4,
+        "delta": -4,
+        "metric": "full-list-fallback suspected chunks",
+        "path": "provenance.full_list_fallback_suspected_chunks"
+      },
+      {
+        "after": 11,
+        "baseline": 1,
+        "delta": 10,
+        "metric": "distinct section keys",
+        "path": "section_boundary.distinct_section_keys"
+      },
+      {
+        "after": 0,
+        "baseline": 0,
+        "delta": 0,
+        "metric": "atomicity: table-typed chunks",
+        "path": "atomicity.table_chunks"
+      },
+      {
+        "after": 0,
+        "baseline": 0,
+        "delta": 0,
+        "metric": "source table blocks",
+        "path": "table_content_audit.source_table_blocks"
+      },
+      {
+        "after": 0,
+        "baseline": 0,
+        "delta": 0,
+        "metric": "table rows (total)",
+        "path": "table_content_audit.total_rows"
+      },
+      {
+        "after": 0,
+        "baseline": 0,
+        "delta": 0,
+        "metric": "table rows split across chunks",
+        "path": "table_content_audit.total_rows_split"
+      }
+    ]
+  },
+  {
+    "after_determinism": true,
+    "after_effective_types": {
+      "caption": 2,
+      "list": 4,
+      "text": 27
+    },
+    "after_prefix_status": {
+      "absent-ok": 1,
+      "duplicated": 1,
+      "present": 31
+    },
+    "after_quality_dist": {
+      "0.3": 4,
+      "0.7": 2,
+      "1.0": 27
+    },
+    "baseline_determinism": true,
+    "baseline_effective_types": {
+      "heading": 28,
+      "list": 2,
+      "text": 6
+    },
+    "baseline_prefix_status": {
+      "absent-ok": 1,
+      "duplicated": 1,
+      "missing": 5,
+      "present": 26,
+      "present-not-leading": 3
+    },
+    "baseline_quality_dist": {
+      "0.3": 4,
+      "0.95": 26,
+      "1.0": 6
+    },
+    "document": "Attention.pdf",
+    "rows": [
+      {
+        "after": 156,
+        "baseline": 156,
+        "delta": 0,
+        "metric": "source block count",
+        "path": "source_blocks.count"
+      },
+      {
+        "after": 156,
+        "baseline": 156,
+        "delta": 0,
+        "metric": "unique source item ids",
+        "path": "source_blocks.unique_source_item_ids"
+      },
+      {
+        "after": 33,
+        "baseline": 36,
+        "delta": -3,
+        "metric": "final chunk count",
+        "path": "chunks.count"
+      },
+      {
+        "after": 13,
+        "baseline": 2,
+        "delta": 11,
+        "metric": "token min",
+        "path": "chunks.token_distribution.min"
+      },
+      {
+        "after": 274,
+        "baseline": 240.0,
+        "delta": 34.0,
+        "metric": "token median",
+        "path": "chunks.token_distribution.median"
+      },
+      {
+        "after": 310.0,
+        "baseline": 288.61,
+        "delta": 21.39,
+        "metric": "token mean",
+        "path": "chunks.token_distribution.mean"
+      },
+      {
+        "after": 697,
+        "baseline": 698,
+        "delta": -1,
+        "metric": "token max",
+        "path": "chunks.token_distribution.max"
+      },
+      {
+        "after": 653,
+        "baseline": 694,
+        "delta": -41,
+        "metric": "token p90",
+        "path": "chunks.token_distribution.p90"
+      },
+      {
+        "after": 697,
+        "baseline": 698,
+        "delta": -1,
+        "metric": "token p99",
+        "path": "chunks.token_distribution.p99"
+      },
+      {
+        "after": 0,
+        "baseline": 0,
+        "delta": 0,
+        "metric": "chunks over 700 tokens",
+        "path": "chunks.over_embed_max_reference.count"
+      },
+      {
+        "after": 0,
+        "baseline": 3,
+        "delta": -3,
+        "metric": "content-free / heading-only vectors",
+        "path": "chunks.content_free_or_heading_only.count"
+      },
+      {
+        "after": 0,
+        "baseline": 0,
+        "delta": 0,
+        "metric": "table chunks",
+        "path": "chunks.type_counts.table"
+      },
+      {
+        "after": 4,
+        "baseline": 2,
+        "delta": 2,
+        "metric": "list chunks",
+        "path": "chunks.type_counts.list"
+      },
+      {
+        "after": 2,
+        "baseline": 0,
+        "delta": 2,
+        "metric": "caption chunks",
+        "path": "chunks.type_counts.caption"
+      },
+      {
+        "after": 27,
+        "baseline": 6,
+        "delta": 21,
+        "metric": "text chunks",
+        "path": "chunks.type_counts.text"
+      },
+      {
+        "after": 0,
+        "baseline": 0,
+        "delta": 0,
+        "metric": "chunks removed by FilterStage",
+        "path": "filter.removed"
+      },
+      {
+        "after": 0,
+        "baseline": 0,
+        "delta": 0,
+        "metric": "exact duplicate copies pre-filter",
+        "path": "filter.exact_duplicate_extra_copies_before_filter"
+      },
+      {
+        "after": 100.0,
+        "baseline": 100.0,
+        "delta": 0.0,
+        "metric": "provenance coverage %",
+        "path": "provenance.coverage_pct"
+      },
+      {
+        "after": 155,
+        "baseline": 93,
+        "delta": 62,
+        "metric": "unique source item ids in chunks",
+        "path": "provenance.unique_source_item_ids_in_chunks"
+      },
+      {
+        "after": 99.36,
+        "baseline": 59.62,
+        "delta": 39.74,
+        "metric": "source item id coverage %",
+        "path": "provenance.source_item_id_coverage_pct"
+      },
+      {
+        "after": 5,
+        "baseline": 9,
+        "delta": -4,
+        "metric": "full-list-fallback suspected chunks",
+        "path": "provenance.full_list_fallback_suspected_chunks"
+      },
+      {
+        "after": 27,
+        "baseline": 1,
+        "delta": 26,
+        "metric": "distinct section keys",
+        "path": "section_boundary.distinct_section_keys"
+      },
+      {
+        "after": 0,
+        "baseline": 0,
+        "delta": 0,
+        "metric": "atomicity: table-typed chunks",
+        "path": "atomicity.table_chunks"
+      },
+      {
+        "after": 4,
+        "baseline": 4,
+        "delta": 0,
+        "metric": "source table blocks",
+        "path": "table_content_audit.source_table_blocks"
+      },
+      {
+        "after": 59,
+        "baseline": 59,
+        "delta": 0,
+        "metric": "table rows (total)",
+        "path": "table_content_audit.total_rows"
+      },
+      {
+        "after": 6,
+        "baseline": 27,
+        "delta": -21,
+        "metric": "table rows split across chunks",
+        "path": "table_content_audit.total_rows_split"
+      }
+    ]
+  },
+  {
+    "after_determinism": true,
+    "after_effective_types": {
+      "caption": 10,
+      "list": 54,
+      "table": 3,
+      "text": 110
+    },
+    "after_prefix_status": {
+      "duplicated": 2,
+      "present": 175
+    },
+    "after_quality_dist": {
+      "0.3": 54,
+      "0.7": 10,
+      "0.75": 3,
+      "1.0": 110
+    },
+    "baseline_determinism": true,
+    "baseline_effective_types": {
+      "caption": 12,
+      "heading": 109,
+      "list": 52,
+      "table": 3,
+      "text": 4
+    },
+    "baseline_prefix_status": {
+      "missing": 78,
+      "present": 101,
+      "present-not-leading": 1
+    },
+    "baseline_quality_dist": {
+      "0.3": 54,
+      "0.7": 12,
+      "0.75": 3,
+      "0.95": 107,
+      "1.0": 4
+    },
+    "document": "LLM.pdf",
+    "rows": [
+      {
+        "after": 925,
+        "baseline": 925,
+        "delta": 0,
+        "metric": "source block count",
+        "path": "source_blocks.count"
+      },
+      {
+        "after": 925,
+        "baseline": 925,
+        "delta": 0,
+        "metric": "unique source item ids",
+        "path": "source_blocks.unique_source_item_ids"
+      },
+      {
+        "after": 177,
+        "baseline": 180,
+        "delta": -3,
+        "metric": "final chunk count",
+        "path": "chunks.count"
+      },
+      {
+        "after": 31,
+        "baseline": 7,
+        "delta": 24,
+        "metric": "token min",
+        "path": "chunks.token_distribution.min"
+      },
+      {
+        "after": 566,
+        "baseline": 581.0,
+        "delta": -15.0,
+        "metric": "token median",
+        "path": "chunks.token_distribution.median"
+      },
+      {
+        "after": 464.8,
+        "baseline": 457.04,
+        "delta": 7.76,
+        "metric": "token mean",
+        "path": "chunks.token_distribution.mean"
+      },
+      {
+        "after": 697,
+        "baseline": 701,
+        "delta": -4,
+        "metric": "token max",
+        "path": "chunks.token_distribution.max"
+      },
+      {
+        "after": 695,
+        "baseline": 691,
+        "delta": 4,
+        "metric": "token p90",
+        "path": "chunks.token_distribution.p90"
+      },
+      {
+        "after": 697,
+        "baseline": 698,
+        "delta": -1,
+        "metric": "token p99",
+        "path": "chunks.token_distribution.p99"
+      },
+      {
+        "after": 0,
+        "baseline": 2,
+        "delta": -2,
+        "metric": "chunks over 700 tokens",
+        "path": "chunks.over_embed_max_reference.count"
+      },
+      {
+        "after": 0,
+        "baseline": 1,
+        "delta": -1,
+        "metric": "content-free / heading-only vectors",
+        "path": "chunks.content_free_or_heading_only.count"
+      },
+      {
+        "after": 3,
+        "baseline": 3,
+        "delta": 0,
+        "metric": "table chunks",
+        "path": "chunks.type_counts.table"
+      },
+      {
+        "after": 54,
+        "baseline": 52,
+        "delta": 2,
+        "metric": "list chunks",
+        "path": "chunks.type_counts.list"
+      },
+      {
+        "after": 10,
+        "baseline": 12,
+        "delta": -2,
+        "metric": "caption chunks",
+        "path": "chunks.type_counts.caption"
+      },
+      {
+        "after": 110,
+        "baseline": 4,
+        "delta": 106,
+        "metric": "text chunks",
+        "path": "chunks.type_counts.text"
+      },
+      {
+        "after": 0,
+        "baseline": 0,
+        "delta": 0,
+        "metric": "chunks removed by FilterStage",
+        "path": "filter.removed"
+      },
+      {
+        "after": 0,
+        "baseline": 0,
+        "delta": 0,
+        "metric": "exact duplicate copies pre-filter",
+        "path": "filter.exact_duplicate_extra_copies_before_filter"
+      },
+      {
+        "after": 100.0,
+        "baseline": 100.0,
+        "delta": 0.0,
+        "metric": "provenance coverage %",
+        "path": "provenance.coverage_pct"
+      },
+      {
+        "after": 924,
+        "baseline": 925,
+        "delta": -1,
+        "metric": "unique source item ids in chunks",
+        "path": "provenance.unique_source_item_ids_in_chunks"
+      },
+      {
+        "after": 99.89,
+        "baseline": 100.0,
+        "delta": -0.11,
+        "metric": "source item id coverage %",
+        "path": "provenance.source_item_id_coverage_pct"
+      },
+      {
+        "after": 32,
+        "baseline": 121,
+        "delta": -89,
+        "metric": "full-list-fallback suspected chunks",
+        "path": "provenance.full_list_fallback_suspected_chunks"
+      },
+      {
+        "after": 70,
+        "baseline": 1,
+        "delta": 69,
+        "metric": "distinct section keys",
+        "path": "section_boundary.distinct_section_keys"
+      },
+      {
+        "after": 3,
+        "baseline": 3,
+        "delta": 0,
+        "metric": "atomicity: table-typed chunks",
+        "path": "atomicity.table_chunks"
+      },
+      {
+        "after": 15,
+        "baseline": 15,
+        "delta": 0,
+        "metric": "source table blocks",
+        "path": "table_content_audit.source_table_blocks"
+      },
+      {
+        "after": 308,
+        "baseline": 308,
+        "delta": 0,
+        "metric": "table rows (total)",
+        "path": "table_content_audit.total_rows"
+      },
+      {
+        "after": 40,
+        "baseline": 44,
+        "delta": -4,
+        "metric": "table rows split across chunks",
+        "path": "table_content_audit.total_rows_split"
+      }
+    ]
+  }
+]

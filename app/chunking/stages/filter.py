@@ -75,12 +75,27 @@ class FilterStage(BaseChunkStage):
 
             #
             # ----------------------------------
-            # Never remove headings.
+            # Protect content-bearing chunks.
             # ----------------------------------
+            #
+            # Structural content (tables, lists, captions) and RecursiveStage
+            # continuations carry real evidence even when short. The prose
+            # artefact heuristics below (standalone page number / DOI / ISBN
+            # / ...) do not apply to them and must never drop them.
+            #
+            # (Replaces the old dead "never remove headings" branch --
+            # MergeStage folds every heading into its section's content and no
+            # longer emits a HEADING-typed chunk.)
             #
             if (
                 chunk.metadata.block_type
-                == BlockType.HEADING
+                in {
+                    BlockType.TABLE,
+                    BlockType.LIST,
+                    BlockType.CAPTION,
+                    BlockType.HEADING,
+                }
+                or chunk.parent_chunk is not None
             ):
 
                 filtered.append(chunk)

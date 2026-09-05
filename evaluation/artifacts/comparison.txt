@@ -1,0 +1,122 @@
+==============================================================================
+DOCUMENT: apjspeech.pdf
+==============================================================================
+determinism  baseline=True  after=True
+
+metric                                          baseline       after     delta
+------------------------------------------------------------------------------
+source block count                                    65          65         0
+unique source item ids                                65          65         0
+final chunk count                                     13          13         0
+token min                                             96          96         0
+token median                                         310         310         0
+token mean                                        337.54      338.38      0.84
+token max                                            692         692         0
+token p90                                            642         642         0
+token p99                                            692         692         0
+chunks over 700 tokens                                 0           0         0
+content-free / heading-only vectors                    0           0         0
+table chunks                                           0           0         0
+list chunks                                            0           0         0
+caption chunks                                         0           0         0
+text chunks                                            0          13        13
+chunks removed by FilterStage                          0           0         0
+exact duplicate copies pre-filter                      0           0         0
+provenance coverage %                              100.0       100.0       0.0
+unique source item ids in chunks                      65          65         0
+source item id coverage %                          100.0       100.0       0.0
+full-list-fallback suspected chunks                    4           0        -4
+distinct section keys                                  1          11        10
+atomicity: table-typed chunks                          0           0         0
+source table blocks                                    0           0         0
+table rows (total)                                     0           0         0
+table rows split across chunks                         0           0         0
+
+effective block types  baseline={'heading': 13}
+effective block types  after   ={'text': 13}
+heading-prefix status  baseline={'missing': 2, 'present': 11}
+heading-prefix status  after   ={'present': 13}
+quality distribution   baseline={'0.95': 13}
+quality distribution   after   ={'1.0': 13}
+
+==============================================================================
+DOCUMENT: Attention.pdf
+==============================================================================
+determinism  baseline=True  after=True
+
+metric                                          baseline       after     delta
+------------------------------------------------------------------------------
+source block count                                   156         156         0
+unique source item ids                               156         156         0
+final chunk count                                     36          33        -3
+token min                                              2          13        11
+token median                                       240.0         274      34.0
+token mean                                        288.61       310.0     21.39
+token max                                            698         697        -1
+token p90                                            694         653       -41
+token p99                                            698         697        -1
+chunks over 700 tokens                                 0           0         0
+content-free / heading-only vectors                    3           0        -3
+table chunks                                           0           0         0
+list chunks                                            2           4         2
+caption chunks                                         0           2         2
+text chunks                                            6          27        21
+chunks removed by FilterStage                          0           0         0
+exact duplicate copies pre-filter                      0           0         0
+provenance coverage %                              100.0       100.0       0.0
+unique source item ids in chunks                      93         155        62
+source item id coverage %                          59.62       99.36     39.74
+full-list-fallback suspected chunks                    9           5        -4
+distinct section keys                                  1          27        26
+atomicity: table-typed chunks                          0           0         0
+source table blocks                                    4           4         0
+table rows (total)                                    59          59         0
+table rows split across chunks                        27           6       -21
+
+effective block types  baseline={'heading': 28, 'list': 2, 'text': 6}
+effective block types  after   ={'caption': 2, 'list': 4, 'text': 27}
+heading-prefix status  baseline={'absent-ok': 1, 'duplicated': 1, 'missing': 5, 'present': 26, 'present-not-leading': 3}
+heading-prefix status  after   ={'absent-ok': 1, 'duplicated': 1, 'present': 31}
+quality distribution   baseline={'0.3': 4, '0.95': 26, '1.0': 6}
+quality distribution   after   ={'0.3': 4, '0.7': 2, '1.0': 27}
+
+==============================================================================
+DOCUMENT: LLM.pdf
+==============================================================================
+determinism  baseline=True  after=True
+
+metric                                          baseline       after     delta
+------------------------------------------------------------------------------
+source block count                                   925         925         0
+unique source item ids                               925         925         0
+final chunk count                                    180         177        -3
+token min                                              7          31        24
+token median                                       581.0         566     -15.0
+token mean                                        457.04       464.8      7.76
+token max                                            701         697        -4
+token p90                                            691         695         4
+token p99                                            698         697        -1
+chunks over 700 tokens                                 2           0        -2
+content-free / heading-only vectors                    1           0        -1
+table chunks                                           3           3         0
+list chunks                                           52          54         2
+caption chunks                                        12          10        -2
+text chunks                                            4         110       106
+chunks removed by FilterStage                          0           0         0
+exact duplicate copies pre-filter                      0           0         0
+provenance coverage %                              100.0       100.0       0.0
+unique source item ids in chunks                     925         924        -1
+source item id coverage %                          100.0       99.89     -0.11
+full-list-fallback suspected chunks                  121          32       -89
+distinct section keys                                  1          70        69
+atomicity: table-typed chunks                          3           3         0
+source table blocks                                   15          15         0
+table rows (total)                                   308         308         0
+table rows split across chunks                        44          40        -4
+
+effective block types  baseline={'caption': 12, 'heading': 109, 'list': 52, 'table': 3, 'text': 4}
+effective block types  after   ={'caption': 10, 'list': 54, 'table': 3, 'text': 110}
+heading-prefix status  baseline={'missing': 78, 'present': 101, 'present-not-leading': 1}
+heading-prefix status  after   ={'duplicated': 2, 'present': 175}
+quality distribution   baseline={'0.3': 54, '0.7': 12, '0.75': 3, '0.95': 107, '1.0': 4}
+quality distribution   after   ={'0.3': 54, '0.7': 10, '0.75': 3, '1.0': 110}

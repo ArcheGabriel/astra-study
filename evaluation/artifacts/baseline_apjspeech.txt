@@ -1,0 +1,61 @@
+==============================================================================
+CHUNKING REPORT  apjspeech.pdf  (sha256 6a861122b7ae)
+==============================================================================
+pages=7  source_blocks=65  final_chunks=13  deterministic=True
+
+source block types : {'heading': 11, 'list': 20, 'text': 34}
+effective types    : {'heading': 13}
+type counts        : {'table': 0, 'list': 0, 'caption': 0, 'text': 0}
+
+tokens             : {'count': 13, 'min': 96, 'max': 692, 'mean': 337.54, 'median': 310, 'p90': 642, 'p99': 692}
+over 700 tokens      : 0 (0.0%)  []
+content-free/head. : 0  []
+
+filter             : {'chunks_before_filter': 13, 'chunks_after_filter': 13, 'removed': 0, 'exact_duplicate_groups_before_filter': 0, 'exact_duplicate_extra_copies_before_filter': 0}
+provenance         : {'chunks_total': 13, 'chunks_with_provenance': 13, 'coverage_pct': 100.0, 'unique_source_item_ids_in_chunks': 65, 'unique_source_item_ids_in_source': 65, 'source_item_id_coverage_pct': 100.0, 'fabricated_source_item_ids': [], 'full_list_fallback_suspected_chunks': 4}
+ranges             : {'page_range_invalid_chunks': [], 'block_range_invalid_chunks': [], 'page_range_outside_provenance_chunks': []}
+heading prefix     : {'missing': 2, 'present': 11}
+section boundary   : {'distinct_section_keys': 1, 'chunks_with_section_key': 0}
+atomicity          : {'table_chunks': 0, 'table_chunks_with_intact_rows': 0, 'list_chunks': 0}
+table content      : {'source_table_blocks': 0, 'total_rows': 0, 'total_rows_intact': 0, 'total_rows_split': 0, 'tables': []}
+quality dist       : {0.95: 13}
+priority dist      : {'100': 13}
+flags              : {'is_reference': 0, 'is_appendix': 0, 'is_metadata': 0, 'is_caption': 0, 'is_table': 0, 'is_formula': 0}
+
+SAMPLES
+------------------------------------------------------------------------------
+[ordinary_prose]
+  absent in this document
+
+[heading_folded]
+  chunk=0 parent=None type=heading pages=[1, 1] blocks=[0, 14] tokens=592 prov=16 prefix=present quality=0.95
+  heading_path=['A P J Abdul Kalam Departing speech']
+  item_ids=['#/texts/0', '#/texts/1', '#/texts/10', '#/texts/11', '#/texts/12', '#/texts/13', '#/texts/14', '#/texts/2', '#/texts/3', '#/texts/4', '#/texts/5', '#/texts/6', '#/texts/7', '#/texts/8', '#/texts/9']
+  text_head='A P J Abdul Kalam Departing speech\n\nFriends, I am delighted to address you all, in the country and those living abroad, after working  with  you  and  completing  five  beautiful  and  eventful  years  in  Rashtrapati Bhavan.  Today,  it  is  indeed  a  thanks  giving  occasion.  I  would  like  to  narrate,  how  I enjoyed every minute of my tenure enriched by the wonderful association from each '
+
+[nested_section]
+  absent in this document
+
+[table_content]
+  absent in this document
+
+[oversized_table_content]
+  absent in this document
+
+[list]
+  absent in this document
+
+[caption]
+  absent in this document
+
+[multi_page]
+  chunk=2 parent=0 type=heading pages=[2, 3] blocks=[17, 22] tokens=692 prov=6 prefix=present quality=0.95
+  heading_path=['Mobilizing rural core competence for competitiveness']
+  item_ids=['#/texts/17', '#/texts/18', '#/texts/19', '#/texts/20', '#/texts/21', '#/texts/22']
+  text_head='Mobilizing rural core competence for competitiveness\n\nNow  I  would  like  to  talk  about  the  initiative  of  Periyar  Maniammai  College  of Technology for Women, Vallam, Tanjore of Providing Urban Amenities in Rural Areas (PURA)  complex  involving  65  villages  with  a  population  of  3  lakhs. This  includes provision  of  three  connectivities  -  physical,  electronic  and  knowledge  -'
+
+[hard_boundary_continuation]
+  absent in this document
+
+[reference_or_appendix]
+  absent in this document

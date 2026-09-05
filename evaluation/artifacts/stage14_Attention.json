@@ -1,0 +1,569 @@
+{
+  "atomicity": {
+    "list_chunks": 4,
+    "table_chunks": 0,
+    "table_chunks_with_intact_rows": 0
+  },
+  "chunks": {
+    "classification_flag_counts": {
+      "is_appendix": 0,
+      "is_caption": 2,
+      "is_formula": 0,
+      "is_metadata": 0,
+      "is_reference": 4,
+      "is_table": 0
+    },
+    "content_free_or_heading_only": {
+      "count": 0,
+      "details": []
+    },
+    "count": 33,
+    "effective_block_type_distribution": {
+      "caption": 2,
+      "list": 4,
+      "text": 27
+    },
+    "over_embed_max_reference": {
+      "count": 0,
+      "details": [],
+      "pct": 0.0,
+      "reference": 700
+    },
+    "quality_score_distribution": {
+      "0.3": 4,
+      "0.7": 2,
+      "1.0": 27
+    },
+    "retrieval_priority_distribution": {
+      "100": 27,
+      "20": 4,
+      "70": 2
+    },
+    "token_distribution": {
+      "count": 33,
+      "max": 697,
+      "mean": 310.0,
+      "median": 274,
+      "min": 13,
+      "p90": 653,
+      "p99": 697
+    },
+    "type_counts": {
+      "caption": 2,
+      "list": 4,
+      "table": 0,
+      "text": 27
+    }
+  },
+  "determinism": {
+    "identical": true,
+    "runs": 3
+  },
+  "document": {
+    "file_extension": ".pdf",
+    "name": "Attention.pdf",
+    "page_count": 15,
+    "sha256": "bdfaa68d8984f0dc02beaca527b76f207d99b666d31d1da728ee0728182df697",
+    "size_bytes": 2215244
+  },
+  "filter": {
+    "chunks_after_filter": 33,
+    "chunks_before_filter": 33,
+    "exact_duplicate_extra_copies_before_filter": 0,
+    "exact_duplicate_groups_before_filter": 0,
+    "removed": 0
+  },
+  "heading_prefix": {
+    "status_distribution": {
+      "absent-ok": 1,
+      "duplicated": 1,
+      "present": 31
+    }
+  },
+  "pipeline_stage_counts": [
+    [
+      "ParagraphStage",
+      156
+    ],
+    [
+      "MetadataStage",
+      156
+    ],
+    [
+      "MergeStage",
+      29
+    ],
+    [
+      "RecursiveStage",
+      34
+    ],
+    [
+      "SemanticStage",
+      33
+    ],
+    [
+      "FilterStage",
+      33
+    ],
+    [
+      "QualityStage",
+      33
+    ],
+    [
+      "FinalizeStage",
+      33
+    ]
+  ],
+  "provenance": {
+    "chunks_total": 33,
+    "chunks_with_provenance": 33,
+    "coverage_pct": 100.0,
+    "fabricated_source_item_ids": [],
+    "full_list_fallback_suspected_chunks": 5,
+    "source_item_id_coverage_pct": 99.36,
+    "unique_source_item_ids_in_chunks": 155,
+    "unique_source_item_ids_in_source": 156
+  },
+  "ranges": {
+    "block_range_invalid_chunks": [],
+    "page_range_invalid_chunks": [],
+    "page_range_outside_provenance_chunks": []
+  },
+  "samples": {
+    "caption": {
+      "block_type": "caption",
+      "blocks": [
+        30,
+        32
+      ],
+      "chunk_index": 8,
+      "heading_path": [
+        "Scaled Dot-Product Attention"
+      ],
+      "note": "",
+      "pages": [
+        4,
+        4
+      ],
+      "parent_chunk": null,
+      "prefix_status": "present",
+      "provenance_entries": 3,
+      "provenance_item_ids": [
+        "#/texts/67",
+        "#/texts/76",
+        "#/texts/88"
+      ],
+      "quality_score": 0.7,
+      "retrieval_priority": 70,
+      "section_id": null,
+      "section_title": "Scaled Dot-Product Attention",
+      "text_head": "Scaled Dot-Product Attention\n\nFigure 2: (left) Scaled Dot-Product Attention. (right) Multi-Head Attention consists of several attention layers running in parallel.\n\nof the values, where the weight assigned to each value is computed by a compatibility function of the query with the corresponding key.",
+      "text_tail": "",
+      "tokens": 61
+    },
+    "hard_boundary_continuation": {
+      "block_type": "text",
+      "blocks": [
+        89,
+        95
+      ],
+      "chunk_index": 22,
+      "heading_path": [
+        "6 Results",
+        "6.2 Model Variations"
+      ],
+      "note": "recursive child of an oversized section",
+      "pages": [
+        8,
+        9
+      ],
+      "parent_chunk": 0,
+      "prefix_status": "present",
+      "provenance_entries": 8,
+      "provenance_item_ids": [
+        "#/tables/2",
+        "#/texts/153",
+        "#/texts/154",
+        "#/texts/155",
+        "#/texts/157",
+        "#/texts/158",
+        "#/texts/159"
+      ],
+      "quality_score": 1.0,
+      "retrieval_priority": 100,
+      "section_id": "6.2",
+      "section_title": "6.2 Model Variations",
+      "text_head": "6.2 Model Variations\n\nTo evaluate the importance of different components of the Transformer, we varied our base model in different ways, measuring the change in performance on English-to-German translation on the development set, newstest2013. We used beam search as described in the previous section, but no checkpoint averaging. We present these results in Table 3. 5 We used values of 2.8, 3.7, 6.",
+      "text_tail": "are on the English-to-German translation development set, newstest2013. Listed perplexities are per-wordpiece, according to our byte-pair encoding, and should not be compared to per-word perplexities.",
+      "tokens": 186
+    },
+    "heading_folded": {
+      "block_type": "text",
+      "blocks": [
+        1,
+        5
+      ],
+      "chunk_index": 1,
+      "heading_path": [
+        "Attention Is All You Need"
+      ],
+      "note": "",
+      "pages": [
+        1,
+        1
+      ],
+      "parent_chunk": null,
+      "prefix_status": "present",
+      "provenance_entries": 10,
+      "provenance_item_ids": [
+        "#/texts/2",
+        "#/texts/3",
+        "#/texts/4",
+        "#/texts/5",
+        "#/texts/6"
+      ],
+      "quality_score": 1.0,
+      "retrieval_priority": 100,
+      "section_id": null,
+      "section_title": "Attention Is All You Need",
+      "text_head": "Attention Is All You Need\n\nAshish Vaswani ∗ Google Brain avaswani@google.com Noam Shazeer ∗ Google Brain noam@google.com Niki Parmar ∗ Google Research nikip@google.com Jakob Uszkoreit ∗ Google Research usz@google.com\n\nLlion Jones ∗ Google Research llion@google.com Aidan N. Gomez ∗ † University of Toronto aidan@cs.toronto.edu Łukasz Kaiser ∗ Google Brain lukaszkaiser@google.com\n\n∗ ‡\n\nIllia Polosukh",
+      "text_tail": "",
+      "tokens": 133
+    },
+    "list": {
+      "block_type": "list",
+      "blocks": [
+        111,
+        124
+      ],
+      "chunk_index": 28,
+      "heading_path": [
+        "References"
+      ],
+      "note": "",
+      "pages": [
+        10,
+        11
+      ],
+      "parent_chunk": 2,
+      "prefix_status": "present",
+      "provenance_entries": 15,
+      "provenance_item_ids": [
+        "#/texts/174",
+        "#/texts/175",
+        "#/texts/176",
+        "#/texts/177",
+        "#/texts/178",
+        "#/texts/180",
+        "#/texts/181",
+        "#/texts/182",
+        "#/texts/183",
+        "#/texts/184",
+        "#/texts/185",
+        "#/texts/186",
+        "#/texts/187",
+        "#/texts/188",
+        "#/texts/189"
+      ],
+      "quality_score": 0.3,
+      "retrieval_priority": 20,
+      "section_id": null,
+      "section_title": "References",
+      "text_head": "References\n\nJimmy Lei Ba, Jamie Ryan Kiros, and Geoffrey E Hinton. Layer normalization. arXiv preprint arXiv:1607.06450 , 2016.\n\nDzmitry Bahdanau, Kyunghyun Cho, and Yoshua Bengio. Neural machine translation by jointly learning to align and translate. CoRR , abs/1409.0473, 2014.\n\nDenny Britz, Anna Goldie, Minh-Thang Luong, and Quoc V. Le. Massive exploration of neural machine translation architect",
+      "text_tail": "rper. Self-training PCFG grammars with latent annotations across languages. In Proceedings of the 2009 Conference on Empirical Methods in Natural Language Processing , pages 832-841. ACL, August 2009.",
+      "tokens": 643
+    },
+    "multi_page": {
+      "block_type": "text",
+      "blocks": [
+        21,
+        24
+      ],
+      "chunk_index": 5,
+      "heading_path": [
+        "3 Model Architecture"
+      ],
+      "note": "",
+      "pages": [
+        2,
+        3
+      ],
+      "parent_chunk": null,
+      "prefix_status": "present",
+      "provenance_entries": 4,
+      "provenance_item_ids": [
+        "#/texts/23",
+        "#/texts/24",
+        "#/texts/26",
+        "#/texts/60"
+      ],
+      "quality_score": 1.0,
+      "retrieval_priority": 100,
+      "section_id": "3",
+      "section_title": "3 Model Architecture",
+      "text_head": "3 Model Architecture\n\nMost competitive neural sequence transduction models have an encoder-decoder structure [5, 2, 35]. Here, the encoder maps an input sequence of symbol representations ( x 1 , ..., x n ) to a sequence of continuous representations z = ( z 1 , ..., z n ) . Given z , the decoder then generates an output sequence ( y 1 , ..., y m ) of symbols one element at a time. At each step th",
+      "text_tail": "er follows this overall architecture using stacked self-attention and point-wise, fully connected layers for both the encoder and decoder, shown in the left and right halves of Figure 1, respectively.",
+      "tokens": 165
+    },
+    "nested_section": {
+      "block_type": "text",
+      "blocks": [
+        25,
+        27
+      ],
+      "chunk_index": 6,
+      "heading_path": [
+        "3 Model Architecture",
+        "3.1 Encoder and Decoder Stacks"
+      ],
+      "note": "",
+      "pages": [
+        3,
+        3
+      ],
+      "parent_chunk": null,
+      "prefix_status": "present",
+      "provenance_entries": 3,
+      "provenance_item_ids": [
+        "#/texts/61",
+        "#/texts/62",
+        "#/texts/63"
+      ],
+      "quality_score": 1.0,
+      "retrieval_priority": 100,
+      "section_id": "3.1",
+      "section_title": "3.1 Encoder and Decoder Stacks",
+      "text_head": "3.1 Encoder and Decoder Stacks\n\nEncoder: The encoder is composed of a stack of N = 6 identical layers. Each layer has two sub-layers. The first is a multi-head self-attention mechanism, and the second is a simple, positionwise fully connected feed-forward network. We employ a residual connection [11] around each of the two sub-layers, followed by layer normalization [1]. That is, the output of eac",
+      "text_tail": "ons. This masking, combined with fact that the output embeddings are offset by one position, ensures that the predictions for position i can depend only on the known outputs at positions less than i .",
+      "tokens": 284
+    },
+    "ordinary_prose": {
+      "block_type": "text",
+      "blocks": [
+        1,
+        5
+      ],
+      "chunk_index": 1,
+      "heading_path": [
+        "Attention Is All You Need"
+      ],
+      "note": "",
+      "pages": [
+        1,
+        1
+      ],
+      "parent_chunk": null,
+      "prefix_status": "present",
+      "provenance_entries": 10,
+      "provenance_item_ids": [
+        "#/texts/2",
+        "#/texts/3",
+        "#/texts/4",
+        "#/texts/5",
+        "#/texts/6"
+      ],
+      "quality_score": 1.0,
+      "retrieval_priority": 100,
+      "section_id": null,
+      "section_title": "Attention Is All You Need",
+      "text_head": "Attention Is All You Need\n\nAshish Vaswani ∗ Google Brain avaswani@google.com Noam Shazeer ∗ Google Brain noam@google.com Niki Parmar ∗ Google Research nikip@google.com Jakob Uszkoreit ∗ Google Research usz@google.com\n\nLlion Jones ∗ Google Research llion@google.com Aidan N. Gomez ∗ † University of Toronto aidan@cs.toronto.edu Łukasz Kaiser ∗ Google Brain lukaszkaiser@google.com\n\n∗ ‡\n\nIllia Polosukh",
+      "text_tail": "",
+      "tokens": 133
+    },
+    "oversized_table_content": {
+      "block_type": "text",
+      "blocks": [
+        89,
+        95
+      ],
+      "chunk_index": 22,
+      "heading_path": [
+        "6 Results",
+        "6.2 Model Variations"
+      ],
+      "note": "table content that was split across recursive children",
+      "pages": [
+        8,
+        9
+      ],
+      "parent_chunk": 0,
+      "prefix_status": "present",
+      "provenance_entries": 8,
+      "provenance_item_ids": [
+        "#/tables/2",
+        "#/texts/153",
+        "#/texts/154",
+        "#/texts/155",
+        "#/texts/157",
+        "#/texts/158",
+        "#/texts/159"
+      ],
+      "quality_score": 1.0,
+      "retrieval_priority": 100,
+      "section_id": "6.2",
+      "section_title": "6.2 Model Variations",
+      "text_head": "6.2 Model Variations\n\nTo evaluate the importance of different components of the Transformer, we varied our base model in different ways, measuring the change in performance on English-to-German translation on the development set, newstest2013. We used beam search as described in the previous section, but no checkpoint averaging. We present these results in Table 3. 5 We used values of 2.8, 3.7, 6.",
+      "text_tail": "are on the English-to-German translation development set, newstest2013. Listed perplexities are per-wordpiece, according to our byte-pair encoding, and should not be compared to per-word perplexities.",
+      "tokens": 186
+    },
+    "reference_or_appendix": {
+      "block_type": "list",
+      "blocks": [
+        111,
+        124
+      ],
+      "chunk_index": 28,
+      "heading_path": [
+        "References"
+      ],
+      "note": "",
+      "pages": [
+        10,
+        11
+      ],
+      "parent_chunk": 2,
+      "prefix_status": "present",
+      "provenance_entries": 15,
+      "provenance_item_ids": [
+        "#/texts/174",
+        "#/texts/175",
+        "#/texts/176",
+        "#/texts/177",
+        "#/texts/178",
+        "#/texts/180",
+        "#/texts/181",
+        "#/texts/182",
+        "#/texts/183",
+        "#/texts/184",
+        "#/texts/185",
+        "#/texts/186",
+        "#/texts/187",
+        "#/texts/188",
+        "#/texts/189"
+      ],
+      "quality_score": 0.3,
+      "retrieval_priority": 20,
+      "section_id": null,
+      "section_title": "References",
+      "text_head": "References\n\nJimmy Lei Ba, Jamie Ryan Kiros, and Geoffrey E Hinton. Layer normalization. arXiv preprint arXiv:1607.06450 , 2016.\n\nDzmitry Bahdanau, Kyunghyun Cho, and Yoshua Bengio. Neural machine translation by jointly learning to align and translate. CoRR , abs/1409.0473, 2014.\n\nDenny Britz, Anna Goldie, Minh-Thang Luong, and Quoc V. Le. Massive exploration of neural machine translation architect",
+      "text_tail": "rper. Self-training PCFG grammars with latent annotations across languages. In Proceedings of the 2009 Conference on Empirical Methods in Natural Language Processing , pages 832-841. ACL, August 2009.",
+      "tokens": 643
+    },
+    "table_content": {
+      "block_type": "text",
+      "blocks": [
+        52,
+        55
+      ],
+      "chunk_index": 13,
+      "heading_path": [
+        "Scaled Dot-Product Attention",
+        "3.4 Embeddings and Softmax"
+      ],
+      "note": "chunk carrying a source TABLE block's provenance",
+      "pages": [
+        5,
+        6
+      ],
+      "parent_chunk": null,
+      "prefix_status": "present",
+      "provenance_entries": 4,
+      "provenance_item_ids": [
+        "#/tables/0",
+        "#/texts/113",
+        "#/texts/114",
+        "#/texts/116"
+      ],
+      "quality_score": 1.0,
+      "retrieval_priority": 100,
+      "section_id": "3.4",
+      "section_title": "3.4 Embeddings and Softmax",
+      "text_head": "3.4 Embeddings and Softmax\n\nSimilarly to other sequence transduction models, we use learned embeddings to convert the input tokens and output tokens to vectors of dimension d model. We also use the usual learned linear transformation and softmax function to convert the decoder output to predicted next-token probabilities. In our model, we share the same weight matrix between the two embedding laye",
+      "text_tail": "operations for different layer types. n is the sequence length, d is the representation dimension, k is the kernel size of convolutions and r the size of the neighborhood in restricted self-attention.",
+      "tokens": 362
+    }
+  },
+  "schema_version": 1,
+  "section_boundary": {
+    "chunks_with_section_key": 32,
+    "distinct_section_keys": 27
+  },
+  "source_blocks": {
+    "count": 156,
+    "type_distribution": {
+      "caption": 14,
+      "heading": 28,
+      "list": 43,
+      "table": 4,
+      "text": 67
+    },
+    "unique_source_item_ids": 156
+  },
+  "table_content_audit": {
+    "source_table_blocks": 4,
+    "tables": [
+      {
+        "any_carrier_typed_table": false,
+        "carrier_block_types": [
+          "text"
+        ],
+        "carrier_chunk_indexes": [
+          13
+        ],
+        "page": 6,
+        "row_count": 7,
+        "rows_intact": 7,
+        "rows_split": 0,
+        "source_item_id": "#/tables/0"
+      },
+      {
+        "any_carrier_typed_table": false,
+        "carrier_block_types": [
+          "text"
+        ],
+        "carrier_chunk_indexes": [
+          20
+        ],
+        "page": 8,
+        "row_count": 14,
+        "rows_intact": 14,
+        "rows_split": 0,
+        "source_item_id": "#/tables/1"
+      },
+      {
+        "any_carrier_typed_table": false,
+        "carrier_block_types": [
+          "text"
+        ],
+        "carrier_chunk_indexes": [
+          22,
+          23,
+          24
+        ],
+        "page": 9,
+        "row_count": 23,
+        "rows_intact": 20,
+        "rows_split": 3,
+        "source_item_id": "#/tables/2"
+      },
+      {
+        "any_carrier_typed_table": false,
+        "carrier_block_types": [
+          "text"
+        ],
+        "carrier_chunk_indexes": [
+          25,
+          26
+        ],
+        "page": 10,
+        "row_count": 15,
+        "rows_intact": 12,
+        "rows_split": 3,
+        "source_item_id": "#/tables/3"
+      }
+    ],
+    "total_rows": 59,
+    "total_rows_intact": 53,
+    "total_rows_split": 6
+  }
+}

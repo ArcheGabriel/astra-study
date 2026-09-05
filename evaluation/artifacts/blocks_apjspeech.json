@@ -1,0 +1,2064 @@
+{
+  "blocks": [
+    {
+      "block_index": 0,
+      "block_type": "heading",
+      "level": 1,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 1,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 706.4877174048,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.99946400019999,
+            "right": 285.7193857122,
+            "top": 717.2517130992001
+          },
+          "charspan": [
+            0,
+            34
+          ],
+          "page_number": 1,
+          "sheet_name": null,
+          "source_item_id": "#/texts/0",
+          "table_index": null
+        }
+      ],
+      "text": "A P J Abdul Kalam Departing speech"
+    },
+    {
+      "block_index": 1,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 1,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 527.1837891264006,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.99946400019999,
+            "right": 524.9993836001626,
+            "top": 676.5237293904003
+          },
+          "charspan": [
+            0,
+            950
+          ],
+          "page_number": 1,
+          "sheet_name": null,
+          "source_item_id": "#/texts/1",
+          "table_index": null
+        }
+      ],
+      "text": "Friends, I am delighted to address you all, in the country and those living abroad, after working  with  you  and  completing  five  beautiful  and  eventful  years  in  Rashtrapati Bhavan.  Today,  it  is  indeed  a  thanks  giving  occasion.  I  would  like  to  narrate,  how  I enjoyed every minute of my tenure enriched by the wonderful association from each one of  you,  hailing  from  different  walks  of  life,  be  it  politics,  science  and  technology, academics,  arts,  literature,  business,  judiciary,  administration,  local  bodies,  farming, home  makers,  special  children,  media  and  above  all  from  the  youth  and  student community  who  are  the  future  wealth  of  our  country.  During  my  interaction  at Rashtrapati Bhavan in Delhi and at every state and union territory as well as through my online interactions, I have many unique experiences to share with you, which signify the following important messages:"
+    },
+    {
+      "block_index": 2,
+      "block_type": "list",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 1,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 499.5838001664007,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 345.2393619042001,
+            "top": 510.92379563040066
+          },
+          "charspan": [
+            0,
+            52
+          ],
+          "page_number": 1,
+          "sheet_name": null,
+          "source_item_id": "#/texts/2",
+          "table_index": null
+        }
+      ],
+      "text": "Accelerate development : Aspiration of the youth,"
+    },
+    {
+      "block_index": 3,
+      "block_type": "list",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 1,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 471.9838112064007,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 194.87942204820007,
+            "top": 483.32380667040064
+          },
+          "charspan": [
+            0,
+            20
+          ],
+          "page_number": 1,
+          "sheet_name": null,
+          "source_item_id": "#/texts/3",
+          "table_index": null
+        }
+      ],
+      "text": "Empower villages,"
+    },
+    {
+      "block_index": 4,
+      "block_type": "list",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 1,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 444.38382224640065,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 358.1993362002083,
+            "top": 455.7238177104006
+          },
+          "charspan": [
+            0,
+            54
+          ],
+          "page_number": 1,
+          "sheet_name": null,
+          "source_item_id": "#/texts/4",
+          "table_index": null
+        }
+      ],
+      "text": "Mobilize rural core competence for competitiveness,"
+    },
+    {
+      "block_index": 5,
+      "block_type": "list",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 1,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 416.78383328640064,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 334.9193660322,
+            "top": 428.1238287504006
+          },
+          "charspan": [
+            0,
+            49
+          ],
+          "page_number": 1,
+          "sheet_name": null,
+          "source_item_id": "#/texts/5",
+          "table_index": null
+        }
+      ],
+      "text": "Seed to Food: Backbone for agricultural growth"
+    },
+    {
+      "block_index": 6,
+      "block_type": "list",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 1,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 389.1838443264006,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 248.8794004482001,
+            "top": 400.5238397904006
+          },
+          "charspan": [
+            0,
+            31
+          ],
+          "page_number": 1,
+          "sheet_name": null,
+          "source_item_id": "#/texts/6",
+          "table_index": null
+        }
+      ],
+      "text": "Defeat problems and succeed,"
+    },
+    {
+      "block_index": 7,
+      "block_type": "list",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 1,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 361.58385536640054,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 302.75938717619675,
+            "top": 372.92385083040057
+          },
+          "charspan": [
+            0,
+            41
+          ],
+          "page_number": 1,
+          "sheet_name": null,
+          "source_item_id": "#/texts/7",
+          "table_index": null
+        }
+      ],
+      "text": "Overcome problems through partnership,"
+    },
+    {
+      "block_index": 8,
+      "block_type": "list",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 1,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 333.9838664064005,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 266.2793992481978,
+            "top": 345.3238618704005
+          },
+          "charspan": [
+            0,
+            35
+          ],
+          "page_number": 1,
+          "sheet_name": null,
+          "source_item_id": "#/texts/8",
+          "table_index": null
+        }
+      ],
+      "text": "Courage in combating calamities,"
+    },
+    {
+      "block_index": 9,
+      "block_type": "list",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 1,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 306.3838774464005,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 300.2393622642072,
+            "top": 317.7238729104005
+          },
+          "charspan": [
+            0,
+            44
+          ],
+          "page_number": 1,
+          "sheet_name": null,
+          "source_item_id": "#/texts/9",
+          "table_index": null
+        }
+      ],
+      "text": "Connectivity for societal transformation,"
+    },
+    {
+      "block_index": 10,
+      "block_type": "list",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 1,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 278.78388848640043,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 279.1193883522001,
+            "top": 290.12388395040045
+          },
+          "charspan": [
+            0,
+            38
+          ],
+          "page_number": 1,
+          "sheet_name": null,
+          "source_item_id": "#/texts/10",
+          "table_index": null
+        }
+      ],
+      "text": "Defending the nation: Our pride and"
+    },
+    {
+      "block_index": 11,
+      "block_type": "list",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 1,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 251.1838995264004,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 324.2393703042,
+            "top": 262.52389499040044
+          },
+          "charspan": [
+            0,
+            44
+          ],
+          "page_number": 1,
+          "sheet_name": null,
+          "source_item_id": "#/texts/11",
+          "table_index": null
+        }
+      ],
+      "text": "Youth movement for Developed India 2020."
+    },
+    {
+      "block_index": 12,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 1,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 223.5839105664004,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 329.5193681922,
+            "top": 234.92390603040042
+          },
+          "charspan": [
+            0,
+            47
+          ],
+          "page_number": 1,
+          "sheet_name": null,
+          "source_item_id": "#/texts/12",
+          "table_index": null
+        }
+      ],
+      "text": "Now let me share with you each of the messages."
+    },
+    {
+      "block_index": 13,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 1,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 140.78394368640033,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 524.9994070001532,
+            "top": 207.3239170704004
+          },
+          "charspan": [
+            0,
+            315
+          ],
+          "page_number": 1,
+          "sheet_name": null,
+          "source_item_id": "#/texts/13",
+          "table_index": null
+        }
+      ],
+      "text": "Accelerate Development: Aspiration of the youth While there were many significant events during my tenure, a question from a little girl Anukriti of Sri Sathya Sai Jagriti Vidya Mandir School, of Darwa village from Haryana, during children's visit to Rashtrapati Bhavan on May 22, 2006, rings in my mind ever after."
+    },
+    {
+      "block_index": 14,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 1,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 85.58396576640041,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 524.9993602001719,
+            "top": 124.52395019040034
+          },
+          "charspan": [
+            0,
+            266
+          ],
+          "page_number": 1,
+          "sheet_name": null,
+          "source_item_id": "#/texts/14",
+          "table_index": null
+        },
+        {
+          "bbox": {
+            "bottom": 651.3837394464002,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.99946400019999,
+            "right": 524.999372200167,
+            "top": 717.9237128304001
+          },
+          "charspan": [
+            267,
+            724
+          ],
+          "page_number": 2,
+          "sheet_name": null,
+          "source_item_id": "#/texts/14",
+          "table_index": null
+        }
+      ],
+      "text": "Anukriti asked me 'why India cannot become a developed nation before the year 2020'. I appreciated the question and said it was indeed a thoughtful question and assured her that that her dream would be taken to the highest institution of the nation and we would work for it to achieve before 2020. This question reflects how the desire to live in developed India  has  entered  into  the  minds  of  the  youth.  The  same  feelings  are  echoed  by  over fifteen  lakh  youth,  whom  I  have  met  so  far  and  who  represent  the  dream  of  the  540 million youth of the nation. The aspirations of the young to live in a prosperous, safe and proud India should be the guiding factor in whatever profession we contribute."
+    },
+    {
+      "block_index": 15,
+      "block_type": "heading",
+      "level": 1,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 2,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 623.7837504864003,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 182.51942699220004,
+            "top": 635.1237459504003
+          },
+          "charspan": [
+            0,
+            16
+          ],
+          "page_number": 2,
+          "sheet_name": null,
+          "source_item_id": "#/texts/15",
+          "table_index": null
+        }
+      ],
+      "text": "Empower Villages"
+    },
+    {
+      "block_index": 16,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 2,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 471.9838112064007,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 524.9994070001533,
+            "top": 621.3237514704005
+          },
+          "charspan": [
+            0,
+            921
+          ],
+          "page_number": 2,
+          "sheet_name": null,
+          "source_item_id": "#/texts/16",
+          "table_index": null
+        }
+      ],
+      "text": "Friends,  I  recall  my  visit  to  Nagaland  on  26th  October  2002,  soon  after  my  assuming office as President. It was a unique experience for me at Khuzama village to meet tribal village  council  members  and  discuss  with  them  the  village  progress  and  the  dream  of village citizens. I was very happy to see the empowered village council functioning with financial  powers  and  taking  decisions.  I  saw  a  prosperous  village  with  fruits  and vegetables production. However, there is a need for providing physical connectivity in Nagaland through quality roads for enabling faster movement of products from villages to the market. That meeting gave me a powerful message about the transformation which can take place to the 600,000 villages of India, if all the villages are empowered to deal with  their  development  and  are  well  connected  among  themselves  and  with  the  urban societies."
+    },
+    {
+      "block_index": 17,
+      "block_type": "heading",
+      "level": 1,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 2,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 444.38382224640065,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 353.27935076820324,
+            "top": 455.7238177104006
+          },
+          "charspan": [
+            0,
+            52
+          ],
+          "page_number": 2,
+          "sheet_name": null,
+          "source_item_id": "#/texts/17",
+          "table_index": null
+        }
+      ],
+      "text": "Mobilizing rural core competence for competitiveness"
+    },
+    {
+      "block_index": 18,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 2,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 278.78388848640043,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 524.9993602001719,
+            "top": 441.9238232304006
+          },
+          "charspan": [
+            0,
+            1002
+          ],
+          "page_number": 2,
+          "sheet_name": null,
+          "source_item_id": "#/texts/18",
+          "table_index": null
+        }
+      ],
+      "text": "Now  I  would  like  to  talk  about  the  initiative  of  Periyar  Maniammai  College  of Technology for Women, Vallam, Tanjore of Providing Urban Amenities in Rural Areas (PURA)  complex  involving  65  villages  with  a  population  of  3  lakhs.  This  includes provision  of  three  connectivities  -  physical,  electronic  and  knowledge  -  leading  to economic connectivity. Periyar PURA has health care centers, primary to post graduate level education and vocational training centers. This has resulted in large-scale employment generation and creation of number of entrepreneurs with the active support of  1000  self-help  groups.  Two  hundred  acres  of  waste  land  has  been  developed  into  a cultivable  land.  The  villagers  are  busy  in  cultivation,  planting  Jatropha,  herbal  and medicinal  plants,  power  generation  using  bio-mass,  food  processing  and  above  all running marketing centers. It provides a sustainable economic development model for the whole region."
+    },
+    {
+      "block_index": 19,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 2,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 126.98394920640033,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 524.999372200167,
+            "top": 262.52389499040044
+          },
+          "charspan": [
+            0,
+            835
+          ],
+          "page_number": 2,
+          "sheet_name": null,
+          "source_item_id": "#/texts/19",
+          "table_index": null
+        }
+      ],
+      "text": "During the last eight months, people of Periyar PURA villages technologically supported by  Periyar  Maniammai  College  of  Engineering  for  Women  have  worked  with  experts from Japan External Trade Organisation (JETRO) on various products, for which core competence  and  raw  material  are  available  in  Thanjavur  district.  They  developed internationally competitive prototypes for 55 life style products with support of JETRO specialists and feedback from exhibitions at Delhi and Tokyo. This co-operative venture has enhanced the innovative ability of the people of all the 65 villages enabling them to develop  and  produce  internationally  acceptable  products.  I  have  seen  similar  type  of PURA  being  established  in  many  states.  The  whole  country  needs  7000  PURA  to bridging the rural - urban divide."
+    },
+    {
+      "block_index": 20,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 2,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 99.38396024640042,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 322.7993737601989,
+            "top": 110.72395571040033
+          },
+          "charspan": [
+            0,
+            46
+          ],
+          "page_number": 2,
+          "sheet_name": null,
+          "source_item_id": "#/texts/20",
+          "table_index": null
+        }
+      ],
+      "text": "Seed to Food: Backbone for agricultural growth"
+    },
+    {
+      "block_index": 21,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 3,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 554.7837780864005,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.99946400019999,
+            "right": 524.9994070001532,
+            "top": 717.9237128304001
+          },
+          "charspan": [
+            0,
+            1044
+          ],
+          "page_number": 3,
+          "sheet_name": null,
+          "source_item_id": "#/texts/21",
+          "table_index": null
+        }
+      ],
+      "text": "Let  me  now  share  with  you,  the  enriching  experience  I  had,  while  meeting  more  than 6000  farmers  from  different  States  and  Union  Territories  visiting  Rashtrapati  Bhavan. They  evinced  keen  interest  in  the  Mughal  Gardens,  the  Herbal  Gardens,  the  Spiritual Garden, the Musical Garden, the Bio-diesel garden and the Nutrition Garden and interact with  the  Horticultural  specialists.  Recently,  during  my  address  to  the  agricultural scientists while participating in a National Symposium on 'Agriculture Cannot Wait', I summarized  the  many  practical  suggestions  given  by  farmers.  We  have  to  double  the agricultural production with reduced land, reduced water resources and reduced manpower and improve the economic conditions of the nation through the principle of 'Seed to Food' since agriculture is the backbone of the nation. We should empower the farmers to protect and nurture the fertile land for second green revolution. Meeting the Scientists and the Farmers has given me the confidence"
+    },
+    {
+      "block_index": 22,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 3,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 513.3837946464007,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 524.9993608001715,
+            "top": 552.3237790704006
+          },
+          "charspan": [
+            0,
+            200
+          ],
+          "page_number": 3,
+          "sheet_name": null,
+          "source_item_id": "#/texts/22",
+          "table_index": null
+        }
+      ],
+      "text": "that the nation is poised to increase the agricultural GDP growth by atleast 4% per annum through the partnership of farmers and agricultural scientists and industries particularly for value addition."
+    },
+    {
+      "block_index": 23,
+      "block_type": "heading",
+      "level": 1,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 3,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 485.7838056864007,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 251.39938186020711,
+            "top": 497.12380115040065
+          },
+          "charspan": [
+            0,
+            31
+          ],
+          "page_number": 3,
+          "sheet_name": null,
+          "source_item_id": "#/texts/23",
+          "table_index": null
+        }
+      ],
+      "text": "Defeat the problems and succeed"
+    },
+    {
+      "block_index": 24,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 3,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 320.1838719264005,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 524.9993842001621,
+            "top": 483.32380667040064
+          },
+          "charspan": [
+            0,
+            1011
+          ],
+          "page_number": 3,
+          "sheet_name": null,
+          "source_item_id": "#/texts/24",
+          "table_index": null
+        }
+      ],
+      "text": "On the evening of February 24, 2007, at Coimbatore, I had a very beautiful experience. As I got ready for meeting the first person out of twenty appointments, a wheel chair was in sight with a smiling person probably in his late fifties; unfortunately he has no hands and legs. His radiant face was revealing his happy state of mind. He introduced himself as Vidwan Coimbatore SR Krishna Murthy. I greeted him and asked him how this had happened.  He  smilingly  said  that  it  was  from  by  birth.  He  thanked  God,  his  parents, teachers and many others for giving him confidence, training and help. I asked him, what I could do for him? He said, 'I don't need anything from you. I would like to sing in front of you'. I readily agreed. He sang melodiously the Saint Thyagraja's pancha ratna kriti entharo mahanubavulu in Sriragam giving me a glimpse of his talent. I was quite touched. What  is  the  message?  Despite  being  physically  challenged,  the  latent  talent  of  music could blossom in this"
+    },
+    {
+      "block_index": 25,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 3,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 264.98389400640053,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 524.9993374001809,
+            "top": 317.7238729104005
+          },
+          "charspan": [
+            0,
+            274
+          ],
+          "page_number": 3,
+          "sheet_name": null,
+          "source_item_id": "#/texts/25",
+          "table_index": null
+        }
+      ],
+      "text": "person with his positive attitude and perseverance, encouraged by the parents, teachers, academics and rasikas. Now he wants to give, give and give his art to inspire others. Of course, by his merit of music, in July 2007, he performed in the Rashtrapati Bhavan art theatre."
+    },
+    {
+      "block_index": 26,
+      "block_type": "heading",
+      "level": 1,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 3,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 237.3839050464004,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 346.3193497122048,
+            "top": 248.72390051040043
+          },
+          "charspan": [
+            0,
+            51
+          ],
+          "page_number": 3,
+          "sheet_name": null,
+          "source_item_id": "#/texts/26",
+          "table_index": null
+        }
+      ],
+      "text": "Overcome the impact of disaster through partnership"
+    },
+    {
+      "block_index": 27,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 3,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 99.38396024640042,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 524.9993956001576,
+            "top": 234.92390603040042
+          },
+          "charspan": [
+            0,
+            903
+          ],
+          "page_number": 3,
+          "sheet_name": null,
+          "source_item_id": "#/texts/27",
+          "table_index": null
+        },
+        {
+          "bbox": {
+            "bottom": 692.7837228864001,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.99946400019999,
+            "right": 524.9993602001717,
+            "top": 717.9237128304001
+          },
+          "charspan": [
+            904,
+            1006
+          ],
+          "page_number": 4,
+          "sheet_name": null,
+          "source_item_id": "#/texts/27",
+          "table_index": null
+        },
+        {
+          "bbox": {
+            "bottom": 609.9837560064004,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 524.9993608001714,
+            "top": 690.3237238704002
+          },
+          "charspan": [
+            1007,
+            1517
+          ],
+          "page_number": 4,
+          "sheet_name": null,
+          "source_item_id": "#/texts/27",
+          "table_index": null
+        }
+      ],
+      "text": "I had the opportunity to experience the Indomitable Spirit of the people and children of Jammu & Kashmir even as they were just recovering from the devastating earthquake in 2005.  I  visited  Urusa  village  on  26th  November  2005  which  has  been  adopted  by  the Western Air Command, Air Force for providing relief and medical aid to the residents of that area. When I went there, I found that the school building had been severely damaged. I met all the school children and the village citizen of Urusa. The villagers apprised me of their losses and had all praise for Army and Air Force role in rescue and relief operations along with state government. I appreciate the courage of the people of Urusa in defeating their  problems.  They  have  actually  become  the  master  of  the  problem  rather  than allowing problems to become their master. Despite the severe loss due to the earthquake, the children and the members of the village participated in the relief operation with the Armed Forces bravely and were smiling when I went to meet them. They interacted with me and said that  the  school  was  functional  in  the  temporary  tents.  Here,  I  also  witnessed  the participation of acting Chief Justice of Jammu & Kashmir along with State Government authorities in on-the-spot settlement of relief grants to be provided to the victims whose houses  had  been  damaged  in  the  earth  quake.  I  have  experienced  many  such  acts  of courage from our citizens when faced with severe challenges."
+    },
+    {
+      "block_index": 28,
+      "block_type": "heading",
+      "level": 1,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 4,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 582.3837670464004,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 251.39939452020215,
+            "top": 593.7237625104005
+          },
+          "charspan": [
+            0,
+            31
+          ],
+          "page_number": 4,
+          "sheet_name": null,
+          "source_item_id": "#/texts/28",
+          "table_index": null
+        }
+      ],
+      "text": "Courage in combating calamities"
+    },
+    {
+      "block_index": 29,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 4,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 471.9838112064007,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 524.9993836001624,
+            "top": 579.9237680304005
+          },
+          "charspan": [
+            0,
+            678
+          ],
+          "page_number": 4,
+          "sheet_name": null,
+          "source_item_id": "#/texts/29",
+          "table_index": null
+        }
+      ],
+      "text": "In  2005,  I  met  the  Tribal  Council  Leaders,  Students,  Children  of  Chuckchucha  village during my visit to Car Nicobar Islands. While various reconstruction and rehabilitation activities were in progress, during the discussions with the members of tribal council, I realized the unique trait among the Car-Nicobar islanders. Even though there were many human  losses  due  to  the  Tsunami  of  26  Dec  2004,  the  tribal  islanders  had  taken possession  of  affected  victims  as  their  children  and  there  is  nothing  like  orphanage  in Car-Nicobar  Islands.  Touched  by  their  courage,  I  composed  few  verses  called  'Sea Waves' which reads as follows:"
+    },
+    {
+      "block_index": 30,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 4,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 458.18381672640066,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 145.91944163220003,
+            "top": 469.52381219040063
+          },
+          "charspan": [
+            0,
+            9
+          ],
+          "page_number": 4,
+          "sheet_name": null,
+          "source_item_id": "#/texts/30",
+          "table_index": null
+        }
+      ],
+      "text": "Sea Waves"
+    },
+    {
+      "block_index": 31,
+      "block_type": "heading",
+      "level": 1,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 4,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 430.58382776640065,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 256.4393797842071,
+            "top": 441.9238232304006
+          },
+          "charspan": [
+            0,
+            33
+          ],
+          "page_number": 4,
+          "sheet_name": null,
+          "source_item_id": "#/texts/31",
+          "table_index": null
+        }
+      ],
+      "text": "We are the children of Sea waves,"
+    },
+    {
+      "block_index": 32,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 4,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 320.1838719264005,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 241.19938588020713,
+            "top": 428.1238287504006
+          },
+          "charspan": [
+            0,
+            195
+          ],
+          "page_number": 4,
+          "sheet_name": null,
+          "source_item_id": "#/texts/32",
+          "table_index": null
+        }
+      ],
+      "text": "Sea waves are my friends. When they become angry, Sea waves give the challenges. God has given the courage, To challenge the sea waves. And we will succeed, We will succeed With Almighty's grace."
+    },
+    {
+      "block_index": 33,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 4,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 278.78388848640043,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 524.9993836001624,
+            "top": 317.7238729104005
+          },
+          "charspan": [
+            0,
+            198
+          ],
+          "page_number": 4,
+          "sheet_name": null,
+          "source_item_id": "#/texts/33",
+          "table_index": null
+        }
+      ],
+      "text": "All the members who were gathered in the village sang the poem with me and exhibited lots  of  courage  and  enthusiasm  even  though  they  had  gone  through  severe  suffering during the Tsunami."
+    },
+    {
+      "block_index": 34,
+      "block_type": "heading",
+      "level": 1,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 4,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 251.1838995264004,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 285.23938878419904,
+            "top": 262.52389499040044
+          },
+          "charspan": [
+            0,
+            40
+          ],
+          "page_number": 4,
+          "sheet_name": null,
+          "source_item_id": "#/texts/34",
+          "table_index": null
+        }
+      ],
+      "text": "Connectivity for societal transformation"
+    },
+    {
+      "block_index": 35,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 4,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 182.18392712640036,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 524.9993734001667,
+            "top": 248.72390051040043
+          },
+          "charspan": [
+            0,
+            392
+          ],
+          "page_number": 4,
+          "sheet_name": null,
+          "source_item_id": "#/texts/35",
+          "table_index": null
+        }
+      ],
+      "text": "I  addressed the Pan African Parliament on 16 September 2004, at Johannesburg, South Africa.  This  was  attended  by  53  member  countries  of  the  African  Union,  where  I proposed the concept of Pan African  e-Network for providing seamless  and integrated satellite,  fiber  optics  and  wireless  network  connecting  53  African  countries  at  an estimated cost of US $ 100 million."
+    },
+    {
+      "block_index": 36,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 4,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 85.58396576640041,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 524.9993602001721,
+            "top": 165.92393363040037
+          },
+          "charspan": [
+            0,
+            538
+          ],
+          "page_number": 4,
+          "sheet_name": null,
+          "source_item_id": "#/texts/36",
+          "table_index": null
+        },
+        {
+          "bbox": {
+            "bottom": 637.5837449664003,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.99946400019999,
+            "right": 524.999372200167,
+            "top": 717.9237128304001
+          },
+          "charspan": [
+            539,
+            1035
+          ],
+          "page_number": 5,
+          "sheet_name": null,
+          "source_item_id": "#/texts/36",
+          "table_index": null
+        }
+      ],
+      "text": "As  part  of  the  project  12  universities  (7  from  India  and  5  from  Africa),  17  Super Specialty Hospitals (12 from India and 5 from Africa), 53 tele-medicine centers and 53 tele-education centres in Africa will be connected. The pilot project on tele-education and tele-medicine in Ethiopia has already been commissioned. Indira Gandhi National Open University has taken up the MBA Course for 34 Ethiopian students of Addis Ababa and Harmaya  Universities.  As  regards,  tele-medicine,  the  specialists  from  CARE  Hospital, Hyderabad  are  providing  one-hour  live  tele-consultation  to  doctors  in  Black  Lion Hospital,  Addis  Ababa  in  Cardiology  and  Radiology  since  November  2006.  Using  the Pan African network the Heads of the State in all the 53 countries will be connected for instant  communication.  I  am  extremely  happy  that  Indian  experience  in  bringing  the benefits of technology to the people has enabled us to work with Africa to bring societal transformation in the African continent."
+    },
+    {
+      "block_index": 37,
+      "block_type": "heading",
+      "level": 1,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 5,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 609.9837560064004,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 246.83939646420203,
+            "top": 621.3237514704005
+          },
+          "charspan": [
+            0,
+            31
+          ],
+          "page_number": 5,
+          "sheet_name": null,
+          "source_item_id": "#/texts/37",
+          "table_index": null
+        }
+      ],
+      "text": "Defending the nation: Our pride"
+    },
+    {
+      "block_index": 38,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 5,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 444.38382224640065,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 524.9993668001691,
+            "top": 607.5237569904004
+          },
+          "charspan": [
+            0,
+            1035
+          ],
+          "page_number": 5,
+          "sheet_name": null,
+          "source_item_id": "#/texts/38",
+          "table_index": null
+        }
+      ],
+      "text": "I  visited  KUMAR in Siachen Glacier located at 17,000 feet altitude held by the Indian Army, had a memorable underwater journey in INS Sindhurakshak and flew in a Sukhoi30 fighter experiencing 2.5 g. In these three experiences, I personally felt proud of our ever vigilant Soldiers, Sailors and Air Warriors performing their tasks beyond the call of their duty even in the most adverse circumstances natural and man made. During the last five  years,  I  had  an  opportunity  to  present  colours  to  many  regiments,  participate  in number  of  passing  out  parades,  meet  the  troops  who  were  going  to  undertake  peace missions  and  interact  with  the  family  members  of  our  Defence  Forces.  Our  Defence Forces are in a beautiful mission. When the nation sleeps during night, Members of our Defence  teams  are  awake  to  guard  us  and  remain  vigilant  to  counter  any  threat.  The Nation cherishes the valour, commitment and devotion to duty of our Defence Forces. Similarly, I had opportunities to interact"
+    },
+    {
+      "block_index": 39,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 5,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 402.9838388064006,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 524.9993962001574,
+            "top": 441.9238232304006
+          },
+          "charspan": [
+            0,
+            240
+          ],
+          "page_number": 5,
+          "sheet_name": null,
+          "source_item_id": "#/texts/39",
+          "table_index": null
+        }
+      ],
+      "text": "with  members  of  our  para-military  forces,  central  and  state  police  personnel  including internal security forces who are making immense contribution in augmenting the safety and security of our citizens under difficult conditions."
+    },
+    {
+      "block_index": 40,
+      "block_type": "heading",
+      "level": 1,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 5,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 375.38384984640055,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 303.11940755218853,
+            "top": 386.7238453104006
+          },
+          "charspan": [
+            0,
+            39
+          ],
+          "page_number": 5,
+          "sheet_name": null,
+          "source_item_id": "#/texts/40",
+          "table_index": null
+        }
+      ],
+      "text": "Youth movement for Developed India 2020"
+    },
+    {
+      "block_index": 41,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 5,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 209.78391608640038,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 524.9994190001485,
+            "top": 372.92385083040057
+          },
+          "charspan": [
+            0,
+            1007
+          ],
+          "page_number": 5,
+          "sheet_name": null,
+          "source_item_id": "#/texts/41",
+          "table_index": null
+        }
+      ],
+      "text": "Recently, in Hyderabad, I met a group of citizens who are putting into practice the motto of transforming of our youth into enlightened citizen. The Lead India 2020 Foundation created by Dr. N.B. Sudershan at Hyderabad is training thousands of students in many districts of Andhra Pradesh in partnership with the District Administration. Particularly, I happened  to  know  the  transformation  which  has  taken  place  among  the  students  of Medak district. As per the district authorities the impact of the training on the students is visible in terms of self-discipline, love for their parents and teachers shedding of stage fear and recognition of their duties towards the nation. I talked to Ms. Padma, a student leader  from  Andhra  Pradesh  Tribal  Welfare  School,  Nalgonda  who  related  how  she weaned her father away from smoking after imbibing the spirit of the 10 point oath from the Lead India Training Camp. This gives me an assurance that the youth of our country are on the right path"
+    },
+    {
+      "block_index": 42,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 5,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 154.58393816640034,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 524.999407000153,
+            "top": 207.3239170704004
+          },
+          "charspan": [
+            0,
+            294
+          ],
+          "page_number": 5,
+          "sheet_name": null,
+          "source_item_id": "#/texts/42",
+          "table_index": null
+        }
+      ],
+      "text": "through  this  mission  oriented  programme.  With  the  ignited  minds  of  the  540  million youth below the age of 25, which I consider is the most powerful resource on the earth, under the earth and above the earth, we have to empower the youth through value based education and leadership."
+    },
+    {
+      "block_index": 43,
+      "block_type": "heading",
+      "level": 1,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 5,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 126.98394920640033,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 147.71944091220004,
+            "top": 138.32394467040035
+          },
+          "charspan": [
+            0,
+            10
+          ],
+          "page_number": 5,
+          "sheet_name": null,
+          "source_item_id": "#/texts/43",
+          "table_index": null
+        }
+      ],
+      "text": "Conclusion"
+    },
+    {
+      "block_index": 44,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 5,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 85.58396576640041,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 524.9993842001622,
+            "top": 124.52395019040034
+          },
+          "charspan": [
+            0,
+            272
+          ],
+          "page_number": 5,
+          "sheet_name": null,
+          "source_item_id": "#/texts/44",
+          "table_index": null
+        },
+        {
+          "bbox": {
+            "bottom": 596.1837615264004,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.99946400019999,
+            "right": 524.9993836001626,
+            "top": 717.9237128304001
+          },
+          "charspan": [
+            273,
+            1013
+          ],
+          "page_number": 6,
+          "sheet_name": null,
+          "source_item_id": "#/texts/44",
+          "table_index": null
+        },
+        {
+          "bbox": {
+            "bottom": 540.9837836064006,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 524.999360200172,
+            "top": 593.7237625104005
+          },
+          "charspan": [
+            1014,
+            1330
+          ],
+          "page_number": 6,
+          "sheet_name": null,
+          "source_item_id": "#/texts/44",
+          "table_index": null
+        }
+      ],
+      "text": "I was touched by the variety of Indian panorama, emotional content of the tune, cultural diversity and unity of minds in the vast land of ours. I have cited these examples just to give a glimpse of the richness of our tradition and effort being taken by different agencies to preserve it. There are also many new adventures by institutions and individuals. I have experienced many of them and learnt a lot about my country and our people. Even while pursuing  our  economic  growth,  we  need  to  do  a  lot  to  preserve  the  rich  and  diverse treasures of our culture and civilization. It is our duty for our future generations. This has to  be  done  in  a  much  larger  scale  through  countrywide  participation  of  multiple institutions.  Our  country  is  blessed  with  natural  resources,  has  shown  considerable progress in the last sixty years, and above all we have hard working people particularly the power of the 540 million youth of the country. Every sector of our country has given me the confidence that India can become a developed nation well before 2020. Whomsoever, I met they constantly ask what they can give to the nation. We should constantly strive to empower such members of the society. With this spirit, I am extremely happy that we are on the right path. Here I am reminded of a famous poem:"
+    },
+    {
+      "block_index": 45,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 6,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 527.1837891264006,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 231.83938968420708,
+            "top": 538.5237845904006
+          },
+          "charspan": [
+            0,
+            27
+          ],
+          "page_number": 6,
+          "sheet_name": null,
+          "source_item_id": "#/texts/45",
+          "table_index": null
+        }
+      ],
+      "text": "\"When you wish upon a star,"
+    },
+    {
+      "block_index": 46,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 6,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 513.3837946464007,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 256.7993826402059,
+            "top": 524.7237901104007
+          },
+          "charspan": [
+            0,
+            32
+          ],
+          "page_number": 6,
+          "sheet_name": null,
+          "source_item_id": "#/texts/46",
+          "table_index": null
+        }
+      ],
+      "text": "Makes no difference who you are,"
+    },
+    {
+      "block_index": 47,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 6,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 499.5838001664007,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 229.55938765620832,
+            "top": 510.92379563040066
+          },
+          "charspan": [
+            0,
+            28
+          ],
+          "page_number": 6,
+          "sheet_name": null,
+          "source_item_id": "#/texts/47",
+          "table_index": null
+        }
+      ],
+      "text": "Anything your heart desires,"
+    },
+    {
+      "block_index": 48,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 6,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 485.7838056864007,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 181.91942723220004,
+            "top": 497.12380115040065
+          },
+          "charspan": [
+            0,
+            17
+          ],
+          "page_number": 6,
+          "sheet_name": null,
+          "source_item_id": "#/texts/48",
+          "table_index": null
+        }
+      ],
+      "text": "Will come to you'"
+    },
+    {
+      "block_index": 49,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 6,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 458.18381672640066,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 524.9993608001714,
+            "top": 483.32380667040064
+          },
+          "charspan": [
+            0,
+            146
+          ],
+          "page_number": 6,
+          "sheet_name": null,
+          "source_item_id": "#/texts/49",
+          "table_index": null
+        }
+      ],
+      "text": "This poem is true to all of us, and particularly for our youth and if they aim great, I am sure they will reach close to the target or the target."
+    },
+    {
+      "block_index": 50,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 6,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 416.78383328640064,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 524.9993140001905,
+            "top": 441.9238232304006
+          },
+          "charspan": [
+            0,
+            157
+          ],
+          "page_number": 6,
+          "sheet_name": null,
+          "source_item_id": "#/texts/50",
+          "table_index": null
+        }
+      ],
+      "text": "My  dear  citizens,  let  us  resolve  to  continue  to  work  for  realizing  the  missions  of developed India 2020 with the following distinctive profile."
+    },
+    {
+      "block_index": 51,
+      "block_type": "list",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 6,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 389.1838443264006,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 434.75928793621523,
+            "top": 400.5238397904006
+          },
+          "charspan": [
+            0,
+            72
+          ],
+          "page_number": 6,
+          "sheet_name": null,
+          "source_item_id": "#/texts/51",
+          "table_index": null
+        }
+      ],
+      "text": "A Nation where the rural and urban divide has reduced to a thin line."
+    },
+    {
+      "block_index": 52,
+      "block_type": "list",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 6,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 347.78386088640053,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 524.9993488001763,
+            "top": 372.92385083040057
+          },
+          "charspan": [
+            0,
+            101
+          ],
+          "page_number": 6,
+          "sheet_name": null,
+          "source_item_id": "#/texts/52",
+          "table_index": null
+        }
+      ],
+      "text": "A Nation where there is an equitable distribution and adequate access to energy and quality water."
+    },
+    {
+      "block_index": 53,
+      "block_type": "list",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 6,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 320.1838719264005,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 509.15929633620004,
+            "top": 331.5238673904005
+          },
+          "charspan": [
+            0,
+            85
+          ],
+          "page_number": 6,
+          "sheet_name": null,
+          "source_item_id": "#/texts/53",
+          "table_index": null
+        }
+      ],
+      "text": "A Nation where agriculture, industry and service sector work together in symphony."
+    },
+    {
+      "block_index": 54,
+      "block_type": "list",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 6,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 278.78388848640043,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 524.9993602001719,
+            "top": 303.92387843040046
+          },
+          "charspan": [
+            0,
+            150
+          ],
+          "page_number": 6,
+          "sheet_name": null,
+          "source_item_id": "#/texts/54",
+          "table_index": null
+        }
+      ],
+      "text": "A  Nation  where  education  with  value  system  is  not  denied  to  any  meritorious candidates because of societal or economic discrimination."
+    },
+    {
+      "block_index": 55,
+      "block_type": "list",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 6,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 237.3839050464004,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 524.9993134001905,
+            "top": 262.52389499040044
+          },
+          "charspan": [
+            0,
+            100
+          ],
+          "page_number": 6,
+          "sheet_name": null,
+          "source_item_id": "#/texts/55",
+          "table_index": null
+        }
+      ],
+      "text": "A Nation which is the best destination for the most talented scholars, scientists, and investors."
+    },
+    {
+      "block_index": 56,
+      "block_type": "list",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 6,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 209.78391608640038,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 377.5193489922,
+            "top": 221.1239115504004
+          },
+          "charspan": [
+            0,
+            62
+          ],
+          "page_number": 6,
+          "sheet_name": null,
+          "source_item_id": "#/texts/56",
+          "table_index": null
+        }
+      ],
+      "text": "A Nation where the best of health care is available to all."
+    },
+    {
+      "block_index": 57,
+      "block_type": "list",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 6,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 182.18392712640036,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 479.9992903602069,
+            "top": 193.5239225904004
+          },
+          "charspan": [
+            0,
+            80
+          ],
+          "page_number": 6,
+          "sheet_name": null,
+          "source_item_id": "#/texts/57",
+          "table_index": null
+        }
+      ],
+      "text": "A Nation where the governance is responsive, transparent and corruption free."
+    },
+    {
+      "block_index": 58,
+      "block_type": "list",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 6,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 140.78394368640033,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 524.9993602001719,
+            "top": 165.92393363040037
+          },
+          "charspan": [
+            0,
+            175
+          ],
+          "page_number": 6,
+          "sheet_name": null,
+          "source_item_id": "#/texts/58",
+          "table_index": null
+        }
+      ],
+      "text": "A  Nation  where  poverty  has  been  totally  eradicated,  illiteracy  removed  and  crimes against women and children are absent and none in the society feels alienated."
+    },
+    {
+      "block_index": 59,
+      "block_type": "list",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 6,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 99.38396024640042,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 524.9993434001786,
+            "top": 124.52395019040034
+          },
+          "charspan": [
+            0,
+            113
+          ],
+          "page_number": 6,
+          "sheet_name": null,
+          "source_item_id": "#/texts/59",
+          "table_index": null
+        }
+      ],
+      "text": "A Nation that is prosperous, healthy, secure, peaceful and happy and continues with a sustainable growth path."
+    },
+    {
+      "block_index": 60,
+      "block_type": "list",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 7,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 706.5837173664,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.99946400019999,
+            "right": 484.1993063202,
+            "top": 717.9237128304001
+          },
+          "charspan": [
+            0,
+            86
+          ],
+          "page_number": 7,
+          "sheet_name": null,
+          "source_item_id": "#/texts/60",
+          "table_index": null
+        }
+      ],
+      "text": "A Nation that is one of the best places to live in and is proud of its leadership."
+    },
+    {
+      "block_index": 61,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 7,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 665.1837339264002,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.99946400019999,
+            "right": 524.9993134001905,
+            "top": 690.3237238704002
+          },
+          "charspan": [
+            0,
+            159
+          ],
+          "page_number": 7,
+          "sheet_name": null,
+          "source_item_id": "#/texts/61",
+          "table_index": null
+        }
+      ],
+      "text": "Finally  let  me  thank  each  one  of  you  for  showering  your  love  and  affection  on  me throughout the last five years by your cooperation and support."
+    },
+    {
+      "block_index": 62,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 7,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 582.3837670464004,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 524.9993956001579,
+            "top": 648.9237404304004
+          },
+          "charspan": [
+            0,
+            384
+          ],
+          "page_number": 7,
+          "sheet_name": null,
+          "source_item_id": "#/texts/62",
+          "table_index": null
+        }
+      ],
+      "text": "Dear Citizens, I conclude my address by sharing with you my mission in life which is to bring  connectivity  between  billion  hearts  and  minds  of  the  people  of  India  in  our multicultural  society  and  to  embed  the  self  confidence  that  \"we  can  do  it\".  I  will  be always with you, dear citizens, in the great mission of making India a developed nation before 2020."
+    },
+    {
+      "block_index": 63,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 7,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 554.7837780864005,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 189.59942416020007,
+            "top": 566.1237735504006
+          },
+          "charspan": [
+            0,
+            18
+          ],
+          "page_number": 7,
+          "sheet_name": null,
+          "source_item_id": "#/texts/63",
+          "table_index": null
+        }
+      ],
+      "text": "May God bless you."
+    },
+    {
+      "block_index": 64,
+      "block_type": "text",
+      "level": 0,
+      "metadata": {
+        "parser": "docling",
+        "source_type": ".pdf"
+      },
+      "page_number": 7,
+      "provenance": [
+        {
+          "bbox": {
+            "bottom": 499.5838001664007,
+            "coord_origin": "BOTTOMLEFT",
+            "left": 89.9994640002,
+            "right": 229.91939039220716,
+            "top": 538.5237845904006
+          },
+          "charspan": [
+            0,
+            62
+          ],
+          "page_number": 7,
+          "sheet_name": null,
+          "source_item_id": "#/texts/64",
+          "table_index": null
+        }
+      ],
+      "text": "Jai hind. Dr. A. P. J. Abdul Kalam www.presidentofindia.nic.in"
+    }
+  ],
+  "document": {
+    "file_extension": ".pdf",
+    "name": "apjspeech.pdf",
+    "page_count": 7,
+    "sha256": "6a861122b7aed5d5d1db193154db8120c8af0dc24abcd47f78c7f789ca088571",
+    "size_bytes": 37862
+  },
+  "schema_version": 1
+}

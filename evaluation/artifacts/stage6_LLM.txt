@@ -1,0 +1,86 @@
+==============================================================================
+CHUNKING REPORT  LLM.pdf  (sha256 b42f2c20b391)
+==============================================================================
+pages=46  source_blocks=925  final_chunks=186  deterministic=True
+
+source block types : {'caption': 33, 'heading': 71, 'list': 495, 'table': 15, 'text': 311}
+effective types    : {'caption': 8, 'list': 61, 'table': 36, 'text': 81}
+type counts        : {'table': 36, 'list': 61, 'caption': 8, 'text': 81}
+
+tokens             : {'count': 186, 'min': 31, 'max': 697, 'mean': 450.49, 'median': 552.0, 'p90': 685, 'p99': 696}
+over 700 tokens      : 0 (0.0%)  []
+content-free/head. : 0  []
+
+filter             : {'chunks_before_filter': 186, 'chunks_after_filter': 186, 'removed': 0, 'exact_duplicate_groups_before_filter': 0, 'exact_duplicate_extra_copies_before_filter': 0}
+provenance         : {'chunks_total': 186, 'chunks_with_provenance': 186, 'coverage_pct': 100.0, 'unique_source_item_ids_in_chunks': 924, 'unique_source_item_ids_in_source': 925, 'source_item_id_coverage_pct': 99.89, 'fabricated_source_item_ids': [], 'full_list_fallback_suspected_chunks': 0}
+ranges             : {'page_range_invalid_chunks': [], 'block_range_invalid_chunks': [], 'page_range_outside_provenance_chunks': []}
+heading prefix     : {'present': 186}
+section boundary   : {'distinct_section_keys': 70, 'chunks_with_section_key': 186}
+atomicity          : {'table_chunks': 36, 'table_chunks_with_intact_rows': 36, 'list_chunks': 61}
+table content      : {'source_table_blocks': 15, 'total_rows': 308, 'total_rows_intact': 308, 'total_rows_split': 0, 'tables': [{'source_item_id': '#/tables/0', 'page': 5, 'row_count': 5, 'rows_intact': 5, 'rows_split': 0, 'carrier_chunk_indexes': [16], 'carrier_block_types': ['table'], 'any_carrier_typed_table': True}, {'source_item_id': '#/tables/1', 'page': 12, 'row_count': 15, 'rows_intact': 15, 'rows_split': 0, 'carrier_chunk_indexes': [38, 39], 'carrier_block_types': ['table'], 'any_carrier_typed_table': True}, {'source_item_id': '#/tables/2', 'page': 13, 'row_count': 10, 'rows_intact': 10, 'rows_split': 0, 'carrier_chunk_indexes': [40], 'carrier_block_types': ['table'], 'any_carrier_typed_table': True}, {'source_item_id': '#/tables/3', 'page': 14, 'row_count': 14, 'rows_intact': 14, 'rows_split': 0, 'carrier_chunk_indexes': [41], 'carrier_block_types': ['table'], 'any_carrier_typed_table': True}, {'source_item_id': '#/tables/4', 'page': 15, 'row_count': 13, 'rows_intact': 13, 'rows_split': 0, 'carrier_chunk_indexes': [42, 43], 'carrier_block_types': ['table'], 'any_carrier_typed_table': True}, {'source_item_id': '#/tables/5', 'page': 25, 'row_count': 38, 'rows_intact': 38, 'rows_split': 0, 'carrier_chunk_indexes': [73, 74, 75, 76, 77, 78], 'carrier_block_types': ['table'], 'any_carrier_typed_table': True}, {'source_item_id': '#/tables/6', 'page': 25, 'row_count': 15, 'rows_intact': 15, 'rows_split': 0, 'carrier_chunk_indexes': [80, 81], 'carrier_block_types': ['table'], 'any_carrier_typed_table': True}, {'source_item_id': '#/tables/7', 'page': 26, 'row_count': 40, 'rows_intact': 40, 'rows_split': 0, 'carrier_chunk_indexes': [84, 85, 86, 87], 'carrier_block_types': ['table'], 'any_carrier_typed_table': True}, {'source_item_id': '#/tables/8', 'page': 27, 'row_count': 37, 'rows_intact': 37, 'rows_split': 0, 'carrier_chunk_indexes': [92, 93, 94, 95], 'carrier_block_types': ['table'], 'any_carrier_typed_table': True}, {'source_item_id': '#/tables/9', 'page': 27, 'row_count': 13, 'rows_intact': 13, 'rows_split': 0, 'carrier_chunk_indexes': [96], 'carrier_block_types': ['table'], 'any_carrier_typed_table': True}, {'source_item_id': '#/tables/10', 'page': 28, 'row_count': 25, 'rows_intact': 25, 'rows_split': 0, 'carrier_chunk_indexes': [99, 100], 'carrier_block_types': ['table'], 'any_carrier_typed_table': True}, {'source_item_id': '#/tables/11', 'page': 29, 'row_count': 21, 'rows_intact': 21, 'rows_split': 0, 'carrier_chunk_indexes': [103, 104, 105], 'carrier_block_types': ['table'], 'any_carrier_typed_table': True}, {'source_item_id': '#/tables/12', 'page': 30, 'row_count': 33, 'rows_intact': 33, 'rows_split': 0, 'carrier_chunk_indexes': [110, 111, 112, 113], 'carrier_block_types': ['table'], 'any_carrier_typed_table': True}, {'source_item_id': '#/tables/13', 'page': 31, 'row_count': 10, 'rows_intact': 10, 'rows_split': 0, 'carrier_chunk_indexes': [114], 'carrier_block_types': ['table'], 'any_carrier_typed_table': True}, {'source_item_id': '#/tables/14', 'page': 32, 'row_count': 19, 'rows_intact': 19, 'rows_split': 0, 'carrier_chunk_indexes': [118, 119], 'carrier_block_types': ['table'], 'any_carrier_typed_table': True}]}
+list content       : {'source_list_blocks': 495, 'items_intact_or_oversized': 495, 'items_split_across_chunks': 0, 'items_without_carrier': 0, 'oversized_items': 0, 'split_items': [], 'no_carrier_items': []}
+quality dist       : {0.3: 59, 0.7: 8, 0.75: 36, 1.0: 83}
+priority dist      : {'100': 83, '20': 59, '70': 8, '75': 36}
+flags              : {'is_reference': 59, 'is_appendix': 0, 'is_metadata': 0, 'is_caption': 8, 'is_table': 36, 'is_formula': 0}
+
+SAMPLES
+------------------------------------------------------------------------------
+[ordinary_prose]
+  chunk=0 parent=None type=text pages=[1, 1] blocks=[0, 1] tokens=239 prov=2 prefix=present quality=1.0
+  heading_path=['Abstract']
+  item_ids=['#/texts/1', '#/texts/2']
+  text_head='Abstract\n\nLarge Language Models (LLMs) have recently demonstrated remarkable capabilities in natural language processing tasks and beyond. This success of LLMs has led to a large influx of research contributions in this direction. These works encompass diverse topics such as architectural innovations, better training strategies, context length improvements, fine-tuning, multi-modal LLMs, robotics,'
+
+[heading_folded]
+  chunk=0 parent=None type=text pages=[1, 1] blocks=[0, 1] tokens=239 prov=2 prefix=present quality=1.0
+  heading_path=['Abstract']
+  item_ids=['#/texts/1', '#/texts/2']
+  text_head='Abstract\n\nLarge Language Models (LLMs) have recently demonstrated remarkable capabilities in natural language processing tasks and beyond. This success of LLMs has led to a large influx of research contributions in this direction. These works encompass diverse topics such as architectural innovations, better training strategies, context length improvements, fine-tuning, multi-modal LLMs, robotics,'
+
+[nested_section]
+  chunk=8 parent=None type=text pages=[4, 4] blocks=[42, 43] tokens=108 prov=2 prefix=present quality=1.0
+  heading_path=['2. Background', '2.1. Tokenization']
+  item_ids=['#/texts/237', '#/texts/238']
+  text_head='2.1. Tokenization\n\nTokenization [59] is an essential pre-processing step in LLM training that parses the text into non-decomposing units called tokens. Tokens can be characters, subwords [60], symbols [61], or words, depending on the tokenization process. Some of the commonly used tokenization schemes in LLMs include wordpiece [62], byte pair encoding (BPE) [61], and unigramLM [60]. Readers are en'
+
+[table_content]
+  chunk=16 parent=None type=table pages=[5, 5] blocks=[87, 95] tokens=369 prov=10 prefix=present quality=0.75
+  heading_path=['2. Background', '2.9. Architectures']
+  item_ids=['#/tables/0', '#/texts/286', '#/texts/287', '#/texts/319', '#/texts/327', '#/texts/328', '#/texts/329', '#/texts/330', '#/texts/331']
+  text_head='2.9. Architectures\n\nHere we discuss the variants of the transformer architectures used in LLMs. The difference arises due to the application of the attention and the connection of transformer blocks. An illustration of attention patterns of these architectures is shown in Figure 4.\n\nFigure 4: An example of attention patterns in language models, image is taken from [93].\n\nFigure 5: An example of la'
+
+[oversized_table_content]
+  chunk=38 parent=3 type=table pages=[12, 12] blocks=[190, 190] tokens=625 prov=2 prefix=present quality=0.75
+  heading_path=['3. Large Language Models', '3.2. Fine-Tuned LLMs', '3.2.2. Instruction-Tuning with LLMs Generated Datasets']
+  item_ids=['#/tables/1', '#/texts/593']
+  text_head='3.2. Fine-Tuned LLMs › 3.2.2. Instruction-Tuning with LLMs Generated Datasets\n\nTable 1: Noteworthy findings and insights of pre-trained Large Language Models.\n\n| Models          | Findings &Insights                                                                                                                                                                                                          '
+
+[list]
+  chunk=5 parent=0 type=list pages=[2, 2] blocks=[29, 35] tokens=481 prov=9 prefix=present quality=1.0
+  heading_path=['Papers Released over Years']
+  item_ids=['#/texts/172', '#/texts/173', '#/texts/174', '#/texts/175', '#/texts/176', '#/texts/177', '#/texts/178', '#/texts/24']
+  text_head='Papers Released over Years\n\nSuch abilities have led LLMs to be widely adopted in diverse settings including, multi-modal, robotics, tool manipulation, question answering, autonomous agents, etc. Various improvements have also been suggested in these areas either by task-specific training [25, 26, 27, 28, 29, 30, 31] or better prompting [32]. The LLMs abilities to solve diverse tasks with human-lev'
+
+[caption]
+  chunk=79 parent=12 type=caption pages=[25, 25] blocks=[309, 309] tokens=264 prov=1 prefix=present quality=0.7
+  heading_path=['5. Datasets and Evaluation', '5.2. Evaluation Datasets and Tasks', '5.2.1. Multi-task']
+  item_ids=['#/texts/805']
+  text_head="5.2. Evaluation Datasets and Tasks › 5.2.1. Multi-task\n\nTable 3: Summary of pre-trained LLMs ( > 10B). Only the LLMs discussed individually in the previous sections are summarized. 'Data / Tokens' is the model's pre-training data, which is either the number of tokens or data size. 'Data Cleaning' indicates whether data cleaning is performed or not. This includes heuristics (Heur), deduplication (D"
+
+[multi_page]
+  chunk=4 parent=0 type=text pages=[1, 2] blocks=[24, 29] tokens=691 prov=8 prefix=present quality=1.0
+  heading_path=['Papers Released over Years']
+  item_ids=['#/texts/169', '#/texts/170', '#/texts/171', '#/texts/172', '#/texts/24', '#/texts/54', '#/texts/57']
+  text_head='Papers Released over Years\n\nFigure 1: The trend of papers released over years containing keywords "Large Language Model", "Large Language Model + Fine-Tuning", and "Large Language Model + Alignment". Figure 2: Chronological display of LLM releases: blue cards represent \'pre-trained\' models, while orange cards correspond to \'instruction-tuned\' models. Models on the upper half signify open-source av'
+
+[hard_boundary_continuation]
+  chunk=4 parent=0 type=text pages=[1, 2] blocks=[24, 29] tokens=691 prov=8 prefix=present quality=1.0
+  heading_path=['Papers Released over Years']
+  item_ids=['#/texts/169', '#/texts/170', '#/texts/171', '#/texts/172', '#/texts/24', '#/texts/54', '#/texts/57']
+  text_head='Papers Released over Years\n\nFigure 1: The trend of papers released over years containing keywords "Large Language Model", "Large Language Model + Fine-Tuning", and "Large Language Model + Alignment". Figure 2: Chronological display of LLM releases: blue cards represent \'pre-trained\' models, while orange cards correspond to \'instruction-tuned\' models. Models on the upper half signify open-source av'
+
+[reference_or_appendix]
+  chunk=127 parent=22 type=list pages=[34, 35] blocks=[415, 423] tokens=692 prov=10 prefix=present quality=0.3
+  heading_path=['References']
+  item_ids=['#/texts/910', '#/texts/911', '#/texts/912', '#/texts/914', '#/texts/915', '#/texts/916', '#/texts/917', '#/texts/918', '#/texts/919', '#/texts/920']
+  text_head="References\n\nA. Chernyavskiy, D. Ilvovsky, P. Nakov, Transformers:'the end of history' for natural language processing?, in: Machine Learning and Knowledge Discovery in Databases. Research Track: European Conference, ECML PKDD 2021, Bilbao, Spain, September 13-17, 2021, Proceedings, Part III 21, Springer, 2021, pp. 677-693. 1\n\nA. Wang, Y. Pruksachatkun, N. Nangia, A. Singh, J. Michael, F. Hill, O. "

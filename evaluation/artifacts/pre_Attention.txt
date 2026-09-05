@@ -1,0 +1,80 @@
+==============================================================================
+CHUNKING REPORT  Attention.pdf  (sha256 bdfaa68d8984)
+==============================================================================
+pages=15  source_blocks=156  final_chunks=36  deterministic=True
+
+source block types : {'caption': 14, 'heading': 28, 'list': 43, 'table': 4, 'text': 67}
+effective types    : {'heading': 28, 'list': 2, 'text': 6}
+type counts        : {'table': 0, 'list': 2, 'caption': 0, 'text': 6}
+
+tokens             : {'count': 36, 'min': 2, 'max': 698, 'mean': 288.61, 'median': 240.0, 'p90': 694, 'p99': 698}
+over 700 tokens      : 0 (0.0%)  []
+content-free/head. : 3  [{'chunk_index': 38, 'block_type': 'heading', 'text_head': '6 Results'}, {'chunk_index': 41, 'block_type': 'heading', 'text_head': '6.2 Model Variations'}, {'chunk_index': 45, 'block_type': 'heading', 'text_head': '6.3 English Constituency Parsing'}]
+
+filter             : {'chunks_before_filter': 36, 'chunks_after_filter': 36, 'removed': 0, 'exact_duplicate_groups_before_filter': 0, 'exact_duplicate_extra_copies_before_filter': 0}
+provenance         : {'chunks_total': 36, 'chunks_with_provenance': 36, 'coverage_pct': 100.0, 'unique_source_item_ids_in_chunks': 93, 'unique_source_item_ids_in_source': 156, 'source_item_id_coverage_pct': 59.62, 'fabricated_source_item_ids': [], 'full_list_fallback_suspected_chunks': 9}
+ranges             : {'page_range_invalid_chunks': [], 'block_range_invalid_chunks': [], 'page_range_outside_provenance_chunks': [7, 16, 22, 26, 36, 54]}
+heading prefix     : {'absent-ok': 1, 'duplicated': 1, 'missing': 5, 'present': 26, 'present-not-leading': 3}
+section boundary   : {'distinct_section_keys': 1, 'chunks_with_section_key': 0}
+atomicity          : {'table_chunks': 0, 'table_chunks_with_intact_rows': 0, 'list_chunks': 2}
+table content      : {'source_table_blocks': 4, 'total_rows': 59, 'total_rows_intact': 32, 'total_rows_split': 27, 'tables': [{'source_item_id': '#/tables/0', 'page': 6, 'row_count': 7, 'rows_intact': 0, 'rows_split': 7, 'carrier_chunk_indexes': [], 'carrier_block_types': [], 'any_carrier_typed_table': False}, {'source_item_id': '#/tables/1', 'page': 8, 'row_count': 14, 'rows_intact': 0, 'rows_split': 14, 'carrier_chunk_indexes': [], 'carrier_block_types': [], 'any_carrier_typed_table': False}, {'source_item_id': '#/tables/2', 'page': 9, 'row_count': 23, 'rows_intact': 20, 'rows_split': 3, 'carrier_chunk_indexes': [42, 43, 44], 'carrier_block_types': ['text'], 'any_carrier_typed_table': False}, {'source_item_id': '#/tables/3', 'page': 10, 'row_count': 15, 'rows_intact': 12, 'rows_split': 3, 'carrier_chunk_indexes': [46, 47], 'carrier_block_types': ['text'], 'any_carrier_typed_table': False}]}
+list content       : {'source_list_blocks': 43, 'items_intact_or_oversized': 40, 'items_split_across_chunks': 0, 'items_without_carrier': 3, 'oversized_items': 0, 'split_items': [], 'no_carrier_items': [{'source_item_id': '#/texts/106', 'page': 5}, {'source_item_id': '#/texts/107', 'page': 5}, {'source_item_id': '#/texts/108', 'page': 5}]}
+quality dist       : {0.3: 4, 0.95: 26, 1.0: 6}
+priority dist      : {'100': 32, '20': 4}
+flags              : {'is_reference': 4, 'is_appendix': 0, 'is_metadata': 0, 'is_caption': 0, 'is_table': 0, 'is_formula': 0}
+
+SAMPLES
+------------------------------------------------------------------------------
+[ordinary_prose]
+  absent in this document
+
+[heading_folded]
+  chunk=1 parent=None type=heading pages=[1, 1] blocks=[1, 5] tokens=133 prov=10 prefix=present quality=0.95
+  heading_path=['Attention Is All You Need']
+  item_ids=['#/texts/2', '#/texts/3', '#/texts/4', '#/texts/5', '#/texts/6']
+  text_head='Attention Is All You Need\n\nAshish Vaswani ∗ Google Brain avaswani@google.com Noam Shazeer ∗ Google Brain noam@google.com Niki Parmar ∗ Google Research nikip@google.com Jakob Uszkoreit ∗ Google Research usz@google.com\n\nLlion Jones ∗ Google Research llion@google.com Aidan N. Gomez ∗ † University of Toronto aidan@cs.toronto.edu Łukasz Kaiser ∗ Google Brain lukaszkaiser@google.com\n\n∗ ‡\n\nIllia Polosukh'
+
+[nested_section]
+  chunk=9 parent=None type=heading pages=[3, 3] blocks=[25, 27] tokens=284 prov=1 prefix=present quality=0.95
+  heading_path=['3 Model Architecture', '3.1 Encoder and Decoder Stacks']
+  item_ids=['#/texts/61']
+  text_head='3.1 Encoder and Decoder Stacks\n\nEncoder: The encoder is composed of a stack of N = 6 identical layers. Each layer has two sub-layers. The first is a multi-head self-attention mechanism, and the second is a simple, positionwise fully connected feed-forward network. We employ a residual connection [11] around each of the two sub-layers, followed by layer normalization [1]. That is, the output of eac'
+
+[table_content]
+  chunk=42 parent=0 type=text pages=[8, 9] blocks=[90, 95] tokens=186 prov=7 prefix=present quality=1.0
+  heading_path=['6 Results', '6.2 Model Variations']
+  item_ids=['#/tables/2', '#/texts/154', '#/texts/155', '#/texts/157', '#/texts/158', '#/texts/159']
+  text_head='6.2 Model Variations\n\nTo evaluate the importance of different components of the Transformer, we varied our base model in different ways, measuring the change in performance on English-to-German translation on the development set, newstest2013. We used beam search as described in the previous section, but no checkpoint averaging. We present these results in Table 3. 5 We used values of 2.8, 3.7, 6.'
+
+[oversized_table_content]
+  chunk=42 parent=0 type=text pages=[8, 9] blocks=[90, 95] tokens=186 prov=7 prefix=present quality=1.0
+  heading_path=['6 Results', '6.2 Model Variations']
+  item_ids=['#/tables/2', '#/texts/154', '#/texts/155', '#/texts/157', '#/texts/158', '#/texts/159']
+  text_head='6.2 Model Variations\n\nTo evaluate the importance of different components of the Transformer, we varied our base model in different ways, measuring the change in performance on English-to-German translation on the development set, newstest2013. We used beam search as described in the previous section, but no checkpoint averaging. We present these results in Table 3. 5 We used values of 2.8, 3.7, 6.'
+
+[list]
+  chunk=52 parent=3 type=list pages=[12, 13] blocks=[138, 151] tokens=698 prov=14 prefix=present quality=0.3
+  heading_path=['References']
+  item_ids=['#/texts/204', '#/texts/205', '#/texts/206', '#/texts/207', '#/texts/208', '#/texts/209', '#/texts/210', '#/texts/211', '#/texts/212', '#/texts/213', '#/texts/214', '#/texts/215', '#/texts/216', '#/texts/218']
+  text_head='References\n\nRomain Paulus, Caiming Xiong, and Richard Socher. A deep reinforced model for abstractive summarization. arXiv preprint arXiv:1705.04304 , 2017. Slav Petrov, Leon Barrett, Romain Thibaux, and Dan Klein. Learning accurate, compact, and interpretable tree annotation. In Proceedings of the 21st International Conference on Computational Linguistics and 44th Annual Meeting of the ACL , page'
+
+[caption]
+  absent in this document
+
+[multi_page]
+  chunk=7 parent=None type=heading pages=[2, 3] blocks=[21, 24] tokens=165 prov=1 prefix=present quality=0.95
+  heading_path=['3 Model Architecture']
+  item_ids=['#/texts/23']
+  text_head='3 Model Architecture\n\nMost competitive neural sequence transduction models have an encoder-decoder structure [5, 2, 35]. Here, the encoder maps an input sequence of symbol representations ( x 1 , ..., x n ) to a sequence of continuous representations z = ( z 1 , ..., z n ) . Given z , the decoder then generates an output sequence ( y 1 , ..., y m ) of symbols one element at a time. At each step th'
+
+[hard_boundary_continuation]
+  chunk=42 parent=0 type=text pages=[8, 9] blocks=[90, 95] tokens=186 prov=7 prefix=present quality=1.0
+  heading_path=['6 Results', '6.2 Model Variations']
+  item_ids=['#/tables/2', '#/texts/154', '#/texts/155', '#/texts/157', '#/texts/158', '#/texts/159']
+  text_head='6.2 Model Variations\n\nTo evaluate the importance of different components of the Transformer, we varied our base model in different ways, measuring the change in performance on English-to-German translation on the development set, newstest2013. We used beam search as described in the previous section, but no checkpoint averaging. We present these results in Table 3. 5 We used values of 2.8, 3.7, 6.'
+
+[reference_or_appendix]
+  chunk=50 parent=2 type=heading pages=[10, 12] blocks=[110, 137] tokens=696 prov=28 prefix=present quality=0.3
+  heading_path=['References']
+  item_ids=['#/texts/174', '#/texts/175', '#/texts/176', '#/texts/177', '#/texts/178', '#/texts/180', '#/texts/181', '#/texts/182', '#/texts/183', '#/texts/184', '#/texts/185', '#/texts/186', '#/texts/187', '#/texts/188', '#/texts/189', '#/texts/190', '#/texts/191', '#/texts/192', '#/texts/193', '#/texts/194', '#/texts/195', '#/texts/196', '#/texts/197', '#/texts/198', '#/texts/199', '#/texts/201', '#/texts/202', '#/texts/203']
+  text_head='References\n\nJimmy Lei Ba, Jamie Ryan Kiros, and Geoffrey E Hinton. Layer normalization. arXiv preprint arXiv:1607.06450 , 2016. Dzmitry Bahdanau, Kyunghyun Cho, and Yoshua Bengio. Neural machine translation by jointly learning to align and translate. CoRR , abs/1409.0473, 2014. Denny Britz, Anna Goldie, Minh-Thang Luong, and Quoc V. Le. Massive exploration of neural machine translation architectur'

@@ -1,0 +1,82 @@
+==============================================================================
+CHUNKING REPORT  LLM.pdf  (sha256 b42f2c20b391)
+==============================================================================
+pages=46  source_blocks=925  final_chunks=180  deterministic=True
+
+source block types : {'caption': 33, 'heading': 71, 'list': 495, 'table': 15, 'text': 311}
+effective types    : {'caption': 12, 'heading': 109, 'list': 52, 'table': 3, 'text': 4}
+type counts        : {'table': 3, 'list': 52, 'caption': 12, 'text': 4}
+
+tokens             : {'count': 180, 'min': 7, 'max': 701, 'mean': 457.04, 'median': 581.0, 'p90': 691, 'p99': 698}
+over 700 tokens      : 2 (1.11%)  [{'chunk_index': 59, 'tokens': 701, 'block_type': 'heading', 'parent_chunk': 9, 'section_title': '3.7. Multimodal LLMs'}, {'chunk_index': 176, 'tokens': 701, 'block_type': 'list', 'parent_chunk': 47, 'section_title': 'References'}]
+content-free/head. : 1  [{'chunk_index': 61, 'block_type': 'heading', 'text_head': '3.8. Summary and Discussion'}]
+
+filter             : {'chunks_before_filter': 180, 'chunks_after_filter': 180, 'removed': 0, 'exact_duplicate_groups_before_filter': 0, 'exact_duplicate_extra_copies_before_filter': 0}
+provenance         : {'chunks_total': 180, 'chunks_with_provenance': 180, 'coverage_pct': 100.0, 'unique_source_item_ids_in_chunks': 925, 'unique_source_item_ids_in_source': 925, 'source_item_id_coverage_pct': 100.0, 'fabricated_source_item_ids': [], 'full_list_fallback_suspected_chunks': 121}
+ranges             : {'page_range_invalid_chunks': [], 'block_range_invalid_chunks': [], 'page_range_outside_provenance_chunks': []}
+heading prefix     : {'missing': 78, 'present': 101, 'present-not-leading': 1}
+section boundary   : {'distinct_section_keys': 1, 'chunks_with_section_key': 0}
+atomicity          : {'table_chunks': 3, 'table_chunks_with_intact_rows': 2, 'list_chunks': 52}
+table content      : {'source_table_blocks': 15, 'total_rows': 308, 'total_rows_intact': 264, 'total_rows_split': 44, 'tables': [{'source_item_id': '#/tables/0', 'page': 5, 'row_count': 5, 'rows_intact': 5, 'rows_split': 0, 'carrier_chunk_indexes': [16], 'carrier_block_types': ['heading'], 'any_carrier_typed_table': False}, {'source_item_id': '#/tables/1', 'page': 12, 'row_count': 15, 'rows_intact': 10, 'rows_split': 5, 'carrier_chunk_indexes': [37, 38, 39], 'carrier_block_types': ['heading'], 'any_carrier_typed_table': False}, {'source_item_id': '#/tables/2', 'page': 13, 'row_count': 10, 'rows_intact': 8, 'rows_split': 2, 'carrier_chunk_indexes': [37, 38, 39], 'carrier_block_types': ['heading'], 'any_carrier_typed_table': False}, {'source_item_id': '#/tables/3', 'page': 14, 'row_count': 14, 'rows_intact': 13, 'rows_split': 1, 'carrier_chunk_indexes': [40, 41, 42], 'carrier_block_types': ['table'], 'any_carrier_typed_table': True}, {'source_item_id': '#/tables/4', 'page': 15, 'row_count': 13, 'rows_intact': 9, 'rows_split': 4, 'carrier_chunk_indexes': [40, 41, 42], 'carrier_block_types': ['table'], 'any_carrier_typed_table': True}, {'source_item_id': '#/tables/5', 'page': 25, 'row_count': 38, 'rows_intact': 33, 'rows_split': 5, 'carrier_chunk_indexes': [72, 73, 74, 75, 76, 77], 'carrier_block_types': ['heading'], 'any_carrier_typed_table': False}, {'source_item_id': '#/tables/6', 'page': 25, 'row_count': 15, 'rows_intact': 12, 'rows_split': 3, 'carrier_chunk_indexes': [78, 79, 80], 'carrier_block_types': ['caption'], 'any_carrier_typed_table': False}, {'source_item_id': '#/tables/7', 'page': 26, 'row_count': 40, 'rows_intact': 36, 'rows_split': 4, 'carrier_chunk_indexes': [82, 83, 84, 85, 86], 'carrier_block_types': ['heading'], 'any_carrier_typed_table': False}, {'source_item_id': '#/tables/8', 'page': 27, 'row_count': 37, 'rows_intact': 33, 'rows_split': 4, 'carrier_chunk_indexes': [90, 91, 92, 93, 94], 'carrier_block_types': ['heading'], 'any_carrier_typed_table': False}, {'source_item_id': '#/tables/9', 'page': 27, 'row_count': 13, 'rows_intact': 10, 'rows_split': 3, 'carrier_chunk_indexes': [95, 96], 'carrier_block_types': ['caption'], 'any_carrier_typed_table': False}, {'source_item_id': '#/tables/10', 'page': 28, 'row_count': 25, 'rows_intact': 21, 'rows_split': 4, 'carrier_chunk_indexes': [97, 98, 99], 'carrier_block_types': ['heading'], 'any_carrier_typed_table': False}, {'source_item_id': '#/tables/11', 'page': 29, 'row_count': 21, 'rows_intact': 19, 'rows_split': 2, 'carrier_chunk_indexes': [102, 103, 104], 'carrier_block_types': ['heading'], 'any_carrier_typed_table': False}, {'source_item_id': '#/tables/12', 'page': 30, 'row_count': 33, 'rows_intact': 28, 'rows_split': 5, 'carrier_chunk_indexes': [109, 110, 111, 112], 'carrier_block_types': ['heading'], 'any_carrier_typed_table': False}, {'source_item_id': '#/tables/13', 'page': 31, 'row_count': 10, 'rows_intact': 10, 'rows_split': 0, 'carrier_chunk_indexes': [113], 'carrier_block_types': ['caption'], 'any_carrier_typed_table': False}, {'source_item_id': '#/tables/14', 'page': 32, 'row_count': 19, 'rows_intact': 17, 'rows_split': 2, 'carrier_chunk_indexes': [115, 116, 117, 118], 'carrier_block_types': ['heading'], 'any_carrier_typed_table': False}]}
+quality dist       : {0.3: 54, 0.7: 12, 0.75: 3, 0.95: 107, 1.0: 4}
+priority dist      : {'100': 111, '20': 54, '70': 12, '75': 3}
+flags              : {'is_reference': 54, 'is_appendix': 0, 'is_metadata': 0, 'is_caption': 12, 'is_table': 3, 'is_formula': 0}
+
+SAMPLES
+------------------------------------------------------------------------------
+[ordinary_prose]
+  chunk=124 parent=None type=text pages=[34, 34] blocks=[411, 411] tokens=143 prov=1 prefix=missing quality=1.0
+  heading_path=['7. Challenges and Future Directions']
+  item_ids=['#/texts/907']
+  text_head="Regulatory and Ethical Frameworks: The rapid advancements in artificial intelligence have given rise to sophisticated Large Language Models (LLMs) like OpenAI's GPT-4 [147] and Google's Bard. These developments underscore the imperative for regulatory oversight to manage the ethical and social challenges accompanying LLMs' widespread use [485]. For instance, LLMs can generate content that can be u"
+
+[heading_folded]
+  chunk=0 parent=None type=heading pages=[1, 1] blocks=[0, 1] tokens=239 prov=2 prefix=present quality=0.95
+  heading_path=['Abstract']
+  item_ids=['#/texts/1', '#/texts/2']
+  text_head='Abstract\n\nLarge Language Models (LLMs) have recently demonstrated remarkable capabilities in natural language processing tasks and beyond. This success of LLMs has led to a large influx of research contributions in this direction. These works encompass diverse topics such as architectural innovations, better training strategies, context length improvements, fine-tuning, multi-modal LLMs, robotics,'
+
+[nested_section]
+  absent in this document
+
+[table_content]
+  chunk=16 parent=None type=heading pages=[5, 5] blocks=[87, 95] tokens=369 prov=10 prefix=present quality=0.95
+  heading_path=['2.9. Architectures']
+  item_ids=['#/tables/0', '#/texts/286', '#/texts/287', '#/texts/319', '#/texts/327', '#/texts/328', '#/texts/329', '#/texts/330', '#/texts/331']
+  text_head='2.9. Architectures\n\nHere we discuss the variants of the transformer architectures used in LLMs. The difference arises due to the application of the attention and the connection of transformer blocks. An illustration of attention patterns of these architectures is shown in Figure 4.\n\nFigure 4: An example of attention patterns in language models, image is taken from [93].\n\nFigure 5: An example of la'
+
+[oversized_table_content]
+  chunk=37 parent=3 type=heading pages=[11, 13] blocks=[188, 192] tokens=623 prov=6 prefix=present quality=0.95
+  heading_path=['3.2.2. Instruction-Tuning with LLMs Generated Datasets']
+  item_ids=['#/tables/1', '#/tables/2', '#/texts/593', '#/texts/594', '#/texts/596']
+  text_head='3.2.2. Instruction-Tuning with LLMs Generated Datasets\n\nGenerating an instruction-tuning dataset requires carefully writing instructions and input-output pairs, which are often written by humans, smaller in size, and less diverse. To overcome this, self-instruct [19] proposed an approach to prompt available LLMs to generate instruction-tuning datasets. Self-instruct outperformed models trained on '
+
+[list]
+  chunk=128 parent=23 type=list pages=[35, 35] blocks=[430, 445] tokens=633 prov=16 prefix=present quality=0.3
+  heading_path=['References']
+  item_ids=['#/texts/927', '#/texts/928', '#/texts/929', '#/texts/930', '#/texts/931', '#/texts/932', '#/texts/933', '#/texts/934', '#/texts/935', '#/texts/936', '#/texts/937', '#/texts/938', '#/texts/939', '#/texts/940', '#/texts/941', '#/texts/942']
+  text_head='References\n\nH. W. Chung, L. Hou, S. Longpre, B. Zoph, Y. Tay, W. Fedus, E. Li, X. Wang, M. Dehghani, S. Brahma, et al., Scaling instruction-finetuned language models, arXiv preprint arXiv:2210.11416 (2022). 2, 7, 11, 17, 22, 23, 25, 28, 31 V. Sanh, A. Webson, C. Raffel, S. H. Bach, L. Sutawika, Z. Alyafeai, A. Chaffin, A. Stiegler, T. L. Scao, A. Raja, et al., Multitask prompted training enables z'
+
+[caption]
+  chunk=78 parent=12 type=caption pages=[25, 25] blocks=[309, 310] tokens=373 prov=2 prefix=present quality=0.7
+  heading_path=['5.2.1. Multi-task']
+  item_ids=['#/tables/6', '#/texts/805']
+  text_head="5.2.1. Multi-task\n\nTable 3: Summary of pre-trained LLMs ( > 10B). Only the LLMs discussed individually in the previous sections are summarized. 'Data / Tokens' is the model's pre-training data, which is either the number of tokens or data size. 'Data Cleaning' indicates whether data cleaning is performed or not. This includes heuristics (Heur), deduplication (Dedup), quality filtering (QF), and pr"
+
+[multi_page]
+  chunk=4 parent=0 type=heading pages=[1, 3] blocks=[23, 39] tokens=691 prov=19 prefix=present quality=0.95
+  heading_path=['Papers Released over Years']
+  item_ids=['#/texts/169', '#/texts/170', '#/texts/171', '#/texts/172', '#/texts/173', '#/texts/174', '#/texts/175', '#/texts/176', '#/texts/177', '#/texts/178', '#/texts/180', '#/texts/231', '#/texts/232', '#/texts/233', '#/texts/24', '#/texts/54', '#/texts/57']
+  text_head='Papers Released over Years\n\nFigure 1: The trend of papers released over years containing keywords "Large Language Model", "Large Language Model + Fine-Tuning", and "Large Language Model + Alignment". Figure 2: Chronological display of LLM releases: blue cards represent \'pre-trained\' models, while orange cards correspond to \'instruction-tuned\' models. Models on the upper half signify open-source av'
+
+[hard_boundary_continuation]
+  chunk=28 parent=2 type=text pages=[9, 10] blocks=[148, 163] tokens=692 prov=17 prefix=present quality=1.0
+  heading_path=['3.1.1. General Purpose']
+  item_ids=['#/texts/453', '#/texts/454', '#/texts/455', '#/texts/456', '#/texts/457', '#/texts/458', '#/texts/503', '#/texts/504', '#/texts/505', '#/texts/506', '#/texts/508', '#/texts/509', '#/texts/510', '#/texts/511', '#/texts/512', '#/texts/513']
+  text_head='3.1.1. General Purpose\n\nBLOOM[13]: Acausal decoder model trained on the ROOTS corpus to open-source an LLM. The architecture of BLOOM is shown in Figure 9, with differences like ALiBi positional embedding, an additional normalization layer after the embedding layer as suggested by the bitsandbytes 1 library. These changes stabilize training with improved downstream performance. GLaM[91]: Generalis'
+
+[reference_or_appendix]
+  chunk=126 parent=22 type=heading pages=[34, 35] blocks=[414, 429] tokens=684 prov=16 prefix=present quality=0.3
+  heading_path=['References']
+  item_ids=['#/texts/910', '#/texts/911', '#/texts/912', '#/texts/914', '#/texts/915', '#/texts/916', '#/texts/917', '#/texts/918', '#/texts/919', '#/texts/920', '#/texts/921', '#/texts/922', '#/texts/923', '#/texts/924', '#/texts/925', '#/texts/926']
+  text_head="References\n\nA. Chernyavskiy, D. Ilvovsky, P. Nakov, Transformers:'the end of history' for natural language processing?, in: Machine Learning and Knowledge Discovery in Databases. Research Track: European Conference, ECML PKDD 2021, Bilbao, Spain, September 13-17, 2021, Proceedings, Part III 21, Springer, 2021, pp. 677-693. 1 A. Wang, Y. Pruksachatkun, N. Nangia, A. Singh, J. Michael, F. Hill, O. L"

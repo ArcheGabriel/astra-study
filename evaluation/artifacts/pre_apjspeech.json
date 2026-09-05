@@ -1,0 +1,242 @@
+{
+  "atomicity": {
+    "list_chunks": 0,
+    "table_chunks": 0,
+    "table_chunks_with_intact_rows": 0
+  },
+  "chunks": {
+    "classification_flag_counts": {
+      "is_appendix": 0,
+      "is_caption": 0,
+      "is_formula": 0,
+      "is_metadata": 0,
+      "is_reference": 0,
+      "is_table": 0
+    },
+    "content_free_or_heading_only": {
+      "count": 0,
+      "details": []
+    },
+    "count": 13,
+    "effective_block_type_distribution": {
+      "heading": 13
+    },
+    "over_embed_max_reference": {
+      "count": 0,
+      "details": [],
+      "pct": 0.0,
+      "reference": 700
+    },
+    "quality_score_distribution": {
+      "0.95": 13
+    },
+    "retrieval_priority_distribution": {
+      "100": 13
+    },
+    "token_distribution": {
+      "count": 13,
+      "max": 692,
+      "mean": 337.54,
+      "median": 310,
+      "min": 96,
+      "p90": 642,
+      "p99": 692
+    },
+    "type_counts": {
+      "caption": 0,
+      "list": 0,
+      "table": 0,
+      "text": 0
+    }
+  },
+  "determinism": {
+    "identical": true,
+    "runs": 3
+  },
+  "document": {
+    "file_extension": ".pdf",
+    "name": "apjspeech.pdf",
+    "page_count": 7,
+    "sha256": "6a861122b7aed5d5d1db193154db8120c8af0dc24abcd47f78c7f789ca088571",
+    "size_bytes": 37862
+  },
+  "filter": {
+    "chunks_after_filter": 13,
+    "chunks_before_filter": 13,
+    "exact_duplicate_extra_copies_before_filter": 0,
+    "exact_duplicate_groups_before_filter": 0,
+    "removed": 0
+  },
+  "heading_prefix": {
+    "status_distribution": {
+      "missing": 2,
+      "present": 11
+    }
+  },
+  "list_content_audit": {
+    "items_intact_or_oversized": 20,
+    "items_split_across_chunks": 0,
+    "items_without_carrier": 0,
+    "no_carrier_items": [],
+    "oversized_items": 0,
+    "source_list_blocks": 20,
+    "split_items": []
+  },
+  "pipeline_stage_counts": [
+    [
+      "ParagraphStage",
+      65
+    ],
+    [
+      "MetadataStage",
+      65
+    ],
+    [
+      "MergeStage",
+      11
+    ],
+    [
+      "RecursiveStage",
+      13
+    ],
+    [
+      "SemanticStage",
+      13
+    ],
+    [
+      "FilterStage",
+      13
+    ],
+    [
+      "QualityStage",
+      13
+    ],
+    [
+      "FinalizeStage",
+      13
+    ]
+  ],
+  "provenance": {
+    "chunks_total": 13,
+    "chunks_with_provenance": 13,
+    "coverage_pct": 100.0,
+    "fabricated_source_item_ids": [],
+    "full_list_fallback_suspected_chunks": 4,
+    "source_item_id_coverage_pct": 100.0,
+    "unique_source_item_ids_in_chunks": 65,
+    "unique_source_item_ids_in_source": 65
+  },
+  "ranges": {
+    "block_range_invalid_chunks": [],
+    "page_range_invalid_chunks": [],
+    "page_range_outside_provenance_chunks": []
+  },
+  "samples": {
+    "caption": "absent",
+    "hard_boundary_continuation": "absent",
+    "heading_folded": {
+      "block_type": "heading",
+      "blocks": [
+        0,
+        14
+      ],
+      "chunk_index": 0,
+      "heading_path": [
+        "A P J Abdul Kalam Departing speech"
+      ],
+      "note": "",
+      "pages": [
+        1,
+        1
+      ],
+      "parent_chunk": null,
+      "prefix_status": "present",
+      "provenance_entries": 16,
+      "provenance_item_ids": [
+        "#/texts/0",
+        "#/texts/1",
+        "#/texts/10",
+        "#/texts/11",
+        "#/texts/12",
+        "#/texts/13",
+        "#/texts/14",
+        "#/texts/2",
+        "#/texts/3",
+        "#/texts/4",
+        "#/texts/5",
+        "#/texts/6",
+        "#/texts/7",
+        "#/texts/8",
+        "#/texts/9"
+      ],
+      "quality_score": 0.95,
+      "retrieval_priority": 100,
+      "section_id": null,
+      "section_title": "A P J Abdul Kalam Departing speech",
+      "text_head": "A P J Abdul Kalam Departing speech\n\nFriends, I am delighted to address you all, in the country and those living abroad, after working  with  you  and  completing  five  beautiful  and  eventful  years  in  Rashtrapati Bhavan.  Today,  it  is  indeed  a  thanks  giving  occasion.  I  would  like  to  narrate,  how  I enjoyed every minute of my tenure enriched by the wonderful association from each ",
+      "text_tail": "ent  the  dream  of  the  540 million youth of the nation. The aspirations of the young to live in a prosperous, safe and proud India should be the guiding factor in whatever profession we contribute.",
+      "tokens": 592
+    },
+    "list": "absent",
+    "multi_page": {
+      "block_type": "heading",
+      "blocks": [
+        17,
+        22
+      ],
+      "chunk_index": 2,
+      "heading_path": [
+        "Mobilizing rural core competence for competitiveness"
+      ],
+      "note": "",
+      "pages": [
+        2,
+        3
+      ],
+      "parent_chunk": 0,
+      "prefix_status": "present",
+      "provenance_entries": 6,
+      "provenance_item_ids": [
+        "#/texts/17",
+        "#/texts/18",
+        "#/texts/19",
+        "#/texts/20",
+        "#/texts/21",
+        "#/texts/22"
+      ],
+      "quality_score": 0.95,
+      "retrieval_priority": 100,
+      "section_id": null,
+      "section_title": "Mobilizing rural core competence for competitiveness",
+      "text_head": "Mobilizing rural core competence for competitiveness\n\nNow  I  would  like  to  talk  about  the  initiative  of  Periyar  Maniammai  College  of Technology for Women, Vallam, Tanjore of Providing Urban Amenities in Rural Areas (PURA)  complex  involving  65  villages  with  a  population  of  3  lakhs. This  includes provision  of  three  connectivities  -  physical,  electronic  and  knowledge  -",
+      "text_tail": "ure is the backbone of the nation. We should empower the farmers to protect and nurture the fertile land for second green revolution. Meeting the Scientists and the Farmers has given me the confidence",
+      "tokens": 692
+    },
+    "nested_section": "absent",
+    "ordinary_prose": "absent",
+    "oversized_table_content": "absent",
+    "reference_or_appendix": "absent",
+    "table_content": "absent"
+  },
+  "schema_version": 1,
+  "section_boundary": {
+    "chunks_with_section_key": 0,
+    "distinct_section_keys": 1
+  },
+  "source_blocks": {
+    "count": 65,
+    "type_distribution": {
+      "heading": 11,
+      "list": 20,
+      "text": 34
+    },
+    "unique_source_item_ids": 65
+  },
+  "table_content_audit": {
+    "source_table_blocks": 0,
+    "tables": [],
+    "total_rows": 0,
+    "total_rows_intact": 0,
+    "total_rows_split": 0
+  }
+}

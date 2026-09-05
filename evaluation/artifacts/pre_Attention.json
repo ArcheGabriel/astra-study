@@ -1,0 +1,552 @@
+{
+  "atomicity": {
+    "list_chunks": 2,
+    "table_chunks": 0,
+    "table_chunks_with_intact_rows": 0
+  },
+  "chunks": {
+    "classification_flag_counts": {
+      "is_appendix": 0,
+      "is_caption": 0,
+      "is_formula": 0,
+      "is_metadata": 0,
+      "is_reference": 4,
+      "is_table": 0
+    },
+    "content_free_or_heading_only": {
+      "count": 3,
+      "details": [
+        {
+          "block_type": "heading",
+          "chunk_index": 38,
+          "text_head": "6 Results"
+        },
+        {
+          "block_type": "heading",
+          "chunk_index": 41,
+          "text_head": "6.2 Model Variations"
+        },
+        {
+          "block_type": "heading",
+          "chunk_index": 45,
+          "text_head": "6.3 English Constituency Parsing"
+        }
+      ]
+    },
+    "count": 36,
+    "effective_block_type_distribution": {
+      "heading": 28,
+      "list": 2,
+      "text": 6
+    },
+    "over_embed_max_reference": {
+      "count": 0,
+      "details": [],
+      "pct": 0.0,
+      "reference": 700
+    },
+    "quality_score_distribution": {
+      "0.3": 4,
+      "0.95": 26,
+      "1.0": 6
+    },
+    "retrieval_priority_distribution": {
+      "100": 32,
+      "20": 4
+    },
+    "token_distribution": {
+      "count": 36,
+      "max": 698,
+      "mean": 288.61,
+      "median": 240.0,
+      "min": 2,
+      "p90": 694,
+      "p99": 698
+    },
+    "type_counts": {
+      "caption": 0,
+      "list": 2,
+      "table": 0,
+      "text": 6
+    }
+  },
+  "determinism": {
+    "identical": true,
+    "runs": 3
+  },
+  "document": {
+    "file_extension": ".pdf",
+    "name": "Attention.pdf",
+    "page_count": 15,
+    "sha256": "bdfaa68d8984f0dc02beaca527b76f207d99b666d31d1da728ee0728182df697",
+    "size_bytes": 2215244
+  },
+  "filter": {
+    "chunks_after_filter": 36,
+    "chunks_before_filter": 36,
+    "exact_duplicate_extra_copies_before_filter": 0,
+    "exact_duplicate_groups_before_filter": 0,
+    "removed": 0
+  },
+  "heading_prefix": {
+    "status_distribution": {
+      "absent-ok": 1,
+      "duplicated": 1,
+      "missing": 5,
+      "present": 26,
+      "present-not-leading": 3
+    }
+  },
+  "list_content_audit": {
+    "items_intact_or_oversized": 40,
+    "items_split_across_chunks": 0,
+    "items_without_carrier": 3,
+    "no_carrier_items": [
+      {
+        "page": 5,
+        "source_item_id": "#/texts/106"
+      },
+      {
+        "page": 5,
+        "source_item_id": "#/texts/107"
+      },
+      {
+        "page": 5,
+        "source_item_id": "#/texts/108"
+      }
+    ],
+    "oversized_items": 0,
+    "source_list_blocks": 43,
+    "split_items": []
+  },
+  "pipeline_stage_counts": [
+    [
+      "ParagraphStage",
+      156
+    ],
+    [
+      "MetadataStage",
+      156
+    ],
+    [
+      "MergeStage",
+      51
+    ],
+    [
+      "RecursiveStage",
+      56
+    ],
+    [
+      "SemanticStage",
+      36
+    ],
+    [
+      "FilterStage",
+      36
+    ],
+    [
+      "QualityStage",
+      36
+    ],
+    [
+      "FinalizeStage",
+      36
+    ]
+  ],
+  "provenance": {
+    "chunks_total": 36,
+    "chunks_with_provenance": 36,
+    "coverage_pct": 100.0,
+    "fabricated_source_item_ids": [],
+    "full_list_fallback_suspected_chunks": 9,
+    "source_item_id_coverage_pct": 59.62,
+    "unique_source_item_ids_in_chunks": 93,
+    "unique_source_item_ids_in_source": 156
+  },
+  "ranges": {
+    "block_range_invalid_chunks": [],
+    "page_range_invalid_chunks": [],
+    "page_range_outside_provenance_chunks": [
+      7,
+      16,
+      22,
+      26,
+      36,
+      54
+    ]
+  },
+  "samples": {
+    "caption": "absent",
+    "hard_boundary_continuation": {
+      "block_type": "text",
+      "blocks": [
+        90,
+        95
+      ],
+      "chunk_index": 42,
+      "heading_path": [
+        "6 Results",
+        "6.2 Model Variations"
+      ],
+      "note": "recursive child of an oversized section",
+      "pages": [
+        8,
+        9
+      ],
+      "parent_chunk": 0,
+      "prefix_status": "present",
+      "provenance_entries": 7,
+      "provenance_item_ids": [
+        "#/tables/2",
+        "#/texts/154",
+        "#/texts/155",
+        "#/texts/157",
+        "#/texts/158",
+        "#/texts/159"
+      ],
+      "quality_score": 1.0,
+      "retrieval_priority": 100,
+      "section_id": null,
+      "section_title": "6.2 Model Variations",
+      "text_head": "6.2 Model Variations\n\nTo evaluate the importance of different components of the Transformer, we varied our base model in different ways, measuring the change in performance on English-to-German translation on the development set, newstest2013. We used beam search as described in the previous section, but no checkpoint averaging. We present these results in Table 3. 5 We used values of 2.8, 3.7, 6.",
+      "text_tail": "are on the English-to-German translation development set, newstest2013. Listed perplexities are per-wordpiece, according to our byte-pair encoding, and should not be compared to per-word perplexities.",
+      "tokens": 186
+    },
+    "heading_folded": {
+      "block_type": "heading",
+      "blocks": [
+        1,
+        5
+      ],
+      "chunk_index": 1,
+      "heading_path": [
+        "Attention Is All You Need"
+      ],
+      "note": "",
+      "pages": [
+        1,
+        1
+      ],
+      "parent_chunk": null,
+      "prefix_status": "present",
+      "provenance_entries": 10,
+      "provenance_item_ids": [
+        "#/texts/2",
+        "#/texts/3",
+        "#/texts/4",
+        "#/texts/5",
+        "#/texts/6"
+      ],
+      "quality_score": 0.95,
+      "retrieval_priority": 100,
+      "section_id": null,
+      "section_title": "Attention Is All You Need",
+      "text_head": "Attention Is All You Need\n\nAshish Vaswani ∗ Google Brain avaswani@google.com Noam Shazeer ∗ Google Brain noam@google.com Niki Parmar ∗ Google Research nikip@google.com Jakob Uszkoreit ∗ Google Research usz@google.com\n\nLlion Jones ∗ Google Research llion@google.com Aidan N. Gomez ∗ † University of Toronto aidan@cs.toronto.edu Łukasz Kaiser ∗ Google Brain lukaszkaiser@google.com\n\n∗ ‡\n\nIllia Polosukh",
+      "text_tail": "",
+      "tokens": 133
+    },
+    "list": {
+      "block_type": "list",
+      "blocks": [
+        138,
+        151
+      ],
+      "chunk_index": 52,
+      "heading_path": [
+        "References"
+      ],
+      "note": "",
+      "pages": [
+        12,
+        13
+      ],
+      "parent_chunk": 3,
+      "prefix_status": "present",
+      "provenance_entries": 14,
+      "provenance_item_ids": [
+        "#/texts/204",
+        "#/texts/205",
+        "#/texts/206",
+        "#/texts/207",
+        "#/texts/208",
+        "#/texts/209",
+        "#/texts/210",
+        "#/texts/211",
+        "#/texts/212",
+        "#/texts/213",
+        "#/texts/214",
+        "#/texts/215",
+        "#/texts/216",
+        "#/texts/218"
+      ],
+      "quality_score": 0.3,
+      "retrieval_priority": 20,
+      "section_id": null,
+      "section_title": "References",
+      "text_head": "References\n\nRomain Paulus, Caiming Xiong, and Richard Socher. A deep reinforced model for abstractive summarization. arXiv preprint arXiv:1705.04304 , 2017. Slav Petrov, Leon Barrett, Romain Thibaux, and Dan Klein. Learning accurate, compact, and interpretable tree annotation. In Proceedings of the 21st International Conference on Computational Linguistics and 44th Annual Meeting of the ACL , page",
+      "text_tail": "reprint arXiv:1609.08144 , 2016. Jie Zhou, Ying Cao, Xuguang Wang, Peng Li, and Wei Xu. Deep recurrent models with fast-forward connections for neural machine translation. CoRR , abs/1606.04199, 2016.",
+      "tokens": 698
+    },
+    "multi_page": {
+      "block_type": "heading",
+      "blocks": [
+        21,
+        24
+      ],
+      "chunk_index": 7,
+      "heading_path": [
+        "3 Model Architecture"
+      ],
+      "note": "",
+      "pages": [
+        2,
+        3
+      ],
+      "parent_chunk": null,
+      "prefix_status": "present",
+      "provenance_entries": 1,
+      "provenance_item_ids": [
+        "#/texts/23"
+      ],
+      "quality_score": 0.95,
+      "retrieval_priority": 100,
+      "section_id": "3",
+      "section_title": "3 Model Architecture",
+      "text_head": "3 Model Architecture\n\nMost competitive neural sequence transduction models have an encoder-decoder structure [5, 2, 35]. Here, the encoder maps an input sequence of symbol representations ( x 1 , ..., x n ) to a sequence of continuous representations z = ( z 1 , ..., z n ) . Given z , the decoder then generates an output sequence ( y 1 , ..., y m ) of symbols one element at a time. At each step th",
+      "text_tail": "er follows this overall architecture using stacked self-attention and point-wise, fully connected layers for both the encoder and decoder, shown in the left and right halves of Figure 1, respectively.",
+      "tokens": 165
+    },
+    "nested_section": {
+      "block_type": "heading",
+      "blocks": [
+        25,
+        27
+      ],
+      "chunk_index": 9,
+      "heading_path": [
+        "3 Model Architecture",
+        "3.1 Encoder and Decoder Stacks"
+      ],
+      "note": "",
+      "pages": [
+        3,
+        3
+      ],
+      "parent_chunk": null,
+      "prefix_status": "present",
+      "provenance_entries": 1,
+      "provenance_item_ids": [
+        "#/texts/61"
+      ],
+      "quality_score": 0.95,
+      "retrieval_priority": 100,
+      "section_id": "3.1",
+      "section_title": "3.1 Encoder and Decoder Stacks",
+      "text_head": "3.1 Encoder and Decoder Stacks\n\nEncoder: The encoder is composed of a stack of N = 6 identical layers. Each layer has two sub-layers. The first is a multi-head self-attention mechanism, and the second is a simple, positionwise fully connected feed-forward network. We employ a residual connection [11] around each of the two sub-layers, followed by layer normalization [1]. That is, the output of eac",
+      "text_tail": "ons. This masking, combined with fact that the output embeddings are offset by one position, ensures that the predictions for position i can depend only on the known outputs at positions less than i .",
+      "tokens": 284
+    },
+    "ordinary_prose": "absent",
+    "oversized_table_content": {
+      "block_type": "text",
+      "blocks": [
+        90,
+        95
+      ],
+      "chunk_index": 42,
+      "heading_path": [
+        "6 Results",
+        "6.2 Model Variations"
+      ],
+      "note": "table content that was split across recursive children",
+      "pages": [
+        8,
+        9
+      ],
+      "parent_chunk": 0,
+      "prefix_status": "present",
+      "provenance_entries": 7,
+      "provenance_item_ids": [
+        "#/tables/2",
+        "#/texts/154",
+        "#/texts/155",
+        "#/texts/157",
+        "#/texts/158",
+        "#/texts/159"
+      ],
+      "quality_score": 1.0,
+      "retrieval_priority": 100,
+      "section_id": null,
+      "section_title": "6.2 Model Variations",
+      "text_head": "6.2 Model Variations\n\nTo evaluate the importance of different components of the Transformer, we varied our base model in different ways, measuring the change in performance on English-to-German translation on the development set, newstest2013. We used beam search as described in the previous section, but no checkpoint averaging. We present these results in Table 3. 5 We used values of 2.8, 3.7, 6.",
+      "text_tail": "are on the English-to-German translation development set, newstest2013. Listed perplexities are per-wordpiece, according to our byte-pair encoding, and should not be compared to per-word perplexities.",
+      "tokens": 186
+    },
+    "reference_or_appendix": {
+      "block_type": "heading",
+      "blocks": [
+        110,
+        137
+      ],
+      "chunk_index": 50,
+      "heading_path": [
+        "References"
+      ],
+      "note": "",
+      "pages": [
+        10,
+        12
+      ],
+      "parent_chunk": 2,
+      "prefix_status": "present",
+      "provenance_entries": 28,
+      "provenance_item_ids": [
+        "#/texts/174",
+        "#/texts/175",
+        "#/texts/176",
+        "#/texts/177",
+        "#/texts/178",
+        "#/texts/180",
+        "#/texts/181",
+        "#/texts/182",
+        "#/texts/183",
+        "#/texts/184",
+        "#/texts/185",
+        "#/texts/186",
+        "#/texts/187",
+        "#/texts/188",
+        "#/texts/189",
+        "#/texts/190",
+        "#/texts/191",
+        "#/texts/192",
+        "#/texts/193",
+        "#/texts/194",
+        "#/texts/195",
+        "#/texts/196",
+        "#/texts/197",
+        "#/texts/198",
+        "#/texts/199",
+        "#/texts/201",
+        "#/texts/202",
+        "#/texts/203"
+      ],
+      "quality_score": 0.3,
+      "retrieval_priority": 20,
+      "section_id": null,
+      "section_title": "References",
+      "text_head": "References\n\nJimmy Lei Ba, Jamie Ryan Kiros, and Geoffrey E Hinton. Layer normalization. arXiv preprint arXiv:1607.06450 , 2016. Dzmitry Bahdanau, Kyunghyun Cho, and Yoshua Bengio. Neural machine translation by jointly learning to align and translate. CoRR , abs/1409.0473, 2014. Denny Britz, Anna Goldie, Minh-Thang Luong, and Quoc V. Le. Massive exploration of neural machine translation architectur",
+      "text_tail": "sing , pages 832-841. ACL, August 2009. Rafal Jozefowicz, Oriol Vinyals, Mike Schuster, Noam Shazeer, and Yonghui Wu. Exploring the limits of language modeling. arXiv preprint arXiv:1602.02410 , 2016.",
+      "tokens": 696
+    },
+    "table_content": {
+      "block_type": "text",
+      "blocks": [
+        90,
+        95
+      ],
+      "chunk_index": 42,
+      "heading_path": [
+        "6 Results",
+        "6.2 Model Variations"
+      ],
+      "note": "chunk carrying a source TABLE block's provenance",
+      "pages": [
+        8,
+        9
+      ],
+      "parent_chunk": 0,
+      "prefix_status": "present",
+      "provenance_entries": 7,
+      "provenance_item_ids": [
+        "#/tables/2",
+        "#/texts/154",
+        "#/texts/155",
+        "#/texts/157",
+        "#/texts/158",
+        "#/texts/159"
+      ],
+      "quality_score": 1.0,
+      "retrieval_priority": 100,
+      "section_id": null,
+      "section_title": "6.2 Model Variations",
+      "text_head": "6.2 Model Variations\n\nTo evaluate the importance of different components of the Transformer, we varied our base model in different ways, measuring the change in performance on English-to-German translation on the development set, newstest2013. We used beam search as described in the previous section, but no checkpoint averaging. We present these results in Table 3. 5 We used values of 2.8, 3.7, 6.",
+      "text_tail": "are on the English-to-German translation development set, newstest2013. Listed perplexities are per-wordpiece, according to our byte-pair encoding, and should not be compared to per-word perplexities.",
+      "tokens": 186
+    }
+  },
+  "schema_version": 1,
+  "section_boundary": {
+    "chunks_with_section_key": 0,
+    "distinct_section_keys": 1
+  },
+  "source_blocks": {
+    "count": 156,
+    "type_distribution": {
+      "caption": 14,
+      "heading": 28,
+      "list": 43,
+      "table": 4,
+      "text": 67
+    },
+    "unique_source_item_ids": 156
+  },
+  "table_content_audit": {
+    "source_table_blocks": 4,
+    "tables": [
+      {
+        "any_carrier_typed_table": false,
+        "carrier_block_types": [],
+        "carrier_chunk_indexes": [],
+        "page": 6,
+        "row_count": 7,
+        "rows_intact": 0,
+        "rows_split": 7,
+        "source_item_id": "#/tables/0"
+      },
+      {
+        "any_carrier_typed_table": false,
+        "carrier_block_types": [],
+        "carrier_chunk_indexes": [],
+        "page": 8,
+        "row_count": 14,
+        "rows_intact": 0,
+        "rows_split": 14,
+        "source_item_id": "#/tables/1"
+      },
+      {
+        "any_carrier_typed_table": false,
+        "carrier_block_types": [
+          "text"
+        ],
+        "carrier_chunk_indexes": [
+          42,
+          43,
+          44
+        ],
+        "page": 9,
+        "row_count": 23,
+        "rows_intact": 20,
+        "rows_split": 3,
+        "source_item_id": "#/tables/2"
+      },
+      {
+        "any_carrier_typed_table": false,
+        "carrier_block_types": [
+          "text"
+        ],
+        "carrier_chunk_indexes": [
+          46,
+          47
+        ],
+        "page": 10,
+        "row_count": 15,
+        "rows_intact": 12,
+        "rows_split": 3,
+        "source_item_id": "#/tables/3"
+      }
+    ],
+    "total_rows": 59,
+    "total_rows_intact": 32,
+    "total_rows_split": 27
+  }
+}
