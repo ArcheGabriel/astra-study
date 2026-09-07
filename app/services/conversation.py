@@ -1,5 +1,7 @@
 from collections.abc import Iterator
 
+from fastapi import BackgroundTasks
+
 from app.ai.pipeline import AIPipeline
 from app.enums.message import MessageRole
 from app.exceptions.chat import ChatNotFoundError
@@ -14,10 +16,17 @@ from app.schemas.message import (
     MessageCreate,
     MessageResponse,
 )
-from app.services.conversation_summary import ConversationSummaryService
+from app.services.conversation_summary import (
+    ConversationSummaryService,
+    run_summary_refresh,
+)
 from app.services.message import MessageService
 
 from langsmith import traceable
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class ConversationService:
@@ -49,6 +58,7 @@ class ConversationService:
         chat_id: int,
         current_user: User,
         message_data: MessageCreate,
+        background_tasks: BackgroundTasks | None = None,
     ) -> ConversationResponse:
         """
         Process a complete conversation turn.
@@ -70,7 +80,7 @@ class ConversationService:
             first_message=message_data.content,
         )
 
-        conversation = self.message_repository.get_by_chat_session(
+        conversation = self.message_repository.get_conversational_messages(
             chat.id,
         )
 
@@ -85,15 +95,12 @@ class ConversationService:
             content=ai_response.answer,
         )
 
-        # Update conversation summary (if threshold reached)
-        try:
-            self.conversation_summary_service.update_summary(
-                chat=chat,
-            )
-        except Exception:
-            # Summary generation is a background enhancement.
-            # Never fail the primary chat request because of it.
-            pass
+        # Refresh the rolling summary out of band -- it must never delay or
+        # fail the user-facing response.
+        self._schedule_summary_refresh(
+            chat_id=chat.id,
+            background_tasks=background_tasks,
+        )
 
         return ConversationResponse(
             user_message=user_message,
@@ -109,6 +116,7 @@ class ConversationService:
         chat_id: int,
         current_user: User,
         message_data: MessageCreate,
+        background_tasks: BackgroundTasks | None = None,
     ) -> Iterator[StreamEvent]:
         """
         Stream an AI response while persisting the final assistant message.
@@ -130,7 +138,7 @@ class ConversationService:
             first_message=message_data.content,
         )
 
-        conversation = self.message_repository.get_by_chat_session(
+        conversation = self.message_repository.get_conversational_messages(
             chat.id,
         )
 
@@ -152,15 +160,13 @@ class ConversationService:
             content=complete_response,
         )
 
-        # Update conversation summary (if threshold reached)
-        try:
-            self.conversation_summary_service.update_summary(
-                chat=chat,
-            )
-        except Exception:
-            # Summary generation is a background enhancement.
-            # Never fail the primary chat request because of it.
-            pass
+        # Refresh the rolling summary out of band. The assistant message is
+        # already persisted above (so it counts towards the next boundary),
+        # and this scheduling call does not block the SSE ``done`` event.
+        self._schedule_summary_refresh(
+            chat_id=chat.id,
+            background_tasks=background_tasks,
+        )
 
     @traceable(
         name="Validate Chat",
@@ -232,3 +238,33 @@ class ConversationService:
         return self.message_repository.create(
             assistant_message,
         )
+
+    def _schedule_summary_refresh(
+        self,
+        *,
+        chat_id: int,
+        background_tasks: BackgroundTasks | None,
+    ) -> None:
+        """
+        Trigger a rolling-summary refresh without blocking the response.
+
+        In the normal HTTP path this hands off to FastAPI ``BackgroundTasks``
+        (its own DB session, runs after the response / SSE stream completes).
+        When there is no background context (tests, scripts) it falls back to
+        an inline refresh on the request session, still guarded so summary
+        problems can never fail the turn.
+        """
+
+        if background_tasks is not None:
+            background_tasks.add_task(run_summary_refresh, chat_id)
+            return
+
+        try:
+            self.conversation_summary_service.update_summary(
+                chat_id=chat_id,
+            )
+        except Exception:
+            logger.exception(
+                "Inline conversation summary refresh failed (chat_id=%s).",
+                chat_id,
+            )

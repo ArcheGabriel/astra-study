@@ -1,7 +1,7 @@
 import json
 from dataclasses import asdict
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, BackgroundTasks, Depends, status
 from fastapi.responses import StreamingResponse
 
 from app.dependencies.auth import get_current_user
@@ -32,6 +32,7 @@ router = APIRouter(
 def create_message(
     chat_id: int,
     message_data: MessageCreate,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
     conversation_service: ConversationService = Depends(
         get_conversation_service,
@@ -45,6 +46,7 @@ def create_message(
         chat_id=chat_id,
         current_user=current_user,
         message_data=message_data,
+        background_tasks=background_tasks,
     )
 
 
@@ -55,6 +57,7 @@ def create_message(
 def stream_message(
     chat_id: int,
     message_data: MessageCreate,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
     conversation_service: ConversationService = Depends(
         get_conversation_service,
@@ -70,6 +73,7 @@ def stream_message(
                 chat_id=chat_id,
                 current_user=current_user,
                 message_data=message_data,
+                background_tasks=background_tasks,
             ):
                 if event.text is not None:
                     yield f"data: {json.dumps({'text': event.text})}\n\n"

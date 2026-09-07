@@ -77,16 +77,21 @@ class AIPipeline:
             user_id=user_id,
         )
 
+        resolved_summary = self._resolve_summary(
+            conversation=conversation,
+            summary=summary,
+        )
+
         request = GenerationRequest(
             query=latest_message.content,
             retrieval=retrieval,
             conversation=self._to_conversation_messages(
-                conversation,
+                self._generation_history(
+                    conversation=conversation,
+                    summary=resolved_summary,
+                ),
             ),
-            summary=self._resolve_summary(
-                conversation=conversation,
-                summary=summary,
-            ),
+            summary=resolved_summary,
         )
 
         response = self._generation_service.generate(
@@ -129,16 +134,21 @@ class AIPipeline:
             user_id=user_id,
         )
 
+        resolved_summary = self._resolve_summary(
+            conversation=conversation,
+            summary=summary,
+        )
+
         request = GenerationRequest(
             query=latest_message.content,
             retrieval=retrieval,
             conversation=self._to_conversation_messages(
-                conversation,
+                self._generation_history(
+                    conversation=conversation,
+                    summary=resolved_summary,
+                ),
             ),
-            summary=self._resolve_summary(
-                conversation=conversation,
-                summary=summary,
-            ),
+            summary=resolved_summary,
         )
 
         answer_parts: list[str] = []
@@ -243,16 +253,36 @@ class AIPipeline:
                 messages=prompt,
             )
         )
-        
-        print("\n==============================")
-        print("Original Query :", latest_message.content)
-        print("Retrieval Query:", rewritten_query)
-        print("==============================\n")
 
         if not rewritten_query:
             return latest_message.content
 
         return rewritten_query
+
+    def _generation_history(
+        self,
+        *,
+        conversation: list[ChatMessage],
+        summary: str | None,
+    ) -> list[ChatMessage]:
+        """
+        Select the conversation messages sent verbatim to the answer LLM.
+
+        Before summarization is active (no usable summary) the full history is
+        used, exactly as before. Once a summary is available it already
+        represents the older conversation, so only the rolling recent window
+        is kept: ``RECENT_MESSAGE_WINDOW`` messages plus the current user
+        message (which ``PromptBuilder`` strips back off and appends as the
+        question). This is what keeps answer-generation token usage flat as a
+        conversation grows.
+        """
+
+        if not summary:
+            return conversation
+
+        window = settings.RECENT_MESSAGE_WINDOW + 1
+
+        return conversation[-window:]
 
     @staticmethod
     def _to_conversation_messages(
@@ -300,7 +330,7 @@ class AIPipeline:
 
         if (
             len(conversation)
-            < settings.SUMMARY_INJECTION_THRESHOLD
+            < settings.INITIAL_SUMMARY_THRESHOLD
         ):
             return None
 

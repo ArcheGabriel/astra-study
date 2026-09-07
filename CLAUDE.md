@@ -162,6 +162,37 @@ produce `GenerationResponse` + citations" step that `AIPipeline` calls into. `Co
 (`app/services/conversation.py`) sits above `AIPipeline` and owns message persistence + the SSE
 event loop.
 
+### Conversation memory (rolling summary + recent window)
+
+Long conversations do **not** send the whole transcript to the answer LLM. Message counting is
+over **conversational messages only** (`MessageRole.USER` + `ASSISTANT`, one each;
+`MessageRepository.get_conversational_messages` / `count_conversational_messages`, ordered by
+`id` — not `created_at`, which is only second-precision on SQLite).
+
+- First summary is generated once the conversation reaches
+  `settings.INITIAL_SUMMARY_THRESHOLD` (= 20) messages (covers messages 1–20).
+- The summary is then refreshed every `settings.SUMMARY_UPDATE_INTERVAL` (= 10) further
+  messages (boundaries 30, 40, 50, …). Each refresh feeds the LLM the **previous summary + only
+  the newly-accumulated messages** (`SummaryGenerator`'s merge prompt) — the transcript is never
+  re-summarized from scratch.
+- Once a summary exists, `AIPipeline` sends the answer LLM the **summary + the last
+  `settings.RECENT_MESSAGE_WINDOW` (= 10) messages** (`_generation_history`), so answer-prompt
+  size stays flat as the conversation grows. Before the first summary, full history is used.
+- Retrieval-query rewriting keeps its **own** independent `QUERY_REWRITE_HISTORY_WINDOW` (= 20)
+  slice of the full history — it is not reduced to the generation window.
+- `ConversationSummaryService.update_summary(*, chat_id)` derives "how far the stored summary
+  got" from `chat_sessions.summary_updated_at` vs message `created_at` (no extra schema). If a
+  refresh fails it logs and preserves the existing summary; the pending-message count keeps
+  growing so a later turn catches up (the delta then spans all un-summarized messages) — a
+  failed boundary never silently drops context. An existing conversation already past the
+  threshold with no summary gets a one-time full-history catch-up summary.
+- The refresh runs **out of band** via FastAPI `BackgroundTasks`
+  (`conversation_summary.run_summary_refresh`, its own DB session) — it never blocks the HTTP
+  response or the SSE `done` event. The assistant message is persisted before the task is
+  scheduled so it counts toward the next boundary.
+- Storage is the existing `chat_sessions.summary` / `summary_updated_at` columns only — **no
+  schema change**.
+
 ### Citations (single source of truth)
 
 `GenerationService.citations_for(request, answer=None)` (`app/generation/service.py`) is the

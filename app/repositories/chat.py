@@ -66,9 +66,17 @@ class ChatRepository(BaseRepository[ChatSession]):
         *,
         chat_id: int,
         summary: str,
+        summarized_through: datetime,
     ) -> ChatSession:
         """
         Update the rolling summary of a chat session.
+
+        ``summarized_through`` is the ``created_at`` of the last message that
+        went into ``summary``. It is stored verbatim as ``summary_updated_at``
+        (never the wall-clock write time) so the cursor tracks the content
+        actually summarized. The write is skipped when a concurrent refresh has
+        already advanced the cursor to or past this point, so an older/slower
+        background refresh cannot clobber a newer summary.
         """
 
         chat = self.get_by_id(chat_id)
@@ -76,8 +84,14 @@ class ChatRepository(BaseRepository[ChatSession]):
         if chat is None:
             raise ChatNotFoundError()
 
+        if (
+            chat.summary_updated_at is not None
+            and chat.summary_updated_at >= summarized_through
+        ):
+            return chat
+
         chat.summary = summary
-        chat.summary_updated_at = datetime.utcnow()
+        chat.summary_updated_at = summarized_through
 
         self.db.commit()
         self.db.refresh(chat)

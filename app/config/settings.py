@@ -53,7 +53,18 @@ class Settings(BaseSettings):
     # ------------------------------------------------------------------
     # Conversation Memory
     # ------------------------------------------------------------------
-    SUMMARY_INJECTION_THRESHOLD: int = 20
+    # Total persisted conversational messages (user + assistant, one each)
+    # after which the first rolling summary is generated and history sent to
+    # the answer LLM is compressed to the summary plus a recent window.
+    INITIAL_SUMMARY_THRESHOLD: int = 20
+    # The summary is refreshed every time this many further conversational
+    # messages accumulate (boundaries 30, 40, 50, ...).
+    SUMMARY_UPDATE_INTERVAL: int = 10
+    # Number of most recent conversational messages sent verbatim to the
+    # answer LLM alongside the summary once summarization is active.
+    RECENT_MESSAGE_WINDOW: int = 10
+    # Retrieval-query rewriting keeps its own, independent history window so
+    # follow-up questions still resolve against enough recent context.
     QUERY_REWRITE_HISTORY_WINDOW: int = 20
 
     # ------------------------------------------------------------------

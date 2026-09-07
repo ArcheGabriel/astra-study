@@ -189,22 +189,44 @@ def get_ai_pipeline(
 # Conversation Summary
 # ----------------------------------------------------------------------
 
-def get_conversation_summary_service(
-    db: Annotated[Session, Depends(get_db)],
-    ai_pipeline: Annotated[
-        AIPipeline,
-        Depends(get_ai_pipeline),
-    ],
+def build_conversation_summary_service(
+    db: Session,
 ) -> ConversationSummaryService:
+    """
+    Construct a ConversationSummaryService without FastAPI's DI graph.
 
-    chat_repository = ChatRepository(db)
-    message_repository = MessageRepository(db)
+    Used by the background summary-refresh task, which runs outside the
+    request cycle and owns its own database session. Heavy ML resources
+    (LLM client, reranker) come from the process-wide ``@lru_cache``
+    singletons, so this is cheap once the app is warm.
+    """
+
+    llm_service = get_llm_resource()
+
+    ai_pipeline = AIPipeline(
+        retrieval_service=RetrievalService(
+            hybrid_service=HybridService(),
+            reranking_service=get_reranking_resource(),
+        ),
+        generation_service=GenerationService(
+            prompt_builder=PromptBuilder(),
+            llm_service=llm_service,
+        ),
+        llm_service=llm_service,
+    )
 
     return ConversationSummaryService(
-        chat_repository=chat_repository,
-        message_repository=message_repository,
+        chat_repository=ChatRepository(db),
+        message_repository=MessageRepository(db),
         ai_pipeline=ai_pipeline,
     )
+
+
+def get_conversation_summary_service(
+    db: Annotated[Session, Depends(get_db)],
+) -> ConversationSummaryService:
+
+    return build_conversation_summary_service(db)
 
 
 # ----------------------------------------------------------------------
