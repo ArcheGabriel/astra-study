@@ -35,6 +35,7 @@ uv run alembic revision --autogenerate -m "msg"     # new migration
 uv run pytest tests/unit -q                         # THE normal check (fast; ML deps are faked)
 uv run pytest tests/unit/test_chunking.py -q        # one file
 uv run pytest tests/unit/test_provenance.py::test_pdf_page_and_bbox_provenance -q   # one test
+uv run pytest tests/unit/test_conversation_memory.py -q   # rolling-summary / recent-window spec
 
 uv run python -m evaluation.runner                  # run LangSmith evaluation experiment
 uv run python -m evaluation.chunking_report analyze --blocks <blocks.json> --out <report.json>   # offline chunk structural report
@@ -192,6 +193,11 @@ over **conversational messages only** (`MessageRole.USER` + `ASSISTANT`, one eac
   scheduled so it counts toward the next boundary.
 - Storage is the existing `chat_sessions.summary` / `summary_updated_at` columns only — **no
   schema change**.
+- The four tuning constants (`INITIAL_SUMMARY_THRESHOLD`, `SUMMARY_UPDATE_INTERVAL`,
+  `RECENT_MESSAGE_WINDOW`, `QUERY_REWRITE_HISTORY_WINDOW`) all live in
+  `app/config/settings.py`; every stage/service takes them as injected values (no hard-coded
+  counts). `tests/unit/test_conversation_memory.py` is the executable spec for the boundary and
+  windowing behaviour.
 
 ### Citations (single source of truth)
 
