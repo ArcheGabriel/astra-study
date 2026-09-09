@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from app.chunking.pipeline import ChunkPipeline
+from app.config.settings import settings
 from app.ingestion.processors.pdf import PDFProcessor
 from app.search.hybrid.pipeline import HybridPipeline
 from app.search.hybrid.service import HybridService
@@ -54,6 +55,9 @@ def test_hybrid_pipeline() -> None:
     )
 
     assert len(chunks) > 0
+
+    for chunk in chunks:
+        chunk.metadata.user_id = settings.EVALUATION_USER_ID
 
     hybrid = HybridPipeline()
 
@@ -112,6 +116,7 @@ def test_hybrid_pipeline() -> None:
 
         results = service.search(
             query=query,
+            user_id=settings.EVALUATION_USER_ID,
             limit=5,
         )
 
