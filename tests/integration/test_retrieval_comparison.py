@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from app.chunking.pipeline import ChunkPipeline
+from app.config.settings import settings
 from app.embeddings.embedder import OpenAIEmbedder
 from app.ingestion.processors.pdf import PDFProcessor
 from app.search.dense.pipeline import DensePipeline
@@ -30,6 +31,9 @@ def test_retrieval_comparison() -> None:
     )
 
     print(f"Chunks: {len(chunks)}")
+
+    for chunk in chunks:
+        chunk.metadata.user_id = settings.EVALUATION_USER_ID
 
     hybrid = HybridPipeline()
 
@@ -81,6 +85,7 @@ def test_retrieval_comparison() -> None:
 
         hybrid_results = hybrid_service.search(
             query=query,
+            user_id=settings.EVALUATION_USER_ID,
             limit=3,
         )
 
