@@ -1,11 +1,8 @@
 """
 Integration test for the Cross Encoder reranking pipeline.
 
-Prerequisites
--------------
-1. Run test_hybrid_pipeline.py first.
-2. Ensure the Qdrant collection exists.
-3. Ensure documents are already indexed.
+The test is self-contained: it extracts, chunks, and indexes the tracked
+fixture document into the isolated Qdrant test collection before running.
 
 This test validates:
 - Hybrid retrieval
@@ -23,13 +20,18 @@ import time
 from pathlib import Path
 from typing import Final
 
+from app.chunking.pipeline import ChunkPipeline
 from app.config.settings import settings
+from app.ingestion.processors.pdf import PDFProcessor
 from app.reranking.service import RerankingService
+from app.search.hybrid.pipeline import HybridPipeline
 from app.search.hybrid.service import HybridService
 
 # ==============================================================================
 # Configuration
 # ==============================================================================
+
+PDF_PATH: Final[Path] = Path("tests/test_documents/LLM.pdf")
 
 TOP_K: Final[int] = settings.RERANK_TOP_K
 
@@ -662,15 +664,15 @@ def test_reranking_pipeline() -> None:
     """
     End-to-end integration test for the reranking pipeline.
 
-    Assumptions
-    -----------
-    - The Hybrid Pipeline has already been executed.
-    - The Qdrant collection already exists.
-    - Documents are already indexed.
+    The test indexes the tracked fixture document into the isolated Qdrant
+    test collection before running; no prior test or pre-existing data is
+    required.
 
     Pipeline
 
-    Existing Collection
+    Fixture Document
+            ↓
+    Extract → Chunk → Index
             ↓
     Hybrid Search
             ↓
@@ -680,6 +682,16 @@ def test_reranking_pipeline() -> None:
             ↓
     Benchmark
     """
+
+    extraction = PDFProcessor().extract(PDF_PATH)
+    chunks = ChunkPipeline().run(extraction)
+
+    for chunk in chunks:
+        chunk.metadata.user_id = settings.EVALUATION_USER_ID
+
+    hybrid = HybridPipeline()
+    hybrid.recreate_collection()
+    hybrid.index(chunks)
 
     print_header(
         "RERANKING CONFIGURATION"
@@ -741,6 +753,7 @@ def test_reranking_pipeline() -> None:
 
         hybrid_results = hybrid_service(
             query=query,
+            user_id=settings.EVALUATION_USER_ID,
             limit=SEARCH_LIMIT,
         )
 

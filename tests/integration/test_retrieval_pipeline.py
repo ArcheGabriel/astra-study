@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 from pprint import pprint
 
+from app.chunking.pipeline import ChunkPipeline
 from app.config.settings import settings
+from app.ingestion.processors.pdf import PDFProcessor
 from app.retrieval.service import RetrievalService
 from app.reranking.service import RerankingService
+from app.search.hybrid.pipeline import HybridPipeline
 from app.search.hybrid.service import HybridService
 
 logging.basicConfig(
@@ -15,6 +19,8 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
+
+PDF_PATH = Path("tests/test_documents/LLM.pdf")
 
 QUERY = "Explain semantic chunking and why it improves RAG."
 
@@ -85,6 +91,16 @@ def test_retrieval_pipeline() -> None:
     RetrievalService
     """
 
+    extraction = PDFProcessor().extract(PDF_PATH)
+    chunks = ChunkPipeline().run(extraction)
+
+    for chunk in chunks:
+        chunk.metadata.user_id = settings.EVALUATION_USER_ID
+
+    hybrid = HybridPipeline()
+    hybrid.recreate_collection()
+    hybrid.index(chunks)
+
     hybrid_service = HybridService()
 
     reranking_service = RerankingService()
@@ -96,6 +112,7 @@ def test_retrieval_pipeline() -> None:
 
     result = retrieval_service(
         query=QUERY,
+        user_id=settings.EVALUATION_USER_ID,
     )
 
     assert result.query == QUERY

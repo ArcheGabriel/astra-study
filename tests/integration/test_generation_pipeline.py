@@ -1,14 +1,19 @@
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 from pprint import pprint
 from time import perf_counter
 
+from app.chunking.pipeline import ChunkPipeline
+from app.config.settings import settings
 from app.generation.models import GenerationRequest
 from app.generation.prompt_builder import PromptBuilder
 from app.generation.service import GenerationService
+from app.ingestion.processors.pdf import PDFProcessor
 from app.retrieval.service import RetrievalService
 from app.reranking.service import RerankingService
+from app.search.hybrid.pipeline import HybridPipeline
 from app.search.hybrid.service import HybridService
 from app.services.llm import LLMService
 
@@ -27,6 +32,8 @@ logger = logging.getLogger(__name__)
 #QUERY = "What are LLM scaling laws?"
 #QUERY = "Compare T5 and GPT-3."
 QUERY = "Who won the FIFA World Cup 2022?"
+
+PDF_PATH = Path("tests/test_documents/LLM.pdf")
 
 
 def print_results(
@@ -119,6 +126,16 @@ def test_generation_pipeline() -> None:
     GenerationService
     """
 
+    extraction = PDFProcessor().extract(PDF_PATH)
+    chunks = ChunkPipeline().run(extraction)
+
+    for chunk in chunks:
+        chunk.metadata.user_id = settings.EVALUATION_USER_ID
+
+    hybrid = HybridPipeline()
+    hybrid.recreate_collection()
+    hybrid.index(chunks)
+
     #
     # Retrieval
     #
@@ -133,6 +150,7 @@ def test_generation_pipeline() -> None:
 
     retrieval_result = retrieval_service(
         query=QUERY,
+        user_id=settings.EVALUATION_USER_ID,
     )
 
     #
