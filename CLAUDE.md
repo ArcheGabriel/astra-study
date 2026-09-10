@@ -36,6 +36,9 @@ uv run pytest tests/unit -q                         # THE normal check (fast; ML
 uv run pytest tests/unit/test_chunking.py -q        # one file
 uv run pytest tests/unit/test_provenance.py::test_pdf_page_and_bbox_provenance -q   # one test
 uv run pytest tests/unit/test_conversation_memory.py -q   # rolling-summary / recent-window spec
+uv run pytest tests/unit/test_qdrant_isolation.py -q      # offline regression for the test-collection guard
+
+uv run pytest tests/integration/test_hybrid_pipeline.py -q   # one integration file: live Qdrant+OpenAI+Docling, minutes per file, isolated to astra_study_test
 
 uv run python -m evaluation.runner                  # run LangSmith evaluation experiment
 uv run python -m evaluation.chunking_report analyze --blocks <blocks.json> --out <report.json>   # offline chunk structural report
@@ -47,15 +50,39 @@ pytest config lives in `pyproject.toml`: `pythonpath=["."]`, `testpaths=["tests"
 `test_*.py` files (`test_chunk_pipeline.py`, etc.) are legacy scratch scripts and are **not**
 collected.
 
-**Never run a bare `uv run pytest` / `pytest -q` in this repo.** `testpaths=["tests"]` collects
-`tests/integration/` too, and `tests/integration/test_dense_pipeline.py::test_dense_pipeline`
-calls `DensePipeline().recreate_collection()` — which **deletes and recreates the production
-Qdrant collection** (`DenseRepository.COLLECTION_NAME` == `settings.QDRANT_COLLECTION_NAME`,
-default `astra_study`, with no test-specific override). There is no test-collection isolation and
-no snapshot/backup anywhere in the repo. Scope every run to `tests/unit` (or otherwise exclude
-`tests/integration`). `tests/unit/` fakes Docling and all ML models and is the self-contained
-suite; `tests/integration/` hits **live** Qdrant / OpenAI / downloaded models and a populated
-vector store — run individual files deliberately, never as part of a normal check.
+`tests/unit/` fakes Docling and all ML models and is the self-contained suite — this is THE
+normal check. `tests/integration/` hits **live** Qdrant / OpenAI / downloaded models and takes
+minutes per file (real Docling extraction + embeddings); run individual files deliberately, not
+as part of a routine check. `testpaths=["tests"]` means a bare `pytest` collects
+`tests/integration/` too — still scope routine runs to `tests/unit`.
+
+**Qdrant test isolation (`tests/conftest.py`).** Several integration tests call
+`recreate_collection()`, which deletes and recreates whatever `DenseRepository.COLLECTION_NAME`
+resolves to. `DenseRepository.COLLECTION_NAME` is a **class attribute bound at import time** from
+`settings.QDRANT_COLLECTION_NAME` (default `astra_study` — the production collection). The root
+`tests/conftest.py` is imported before any test module and defends against this:
+
+- forces `QDRANT_COLLECTION_NAME` to `astra_study_test` and defensively overwrites both the
+  `settings` value and the already-bound `DenseRepository.COLLECTION_NAME`;
+- **allowlist**: raises `RuntimeError` at collection time if `QDRANT_COLLECTION_NAME` is set to
+  anything other than unset or exactly `astra_study_test` (production `astra_study` can never be
+  reached from tests);
+- a `pytest_sessionfinish` hook drops `astra_study_test` afterward, but only when the session
+  actually collected a `tests/integration/` test — a `tests/unit`-only run never constructs a
+  Qdrant client or touches the network.
+
+`tests/unit/test_qdrant_isolation.py` is the offline regression. Do not weaken this guard or edit
+`tests/conftest.py` casually. To run integration tests against real Qdrant, leave
+`QDRANT_COLLECTION_NAME` unset so isolation applies.
+
+Each integration test is **self-contained**: it extracts + chunks a fixture PDF (tracked ones
+live in `tests/test_documents/`; `storage/uploads/*` is gitignored), `recreate_collection()`s the
+isolated collection, and indexes before exercising retrieval/rerank/generation. The
+hybrid/retrieval/generation paths are **tenant-scoped** — those tests stamp
+`chunk.metadata.user_id = settings.EVALUATION_USER_ID` on every chunk (production does this in
+`IngestionService`, not `ChunkPipeline`) and pass `user_id=settings.EVALUATION_USER_ID` to
+`HybridService` / `RetrievalService`. The dense-only path (`test_dense_pipeline`) is not filtered
+by `user_id`.
 
 ## Architecture
 
@@ -270,7 +297,8 @@ from `/api/v1/auth` and attached to every request.
   (`DATABASE_URL`). A checked-in `astra_study.db` SQLite file exists for local dev.
 - **Qdrant** – one collection (`QDRANT_COLLECTION_NAME`, default `astra_study`) with named
   vectors `dense` and `sparse`; payload includes a `schema_version` field. `docker-compose.yml`
-  is empty — run Qdrant separately (default `:6333`).
+  is empty — run Qdrant separately (default `:6333`). The test suite uses a separate
+  `astra_study_test` collection (see "Qdrant test isolation").
 - **Local filesystem** (`storage/`) – uploaded source files.
 
 ### Observability
@@ -287,7 +315,9 @@ LangSmith tracing is pervasive via `@traceable` decorators on service/pipeline m
   work without Developer Mode.
 - Unit tests fake Docling and the ML models; do not add tests that require downloading models.
 - `tests/unit` should be fully green. A single `langsmith` deprecation warning is expected.
-  Anything under `tests/integration` needs live services (and one test recreates the production
-  Qdrant collection — see Commands) and is not part of a normal check.
+  Anything under `tests/integration` needs live services (Qdrant, OpenAI, downloaded models),
+  takes minutes per file, and is not part of a normal check; it is isolated from the production
+  Qdrant collection by `tests/conftest.py` (see "Qdrant test isolation"). Integration runs also
+  emit two Docling `DeprecationWarning`s.
 - The Docling models are downloaded to the HuggingFace cache; `evaluation.chunking_report extract`
   runs real Docling offline (no Qdrant/OpenAI). Re-extracting a document takes minutes.
