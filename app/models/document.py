@@ -9,10 +9,12 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base
-from app.enums.document import DocumentStatus
+from app.enums.document import DocumentAccessScope, DocumentStatus
 from app.models.mixins import TimestampMixin
 
 if TYPE_CHECKING:
+    from app.models.organisation import Organisation
+    from app.models.team import Team
     from app.models.user import User
 
 
@@ -67,6 +69,36 @@ class Document(
         nullable=False,
     )
 
+    organisation_id: Mapped[int] = mapped_column(
+        ForeignKey("organisations.id"),
+        nullable=False,
+        index=True,
+    )
+
+    team_id: Mapped[int | None] = mapped_column(
+        ForeignKey("teams.id"),
+        nullable=True,
+        index=True,
+    )
+
+    access_scope: Mapped[DocumentAccessScope] = mapped_column(
+        Enum(
+            DocumentAccessScope,
+            values_callable=lambda enum: [member.value for member in enum],
+            name="documentaccessscope",
+        ),
+        default=DocumentAccessScope.INDIVIDUAL,
+        nullable=False,
+    )
+
     user: Mapped["User"] = relationship(
+        back_populates="documents",
+    )
+
+    organisation: Mapped["Organisation"] = relationship(
+        back_populates="documents",
+    )
+
+    team: Mapped["Team | None"] = relationship(
         back_populates="documents",
     )

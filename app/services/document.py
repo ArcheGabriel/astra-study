@@ -53,6 +53,7 @@ class DocumentService:
 
             document = Document(
                 user_id=current_user.id,
+                organisation_id=current_user.organisation_id,
                 filename=file.filename,
                 stored_filename=stored_filename,
                 content_type=file.content_type,
