@@ -26,6 +26,7 @@ from __future__ import annotations
 import asyncio
 from io import BytesIO
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import pytest
 from fastapi import UploadFile
@@ -357,6 +358,11 @@ def test_document_upload_receives_uploaders_organisation_id(db):
     service = DocumentService(
         document_repository=DocumentRepository(db),
         storage_service=FakeStorageService(),
+        # upload_documents (the only method this test exercises) uses
+        # neither -- unaffected by RBAC-5D's read/delete authorization,
+        # which is what these two dependencies exist for.
+        team_membership_repository=MagicMock(),
+        dense_repository=MagicMock(),
     )
 
     # No pytest-asyncio/anyio plugin is configured for this project

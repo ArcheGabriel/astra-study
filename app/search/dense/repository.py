@@ -236,6 +236,76 @@ class DenseRepository:
 
     #
     # --------------------------------------------------------
+    # Delete
+    # --------------------------------------------------------
+    #
+
+    def delete_by_document_id(
+        self,
+        document_id: int,
+    ) -> int:
+        """
+        Delete every point belonging to one schema_version=3 document.
+
+        Scoped exclusively to the ``document_id`` payload field -- the
+        real SQL ``Document.id`` -- never ``document_uuid``, ``checksum``,
+        ``chunk_uuid``, or an owner-only (``user_id``) match as a
+        substitute. ``document_id`` is written only by the current
+        (schema_version=3) payload builder (``HybridMapper.build_payload``);
+        legacy schema_version=2 points never had it, so this filter is
+        structurally incapable of matching a legacy point.
+
+        An explicit existence check (a filtered count) runs before any
+        delete call, so a legacy document never even triggers a delete
+        attempt -- not merely relies on the filter being a harmless
+        no-op. This makes the v2/v3 boundary explicit in code without
+        requiring a new SQL column or any schema_version heuristic:
+        Qdrant itself -- the only system that actually knows which points
+        carry ``document_id`` -- is asked directly.
+
+        Returns the number of points found and deleted. ``0`` means
+        either the document was never indexed, or its points are legacy
+        schema_version=2 -- in both cases no Qdrant write occurs.
+        """
+
+        document_filter = Filter(
+
+            must=[
+                FieldCondition(
+                    key="document_id",
+                    match=MatchValue(value=document_id),
+                ),
+            ],
+
+        )
+
+        existing = self.client.count(
+
+            collection_name=self.COLLECTION_NAME,
+
+            count_filter=document_filter,
+
+            exact=True,
+
+        )
+
+        if existing.count == 0:
+            return 0
+
+        self.client.delete(
+
+            collection_name=self.COLLECTION_NAME,
+
+            points_selector=document_filter,
+
+            wait=True,
+
+        )
+
+        return existing.count
+
+    #
+    # --------------------------------------------------------
     # Count
     # --------------------------------------------------------
     #

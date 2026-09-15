@@ -11,12 +11,14 @@ from fastapi import (
 )
 from fastapi.responses import FileResponse
 
+from app.dependencies.access import get_access_context
 from app.dependencies.auth import get_current_user
 from app.dependencies.services import (
     get_document_service,
     get_ingestion_service,
 )
 from app.models.user import User
+from app.retrieval.access import AccessContext
 from app.schemas.document import DocumentResponse
 from app.services.document import DocumentService
 from app.services.ingestion import IngestionService
@@ -74,17 +76,19 @@ async def upload_documents(
     response_model=list[DocumentResponse],
 )
 def get_documents(
-    current_user: User = Depends(get_current_user),
+    access: AccessContext = Depends(get_access_context),
     document_service: DocumentService = Depends(
         get_document_service,
     ),
 ) -> list[DocumentResponse]:
     """
-    Retrieve all uploaded documents.
+    Retrieve every document the requester is authorized to see
+    (own INDIVIDUAL documents, TEAM documents for teams they belong to,
+    and -- ADMIN only -- ORGANISATION documents in their organisation).
     """
 
     return document_service.get_documents(
-        current_user=current_user,
+        access=access,
     )
 
 
@@ -94,18 +98,18 @@ def get_documents(
 )
 def get_document(
     document_id: int,
-    current_user: User = Depends(get_current_user),
+    access: AccessContext = Depends(get_access_context),
     document_service: DocumentService = Depends(
         get_document_service,
     ),
 ) -> DocumentResponse:
     """
-    Retrieve a single document.
+    Retrieve a single document, if the requester is authorized to see it.
     """
 
     return document_service.get_document(
         document_id=document_id,
-        current_user=current_user,
+        access=access,
     )
 
 
@@ -114,19 +118,19 @@ def get_document(
 )
 def download_document(
     document_id: int,
-    current_user: User = Depends(get_current_user),
+    access: AccessContext = Depends(get_access_context),
     document_service: DocumentService = Depends(
         get_document_service,
     ),
 ) -> FileResponse:
     """
-    Download a document.
+    Download a document, if the requester is authorized to see it.
     """
 
     file_path, filename = (
         document_service.download_document(
             document_id=document_id,
-            current_user=current_user,
+            access=access,
         )
     )
 
@@ -143,18 +147,20 @@ def download_document(
 )
 async def delete_document(
     document_id: int,
-    current_user: User = Depends(get_current_user),
+    access: AccessContext = Depends(get_access_context),
     document_service: DocumentService = Depends(
         get_document_service,
     ),
 ) -> Response:
     """
-    Delete a document.
+    Delete a document, if the requester is authorized to delete it (owner,
+    a TEAM MANAGER of that document's team, or an ADMIN of that
+    organisation for an ORGANISATION document).
     """
 
     await document_service.delete_document(
         document_id=document_id,
-        current_user=current_user,
+        access=access,
     )
 
     return Response(

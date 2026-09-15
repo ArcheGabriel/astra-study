@@ -9,6 +9,7 @@ from app.database.session import get_db
 from app.repositories.chat import ChatRepository
 from app.repositories.document import DocumentRepository
 from app.repositories.message import MessageRepository
+from app.repositories.team_membership import TeamMembershipRepository
 from app.repositories.user import UserRepository
 
 from app.services.auth import AuthService
@@ -25,6 +26,7 @@ from app.storage.local import LocalStorageService
 from app.generation.prompt_builder import PromptBuilder
 from app.generation.service import GenerationService
 
+from app.search.dense.repository import DenseRepository
 from app.search.hybrid.service import HybridService
 from app.reranking.service import RerankingService
 from app.retrieval.service import RetrievalService
@@ -270,11 +272,17 @@ def get_document_service(
 
     document_repository = DocumentRepository(db)
 
+    team_membership_repository = TeamMembershipRepository(db)
+
     storage_service = LocalStorageService()
+
+    dense_repository = DenseRepository()
 
     return DocumentService(
         document_repository=document_repository,
         storage_service=storage_service,
+        team_membership_repository=team_membership_repository,
+        dense_repository=dense_repository,
     )
 
 
