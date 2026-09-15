@@ -301,7 +301,18 @@ def test_hybrid_service_forwards_access_to_dense_repository():
 
 # --------------------------------------------------------------------------- #
 # 7-12. Qdrant filter audit: user_id from access.user_id, structural filters
-# unchanged, no organisation/team/access_scope/role condition added
+# unchanged.
+#
+# NOTE: as of RBAC-5C, the filter also carries organisation/team/access_scope
+# authorization branches (approved scope change -- see
+# tests/unit/test_rbac_5c_authorization_filter.py for the full spec of that
+# behaviour). These two tests were originally written to prove RBAC-5B's
+# narrower boundary ("no RBAC scope conditions yet") and are updated here
+# only to navigate the new nested filter shape -- they still prove exactly
+# what RBAC-5B always required: user_id sourced from access.user_id, and
+# is_reference/is_appendix preserved. `role` remains, as always, never a raw
+# Qdrant filter key (RBAC-5C encodes it only as a Python-side branch
+# inclusion decision).
 # --------------------------------------------------------------------------- #
 
 
@@ -310,6 +321,14 @@ def make_dense_repository_with_fake_client():
     repository.client = MagicMock()
     repository.client.query_points.return_value = SimpleNamespace(points=[])
     return repository
+
+
+def _individual_branch_user_id(retrieval_filter: Filter) -> int:
+    nested = next(c for c in retrieval_filter.must if isinstance(c, Filter))
+    individual_branch = nested.should[0]
+    return next(
+        c.match.value for c in individual_branch.must if c.key == "user_id"
+    )
 
 
 def test_dense_repository_hybrid_search_filters_by_access_user_id():
@@ -326,16 +345,16 @@ def test_dense_repository_hybrid_search_filters_by_access_user_id():
     call = repository.client.query_points.call_args
     retrieval_filter: Filter = call.kwargs["prefetch"][0].filter
 
-    conditions = {c.key: c.match.value for c in retrieval_filter.must}
+    structural = {c.key: c.match.value for c in retrieval_filter.must if hasattr(c, "key")}
 
-    assert conditions["user_id"] == _ACCESS.user_id
-    assert conditions["is_reference"] is False
-    assert conditions["is_appendix"] is False
+    assert _individual_branch_user_id(retrieval_filter) == _ACCESS.user_id
+    assert structural["is_reference"] is False
+    assert structural["is_appendix"] is False
 
 
-def test_dense_repository_hybrid_search_filter_has_no_rbac_scope_conditions():
-    """Requirements 9-12: no organisation_id / team_id / access_scope / role
-    condition exists anywhere in the RBAC-5B filter."""
+def test_dense_repository_hybrid_search_filter_role_is_never_a_raw_filter_key():
+    """`role` must never appear as a Qdrant FieldCondition key -- RBAC-5C
+    only ever uses it to decide whether the organisation branch exists."""
 
     repository = make_dense_repository_with_fake_client()
 
@@ -350,11 +369,24 @@ def test_dense_repository_hybrid_search_filter_has_no_rbac_scope_conditions():
     call = repository.client.query_points.call_args
     retrieval_filter: Filter = call.kwargs["prefetch"][0].filter
 
-    keys = {c.key for c in retrieval_filter.must}
+    def all_keys(node) -> set[str]:
+        keys: set[str] = set()
 
-    assert keys == {"user_id", "is_reference", "is_appendix"}
-    for forbidden in ("organisation_id", "team_id", "access_scope", "role"):
-        assert forbidden not in keys
+        def walk(value):
+            if isinstance(value, Filter):
+                for group in (value.must, value.should, value.must_not):
+                    if group is None:
+                        continue
+                    items = group if isinstance(group, list) else [group]
+                    for item in items:
+                        walk(item)
+            elif hasattr(value, "key"):
+                keys.add(value.key)
+
+        walk(node)
+        return keys
+
+    assert "role" not in all_keys(retrieval_filter)
 
 
 def test_dense_repository_hybrid_search_applies_the_same_filter_to_dense_and_sparse_prefetch():
@@ -389,10 +421,9 @@ def test_different_access_contexts_produce_different_user_id_filters():
 
     call = repository.client.query_points.call_args
     retrieval_filter: Filter = call.kwargs["prefetch"][0].filter
-    conditions = {c.key: c.match.value for c in retrieval_filter.must}
 
-    assert conditions["user_id"] == _OTHER_ACCESS.user_id
-    assert conditions["user_id"] != _ACCESS.user_id
+    assert _individual_branch_user_id(retrieval_filter) == _OTHER_ACCESS.user_id
+    assert _individual_branch_user_id(retrieval_filter) != _ACCESS.user_id
 
 
 # --------------------------------------------------------------------------- #

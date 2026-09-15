@@ -52,11 +52,13 @@ class HybridMapper:
 
         return {
 
-            "schema_version": 2,
+            "schema_version": 3,
 
             #
             # Document
             #
+            "document_id": metadata.document_id,
+
             "document_uuid": (
                 str(metadata.document_uuid)
                 if metadata.document_uuid
@@ -64,8 +66,18 @@ class HybridMapper:
             ),
 
             "document_name": metadata.document_name,
-            
+
             "user_id": metadata.user_id,
+
+            "organisation_id": metadata.organisation_id,
+
+            "team_id": metadata.team_id,
+
+            "access_scope": (
+                metadata.access_scope.value
+                if metadata.access_scope
+                else None
+            ),
 
             "checksum": metadata.checksum,
 

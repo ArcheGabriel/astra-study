@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from uuid import UUID
 
 from app.enums.block import BlockType
+from app.enums.document import DocumentAccessScope
 from app.document.models import BlockProvenance
 
 
@@ -97,6 +98,12 @@ class ChunkMetadata:
     # ==================================================
 
     user_id: int | None = None
+
+    organisation_id: int | None = None
+
+    team_id: int | None = None
+
+    access_scope: DocumentAccessScope | None = None
 
     # ==================================================
     # Chunk Information

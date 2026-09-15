@@ -37,6 +37,7 @@ uv run pytest tests/unit/test_chunking.py -q        # one file
 uv run pytest tests/unit/test_provenance.py::test_pdf_page_and_bbox_provenance -q   # one test
 uv run pytest tests/unit/test_conversation_memory.py -q   # rolling-summary / recent-window spec
 uv run pytest tests/unit/test_qdrant_isolation.py -q      # offline regression for the test-collection guard
+uv run pytest tests/unit/test_access_context.py tests/unit/test_rbac_5b_propagation.py -q   # AccessContext + retrieval-threading spec
 
 uv run pytest tests/integration/test_hybrid_pipeline.py -q   # one integration file: live Qdrant+OpenAI+Docling, minutes per file, isolated to astra_study_test
 
@@ -80,9 +81,10 @@ live in `tests/test_documents/`; `storage/uploads/*` is gitignored), `recreate_c
 isolated collection, and indexes before exercising retrieval/rerank/generation. The
 hybrid/retrieval/generation paths are **tenant-scoped** — those tests stamp
 `chunk.metadata.user_id = settings.EVALUATION_USER_ID` on every chunk (production does this in
-`IngestionService`, not `ChunkPipeline`) and pass `user_id=settings.EVALUATION_USER_ID` to
-`HybridService` / `RetrievalService`. The dense-only path (`test_dense_pipeline`) is not filtered
-by `user_id`.
+`IngestionService`, not `ChunkPipeline`) and pass an `AccessContext(user_id=settings.EVALUATION_USER_ID, ...)`
+to `HybridService` / `RetrievalService` (see "Authorization (RBAC)" — `organisation_id` there is
+an explicitly-documented placeholder, not real data). The dense-only path (`test_dense_pipeline`)
+is not filtered by `user_id`.
 
 ## Architecture
 
@@ -97,6 +99,9 @@ domain packages (`chunking`, `search`, `retrieval`, `reranking`, `generation`, `
   preloaded in `app/main.py`'s lifespan so the model is warm before the first request.
 - `app/dependencies/auth.py::get_current_user` – OAuth2 password bearer + JWT; every chat and
   document route depends on it, and retrieval is always scoped to the authenticated `user_id`.
+- `app/dependencies/access.py::get_access_context` – builds the request-scoped `AccessContext`
+  (see "Authorization (RBAC)" below) from `current_user` + a fresh team-membership lookup; never
+  from JWT claims or client-supplied request data.
 
 ### Ingestion pipeline (upload → vectors)
 
@@ -180,8 +185,12 @@ CrossEncoder `RerankingService` → top `RETRIEVAL_TOP_K` (= 5) `RetrievedContex
 from OpenAI, and derives citations.
 
 `RetrievalService.retrieve` / `__call__` (and `BaseRetrievalService`) are **keyword-only and
-tenant-scoped**: `retrieve(*, query: str, user_id: int)`. An empty result (no hybrid hits, or
-everything filtered out in reranking) returns an empty `RetrievalResult` — it does **not** raise
+tenant-scoped**: `retrieve(*, query: str, access: AccessContext)`. `AccessContext` (see
+"Authorization (RBAC)" below) is threaded unmodified through `AIPipeline → RetrievalService →
+HybridService → DenseRepository.hybrid_search`, which still filters Qdrant only on
+`access.user_id` (plus `is_reference=False` / `is_appendix=False`) — organisation/team/role-based
+visibility is not yet implemented (see below). An empty result (no hybrid hits, or everything
+filtered out in reranking) returns an empty `RetrievalResult` — it does **not** raise
 (`NoRetrievalResultsError` exists but is unused).
 
 `app/ai/` is the orchestration layer (query rewriting, title/summary generation, the
@@ -267,6 +276,43 @@ payload schema / mappers, `BlockProvenance`, the `uuid5` ID strategy, `ChunkPipe
 ordering, the SSE streaming protocol, and the Streamlit layout. Citation-precision work is
 deterministic (no LLM in the citation path).
 
+### Authorization (RBAC)
+
+The relational schema and `AccessContext` identity threading are in place; Qdrant document
+visibility is still user-only (see below) — treat this as a mid-migration state, not a finished
+feature.
+
+- **Org/team model** (`app/models/organisation.py`, `team.py`, `team_membership.py`): every
+  `User` belongs to exactly one `Organisation` (`User.organisation_id`, NOT NULL) with an
+  org-scoped `OrgRole` (`app/enums/organisation.py`: `MEMBER` / `MANAGER` / `ADMIN`). A `Team`
+  belongs to one `Organisation`; `TeamMembership` (unique on `(user_id, team_id)`) carries its
+  own per-membership `TeamRole` (`app/enums/team.py`: `MEMBER` / `MANAGER`) — a user can be a
+  `MANAGER` of one team and a plain `MEMBER` of another. `OrgRole`/`TeamRole` govern *capabilities*
+  (who may create an org-scoped document, manage teams/roles), never document visibility directly.
+- **Document access scope** (`app/models/document.py`): `organisation_id`, optional `team_id`,
+  and `access_scope` (`DocumentAccessScope` in `app/enums/document.py`: `INDIVIDUAL` / `TEAM` /
+  `ORGANISATION`) are separate, deliberately-orthogonal concepts from role — access scope is a
+  property of the document, never derived from the requester's role.
+- **Migration**: `alembic/versions/116ced32c143_rbac_organisation_team_foundation.py` seeds one
+  `Organisation` (slug `"default"`, looked up by slug — never a hardcoded id — in
+  `UserService._get_default_organisation`) and adds the columns above via the SQLite-safe
+  add-nullable → backfill → tighten-to-NOT-NULL `batch_alter_table` pattern (this project's dev
+  DB is SQLite — see "Persistence").
+- **`AccessContext`** (`app/retrieval/access.py`) is the single trusted, request-scoped
+  authorization identity: a frozen/slotted dataclass of `user_id`, `organisation_id`,
+  `team_ids: tuple[int, ...]` (canonical sorted/deduped, never a wildcard-empty list), and `role`.
+  It has no methods (no `can_read`, no `is_admin`) — it is a value object, not a policy.
+  `app/dependencies/access.py::get_access_context` builds it from `current_user` (itself resolved
+  from the JWT by `get_current_user`) plus a fresh `TeamMembershipRepository` lookup — never from
+  JWT claims or any client-supplied field.
+- **Current retrieval boundary**: `AccessContext` is threaded through the full chat path
+  (`app/api/v1/message.py` → `ConversationService` → `AIPipeline` → `RetrievalService` →
+  `HybridService` → `DenseRepository.hybrid_search`), but the Qdrant filter still only reads
+  `access.user_id` — organisation/team/`access_scope`/role-based document visibility has **not**
+  been implemented yet. `current_user` (not `access`) remains the sole input to chat-ownership
+  checks (`ConversationService._validate_chat`) and document/message authorship — do not conflate
+  the two identities.
+
 ### Streaming protocol
 
 `POST /api/v1/chats/{chat_id}/messages/stream` returns SSE:
@@ -293,8 +339,12 @@ from `/api/v1/auth` and attached to every request.
 
 ### Persistence
 
-- **PostgreSQL** via SQLAlchemy 2.0 + Alembic – users, chats, messages, documents
-  (`DATABASE_URL`). A checked-in `astra_study.db` SQLite file exists for local dev.
+- SQLAlchemy 2.0 + Alembic via `DATABASE_URL` – users, organisations, teams, team memberships,
+  chats, messages, documents. **Local dev uses SQLite** (`.env`'s `DATABASE_URL=sqlite:///./astra_study.db`,
+  a checked-in file) — `DATABASE_URL` is a generic connection string so Postgres works too, but
+  SQLite is the actual configured/tested setup here; new migrations must stay SQLite-compatible
+  (see the RBAC migration's `batch_alter_table` pattern above) rather than assuming Postgres-only
+  DDL.
 - **Qdrant** – one collection (`QDRANT_COLLECTION_NAME`, default `astra_study`) with named
   vectors `dense` and `sparse`; payload includes a `schema_version` field. `docker-compose.yml`
   is empty — run Qdrant separately (default `:6333`). The test suite uses a separate

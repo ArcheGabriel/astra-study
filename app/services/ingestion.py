@@ -125,6 +125,10 @@ class IngestionService:
             
             for chunk in chunks:
                 chunk.metadata.user_id = document.user_id
+                chunk.metadata.document_id = document.id
+                chunk.metadata.organisation_id = document.organisation_id
+                chunk.metadata.team_id = document.team_id
+                chunk.metadata.access_scope = document.access_scope
             
             if not chunks:
                 raise ValueError(

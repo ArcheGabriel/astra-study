@@ -7,7 +7,10 @@ from qdrant_client.models import (
     Filter,
     Fusion,
     FusionQuery,
+    IsEmptyCondition,
+    MatchAny,
     MatchValue,
+    PayloadField,
     PointStruct,
     Prefetch,
     SparseVector,
@@ -16,6 +19,8 @@ from qdrant_client.models import (
 )
 
 from app.config.settings import settings
+from app.enums.document import DocumentAccessScope
+from app.enums.organisation import OrgRole
 from app.retrieval.access import AccessContext
 from app.search.dense.exceptions import (
     CollectionAlreadyExistsError,
@@ -320,7 +325,122 @@ class DenseRepository:
         return DenseMapper.from_scored_points(
             response.points,
         )
-    
+
+    #
+    # --------------------------------------------------------
+    # Authorization
+    # --------------------------------------------------------
+    #
+
+    @staticmethod
+    def _authorization_filter(
+        access: AccessContext,
+    ) -> Filter:
+        """
+        Build the document-visibility filter for ``access``.
+
+        Structural constraints (``is_reference``/``is_appendix``) are
+        combined via AND with the union (OR) of every scope branch the
+        requester qualifies for:
+
+        - INDIVIDUAL: ``access.user_id`` owns the document. Legacy
+          (schema_version=2) points never wrote an ``access_scope`` field
+          at all -- ``IsEmptyCondition`` grandfathers those points in as
+          individually visible to their owner (and only their owner; the
+          ``user_id`` condition is never relaxed). This is the sole
+          accommodation for legacy points -- they can never satisfy the
+          TEAM or ORGANISATION branches below, which both require an
+          explicit, present ``access_scope`` value legacy points don't have.
+        - TEAM: only constructed when ``access.team_ids`` is non-empty
+          (never ``MatchAny(any=[])``); requires the same organisation
+          *and* team membership, so a numerically-matching team id in a
+          different organisation can never match.
+        - ORGANISATION: only constructed when ``access.role`` is
+          ``OrgRole.ADMIN`` -- this is a Python-level decision about
+          which branches exist, never a ``role`` condition inside the
+          Qdrant filter itself.
+        """
+
+        structural = [
+            FieldCondition(
+                key="is_reference",
+                match=MatchValue(value=False),
+            ),
+            FieldCondition(
+                key="is_appendix",
+                match=MatchValue(value=False),
+            ),
+        ]
+
+        individual_branch = Filter(
+            must=[
+                FieldCondition(
+                    key="user_id",
+                    match=MatchValue(value=access.user_id),
+                ),
+            ],
+            should=[
+                FieldCondition(
+                    key="access_scope",
+                    match=MatchValue(
+                        value=DocumentAccessScope.INDIVIDUAL.value,
+                    ),
+                ),
+                IsEmptyCondition(
+                    is_empty=PayloadField(key="access_scope"),
+                ),
+            ],
+        )
+
+        branches: list[Filter] = [individual_branch]
+
+        if access.team_ids:
+            branches.append(
+                Filter(
+                    must=[
+                        FieldCondition(
+                            key="access_scope",
+                            match=MatchValue(
+                                value=DocumentAccessScope.TEAM.value,
+                            ),
+                        ),
+                        FieldCondition(
+                            key="organisation_id",
+                            match=MatchValue(value=access.organisation_id),
+                        ),
+                        FieldCondition(
+                            key="team_id",
+                            match=MatchAny(any=list(access.team_ids)),
+                        ),
+                    ],
+                )
+            )
+
+        if access.role == OrgRole.ADMIN:
+            branches.append(
+                Filter(
+                    must=[
+                        FieldCondition(
+                            key="access_scope",
+                            match=MatchValue(
+                                value=DocumentAccessScope.ORGANISATION.value,
+                            ),
+                        ),
+                        FieldCondition(
+                            key="organisation_id",
+                            match=MatchValue(value=access.organisation_id),
+                        ),
+                    ],
+                )
+            )
+
+        return Filter(
+            must=[
+                *structural,
+                Filter(should=branches),
+            ],
+        )
+
     @traceable(
         name="Qdrant Hybrid Search",
         run_type="retriever",
@@ -350,9 +470,10 @@ class DenseRepository:
             Sparse vector values.
 
         access
-            Trusted authorization context. Only ``access.user_id`` is used
-            for filtering in this phase -- organisation/team/access_scope
-            filtering is deferred to RBAC-5C.
+            Trusted authorization context. Document visibility is the
+            union of three branches (individual / team / organisation),
+            each requiring ``access.organisation_id`` where relevant --
+            see ``_authorization_filter``.
 
         limit
             Number of documents to return.
@@ -362,29 +483,8 @@ class DenseRepository:
         list[ScoredPoint]
         """
 
-        retrieval_filter = Filter(
+        retrieval_filter = self._authorization_filter(access)
 
-            must=[
-
-                FieldCondition(
-                    key="user_id",
-                    match=MatchValue(value=access.user_id),
-                ),
-
-                FieldCondition(
-                    key="is_reference",
-                    match=MatchValue(value=False),
-                ),
-
-                FieldCondition(
-                    key="is_appendix",
-                    match=MatchValue(value=False),
-                ),
-
-            ]
-
-        )
-        
         candidate_limit = max(
             limit * 5,
             settings.QDRANT_HYBRID_CANDIDATE_LIMIT,
