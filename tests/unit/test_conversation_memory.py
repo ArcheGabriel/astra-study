@@ -31,8 +31,10 @@ from sqlalchemy.orm import sessionmaker
 from app.config.settings import settings
 from app.database.base import Base
 from app.enums.message import MessageRole
+from app.enums.organisation import OrgRole
 from app.generation.models import GenerationRequest, GenerationResponse
 from app.generation.prompt_builder import PromptBuilder
+from app.retrieval.access import AccessContext
 from app.retrieval.models import RetrievalResult, RetrievedContext
 
 # Import model modules so ``Base.metadata`` is complete before create_all.
@@ -50,6 +52,13 @@ from app.ai.pipeline import AIPipeline
 
 
 BASE_TIME = datetime(2026, 1, 1, 12, 0, 0)
+
+_ACCESS = AccessContext(
+    user_id=1,
+    organisation_id=1,
+    team_ids=(),
+    role=OrgRole.MEMBER,
+)
 
 
 # --------------------------------------------------------------------------- #
@@ -501,7 +510,7 @@ class _FakeLLM:
 
 
 class _FakeRetrieval:
-    def retrieve(self, *, query, user_id):
+    def retrieve(self, *, query, access):
         return RetrievalResult(
             query=query,
             contexts=[
@@ -556,7 +565,7 @@ def test_generation_context_is_summary_plus_rolling_window(
 
     pipeline.generate_response(
         conversation=orm_conversation(count),
-        user_id=1,
+        access=_ACCESS,
         summary="ACTIVE SUMMARY",
     )
 
@@ -581,7 +590,7 @@ def test_full_history_used_before_first_summary():
 
     pipeline.generate_response(
         conversation=orm_conversation(12),
-        user_id=1,
+        access=_ACCESS,
         summary=None,
     )
 
@@ -594,7 +603,7 @@ def test_generation_history_bounded_for_very_long_conversation():
 
     pipeline.generate_response(
         conversation=orm_conversation(200),
-        user_id=1,
+        access=_ACCESS,
         summary="ACTIVE SUMMARY",
     )
 
@@ -612,7 +621,7 @@ def test_summary_text_not_duplicated_into_history():
     pipeline, generation, _ = make_pipeline()
     pipeline.generate_response(
         conversation=orm_conversation(40),
-        user_id=1,
+        access=_ACCESS,
         summary="UNIQUE-SUMMARY-SENTINEL",
     )
     prompt = PromptBuilder().build(generation.request)
@@ -626,7 +635,7 @@ def test_retrieval_rewrite_keeps_its_own_independent_window():
 
     pipeline.generate_response(
         conversation=orm_conversation(40),
-        user_id=1,
+        access=_ACCESS,
         summary="ACTIVE SUMMARY",
     )
 
@@ -647,7 +656,7 @@ def test_summary_not_injected_when_missing_even_past_threshold():
 
     pipeline.generate_response(
         conversation=orm_conversation(40),
-        user_id=1,
+        access=_ACCESS,
         summary=None,
     )
 
@@ -670,7 +679,7 @@ class _RecordingBackgroundTasks:
 
 
 class _StreamingAIPipeline:
-    def stream_response(self, *, conversation, user_id, summary=None):
+    def stream_response(self, *, conversation, access, summary=None):
         yield SimpleNamespace(text="hello ", citations=None)
         yield SimpleNamespace(text="world", citations=None)
         yield SimpleNamespace(text=None, citations=[])
@@ -716,6 +725,7 @@ def test_streaming_persists_exactly_one_assistant_message(db):
         service.stream_message(
             chat_id=chat.id,
             current_user=SimpleNamespace(id=1),
+            access=_ACCESS,
             message_data=SimpleNamespace(content="a new question"),
             background_tasks=background,
         )
@@ -744,6 +754,7 @@ def test_streaming_done_not_blocked_by_summary_generation(db):
         service.stream_message(
             chat_id=chat.id,
             current_user=SimpleNamespace(id=1),
+            access=_ACCESS,
             message_data=SimpleNamespace(content="another question"),
             background_tasks=background,
         )

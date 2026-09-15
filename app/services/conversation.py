@@ -10,6 +10,7 @@ from app.models.message import ChatMessage
 from app.models.user import User
 from app.repositories.chat import ChatRepository
 from app.repositories.message import MessageRepository
+from app.retrieval.access import AccessContext
 from app.schemas.conversation import ConversationResponse
 from app.generation.models import StreamEvent
 from app.schemas.message import (
@@ -57,11 +58,16 @@ class ConversationService:
         *,
         chat_id: int,
         current_user: User,
+        access: AccessContext,
         message_data: MessageCreate,
         background_tasks: BackgroundTasks | None = None,
     ) -> ConversationResponse:
         """
         Process a complete conversation turn.
+
+        ``current_user`` remains the authenticated-identity input for chat
+        ownership and message authorship; ``access`` is the trusted
+        authorization context passed downstream to retrieval.
         """
 
         chat = self._validate_chat(
@@ -86,7 +92,7 @@ class ConversationService:
 
         ai_response = self.ai_pipeline.generate_response(
             conversation=conversation,
-            user_id=current_user.id,
+            access=access,
             summary=chat.summary,
         )
 
@@ -115,11 +121,16 @@ class ConversationService:
         *,
         chat_id: int,
         current_user: User,
+        access: AccessContext,
         message_data: MessageCreate,
         background_tasks: BackgroundTasks | None = None,
     ) -> Iterator[StreamEvent]:
         """
         Stream an AI response while persisting the final assistant message.
+
+        ``current_user`` remains the authenticated-identity input for chat
+        ownership and message authorship; ``access`` is the trusted
+        authorization context passed downstream to retrieval.
         """
 
         chat = self._validate_chat(
@@ -146,7 +157,7 @@ class ConversationService:
 
         for event in self.ai_pipeline.stream_response(
             conversation=conversation,
-            user_id=current_user.id,
+            access=access,
             summary=chat.summary,
         ):
             if event.text is not None:

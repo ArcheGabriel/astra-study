@@ -22,7 +22,9 @@ from typing import Final
 
 from app.chunking.pipeline import ChunkPipeline
 from app.config.settings import settings
+from app.enums.organisation import OrgRole
 from app.ingestion.processors.pdf import PDFProcessor
+from app.retrieval.access import AccessContext
 from app.reranking.service import RerankingService
 from app.search.hybrid.pipeline import HybridPipeline
 from app.search.hybrid.service import HybridService
@@ -37,6 +39,18 @@ TOP_K: Final[int] = settings.RERANK_TOP_K
 
 SEARCH_LIMIT: Final[int] = (
     settings.QDRANT_HYBRID_CANDIDATE_LIMIT
+)
+
+# PLACEHOLDER organisation_id -- see evaluation/predictor.py for the full
+# rationale. settings.EVALUATION_USER_ID is only a Qdrant payload user_id
+# stamped onto fixture chunks, not a real users.id; reusing it here as
+# organisation_id is harmless only because RBAC-5B's Qdrant filter never
+# reads organisation_id. Must be revisited before RBAC-5C.
+_ACCESS = AccessContext(
+    user_id=settings.EVALUATION_USER_ID,
+    organisation_id=settings.EVALUATION_USER_ID,
+    team_ids=(),
+    role=OrgRole.MEMBER,
 )
 
 TEST_QUERIES: Final[list[str]] = [
@@ -753,7 +767,7 @@ def test_reranking_pipeline() -> None:
 
         hybrid_results = hybrid_service(
             query=query,
-            user_id=settings.EVALUATION_USER_ID,
+            access=_ACCESS,
             limit=SEARCH_LIMIT,
         )
 

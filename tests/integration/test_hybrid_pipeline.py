@@ -2,9 +2,23 @@ from pathlib import Path
 
 from app.chunking.pipeline import ChunkPipeline
 from app.config.settings import settings
+from app.enums.organisation import OrgRole
 from app.ingestion.processors.pdf import PDFProcessor
+from app.retrieval.access import AccessContext
 from app.search.hybrid.pipeline import HybridPipeline
 from app.search.hybrid.service import HybridService
+
+# PLACEHOLDER organisation_id -- see evaluation/predictor.py for the full
+# rationale. settings.EVALUATION_USER_ID is only a Qdrant payload user_id
+# stamped onto fixture chunks, not a real users.id; reusing it here as
+# organisation_id is harmless only because RBAC-5B's Qdrant filter never
+# reads organisation_id. Must be revisited before RBAC-5C.
+_ACCESS = AccessContext(
+    user_id=settings.EVALUATION_USER_ID,
+    organisation_id=settings.EVALUATION_USER_ID,
+    team_ids=(),
+    role=OrgRole.MEMBER,
+)
 
 
 PDF_PATH = Path(
@@ -116,7 +130,7 @@ def test_hybrid_pipeline() -> None:
 
         results = service.search(
             query=query,
-            user_id=settings.EVALUATION_USER_ID,
+            access=_ACCESS,
             limit=5,
         )
 

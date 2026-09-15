@@ -6,6 +6,8 @@ from uuid import uuid4
 import pytest
 
 from app.config.settings import settings
+from app.enums.organisation import OrgRole
+from app.retrieval.access import AccessContext
 from app.retrieval.base import BaseRetrievalService
 from app.retrieval.exceptions import EmptyQueryError
 from app.retrieval.models import RetrievalResult
@@ -17,14 +19,23 @@ from app.reranking.models import (
 from app.search.hybrid.models import HybridSearchResult
 
 # ``RetrievalService.retrieve`` / ``__call__`` are keyword-only
-# (``*, query, user_id``) and always scoped to a tenant: this was made
-# deliberate in commit b5d8d4b ("tenant isolation and graceful empty
-# retrieval"), and every production caller (app/ai/pipeline.py) invokes it
-# that way. That same commit also replaced the ``NoRetrievalResultsError``
-# raised on an empty rerank with a graceful empty ``RetrievalResult`` that
-# the generation layer relies on. These tests encode that current contract.
+# (``*, query, access``) and always scoped to a tenant via
+# ``access.user_id``: this was made deliberate in commit b5d8d4b ("tenant
+# isolation and graceful empty retrieval") and re-threaded through
+# ``AccessContext`` in RBAC-5B, and every production caller
+# (app/ai/pipeline.py) invokes it that way. That same commit also replaced
+# the ``NoRetrievalResultsError`` raised on an empty rerank with a graceful
+# empty ``RetrievalResult`` that the generation layer relies on. These tests
+# encode that current contract.
 
 _USER_ID = 7
+
+_ACCESS = AccessContext(
+    user_id=_USER_ID,
+    organisation_id=1,
+    team_ids=(),
+    role=OrgRole.MEMBER,
+)
 
 
 def make_hybrid_result() -> HybridSearchResult:
@@ -89,7 +100,7 @@ def test_empty_query_raises_error() -> None:
     with pytest.raises(
         EmptyQueryError,
     ):
-        service.retrieve(query="", user_id=_USER_ID)
+        service.retrieve(query="", access=_ACCESS)
 
 
 def test_retrieve_success() -> None:
@@ -112,7 +123,7 @@ def test_retrieve_success() -> None:
 
     result = service.retrieve(
         query="semantic chunking",
-        user_id=_USER_ID,
+        access=_ACCESS,
     )
 
     assert result.query == "semantic chunking"
@@ -132,9 +143,9 @@ def test_retrieve_success() -> None:
 
     reranking_service.assert_called_once()
 
-    # Retrieval is tenant-scoped: the authenticated user_id must reach the
+    # Retrieval is tenant-scoped: the trusted AccessContext must reach the
     # hybrid search, together with the configured candidate limit.
-    assert hybrid_service.call_args.kwargs["user_id"] == _USER_ID
+    assert hybrid_service.call_args.kwargs["access"] is _ACCESS
     assert (
         hybrid_service.call_args.kwargs["limit"]
         == settings.QDRANT_HYBRID_CANDIDATE_LIMIT
@@ -163,7 +174,7 @@ def test_empty_rerank_results_return_empty_retrieval() -> None:
         results=[],
     )
 
-    result = service.retrieve(query="query", user_id=_USER_ID)
+    result = service.retrieve(query="query", access=_ACCESS)
 
     assert result.query == "query"
     assert result.contexts == []
@@ -182,7 +193,7 @@ def test_empty_hybrid_results_return_empty_retrieval() -> None:
 
     hybrid_service.return_value = []
 
-    result = service.retrieve(query="query", user_id=_USER_ID)
+    result = service.retrieve(query="query", access=_ACCESS)
 
     assert result.contexts == []
     reranking_service.assert_not_called()
@@ -206,11 +217,11 @@ def test_callable_wrapper() -> None:
         hybrid,
     )
 
-    result = service(query="semantic chunking", user_id=_USER_ID)
+    result = service(query="semantic chunking", access=_ACCESS)
 
     assert len(result.contexts) == 1
     assert result.query == "semantic chunking"
-    assert hybrid_service.call_args.kwargs["user_id"] == _USER_ID
+    assert hybrid_service.call_args.kwargs["access"] is _ACCESS
 
 
 def test_base_contract_is_keyword_only_and_tenant_scoped() -> None:
@@ -221,13 +232,13 @@ def test_base_contract_is_keyword_only_and_tenant_scoped() -> None:
     seen: dict[str, object] = {}
 
     class _Impl(BaseRetrievalService):
-        def retrieve(self, *, query: str, user_id: int) -> RetrievalResult:
+        def retrieve(self, *, query: str, access: AccessContext) -> RetrievalResult:
             seen["query"] = query
-            seen["user_id"] = user_id
+            seen["access"] = access
             return RetrievalResult(query=query, contexts=[], retrieval_latency=0.0)
 
-    _Impl()(query="hello", user_id=_USER_ID)
-    assert seen == {"query": "hello", "user_id": _USER_ID}
+    _Impl()(query="hello", access=_ACCESS)
+    assert seen == {"query": "hello", "access": _ACCESS}
 
     with pytest.raises(TypeError):
         _Impl()("hello")  # type: ignore[call-arg]  # positional call is rejected

@@ -23,6 +23,8 @@ from app.embeddings.models import (
 )
 from app.enums.block import BlockType
 from app.enums.message import MessageRole
+from app.enums.organisation import OrgRole
+from app.retrieval.access import AccessContext
 from app.generation.models import GenerationRequest
 from app.generation.service import GenerationService
 from app.ingestion.processors.docling import DoclingProcessor
@@ -357,10 +359,18 @@ def _conversation():
     return [SimpleNamespace(role=MessageRole.USER, content="What are the results?")]
 
 
+_ACCESS = AccessContext(
+    user_id=1,
+    organisation_id=1,
+    team_ids=(),
+    role=OrgRole.MEMBER,
+)
+
+
 def test_normal_pipeline_returns_citations():
     ctx = _context(page=7, section="Results", parser="docling")
     pipeline = _pipeline(RetrievalResult("q", [ctx], 0.1))
-    response = pipeline.generate_response(conversation=_conversation(), user_id=1)
+    response = pipeline.generate_response(conversation=_conversation(), access=_ACCESS)
     assert response.citations[0].page == 7
     assert response.citations[0].section == "Results"
 
@@ -368,7 +378,7 @@ def test_normal_pipeline_returns_citations():
 def test_streaming_pipeline_emits_citations_after_text():
     ctx = _context(page=7, section="Results", parser="docling")
     pipeline = _pipeline(RetrievalResult("q", [ctx], 0.1))
-    events = list(pipeline.stream_response(conversation=_conversation(), user_id=1))
+    events = list(pipeline.stream_response(conversation=_conversation(), access=_ACCESS))
 
     text_events = [e for e in events if e.text is not None]
     citation_events = [e for e in events if e.citations is not None]
@@ -658,7 +668,7 @@ def test_streaming_citations_reflect_the_streamed_answer():
         MagicMock(),
     )
 
-    events = list(pipeline.stream_response(conversation=_conversation(), user_id=1))
+    events = list(pipeline.stream_response(conversation=_conversation(), access=_ACCESS))
     citation_events = [e for e in events if e.citations is not None]
 
     assert len(citation_events) == 1

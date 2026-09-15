@@ -16,6 +16,7 @@ from qdrant_client.models import (
 )
 
 from app.config.settings import settings
+from app.retrieval.access import AccessContext
 from app.search.dense.exceptions import (
     CollectionAlreadyExistsError,
     CollectionCreationError,
@@ -330,7 +331,7 @@ class DenseRepository:
         dense_vector: list[float],
         sparse_indices: list[int],
         sparse_values: list[float],
-        user_id: int,
+        access: AccessContext,
         limit: int = 10,
     ) -> list[HybridSearchResult]:
         """
@@ -348,6 +349,11 @@ class DenseRepository:
         sparse_values
             Sparse vector values.
 
+        access
+            Trusted authorization context. Only ``access.user_id`` is used
+            for filtering in this phase -- organisation/team/access_scope
+            filtering is deferred to RBAC-5C.
+
         limit
             Number of documents to return.
 
@@ -355,14 +361,14 @@ class DenseRepository:
         -------
         list[ScoredPoint]
         """
-        
+
         retrieval_filter = Filter(
 
             must=[
-                
+
                 FieldCondition(
                     key="user_id",
-                    match=MatchValue(value=user_id),
+                    match=MatchValue(value=access.user_id),
                 ),
 
                 FieldCondition(

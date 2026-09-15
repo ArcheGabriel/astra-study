@@ -5,8 +5,9 @@ from dataclasses import asdict
 from app.ai.pipeline import AIPipeline
 from app.ai.schemas import AIResponse
 from app.enums.message import MessageRole
+from app.enums.organisation import OrgRole
 from app.models.message import ChatMessage
-
+from app.retrieval.access import AccessContext
 
 class EvaluationPredictor:
     """
@@ -46,9 +47,30 @@ class EvaluationPredictor:
             )
         ]
 
+        # The evaluation harness is Qdrant/LangSmith/fixture-based only: it
+        # has no database session and no real Organisation/User row to look
+        # up (settings.EVALUATION_USER_ID is itself just a Qdrant payload
+        # user_id stamped onto fixture chunks, not a guaranteed users.id).
+        #
+        # organisation_id below is therefore a PLACEHOLDER, not real data --
+        # it reuses the evaluation user id purely so AccessContext.__post_init__
+        # accepts an int. It is harmless today only because RBAC-5B's Qdrant
+        # filter never reads organisation_id (see DenseRepository.hybrid_search).
+        # It MUST be replaced with a real, database-backed organisation id --
+        # or the evaluation harness must gain a documented evaluation-tenant
+        # concept -- before RBAC-5C adds organisation-scoped Qdrant filtering;
+        # otherwise evaluation retrieval will silently filter against a
+        # non-existent organisation and return zero candidates.
+        access = AccessContext(
+            user_id=self._user_id,
+            organisation_id=self._user_id,  # PLACEHOLDER -- see comment above
+            team_ids=(),
+            role=OrgRole.MEMBER,
+        )
+
         response: AIResponse = self._pipeline.generate_response(
             conversation=conversation,
-            user_id=self._user_id,
+            access=access,
             summary=None,
         )
 

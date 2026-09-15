@@ -4,6 +4,7 @@ import logging
 from time import perf_counter
 
 from app.config.settings import settings
+from app.retrieval.access import AccessContext
 from app.retrieval.base import BaseRetrievalService
 from app.retrieval.exceptions import EmptyQueryError
 from app.retrieval.models import (
@@ -124,7 +125,7 @@ class RetrievalService(BaseRetrievalService):
         self,
         *,
         query: str,
-        user_id: int,
+        access: AccessContext,
     ) -> RetrievalResult:
         """
         Execute the complete retrieval pipeline.
@@ -148,7 +149,7 @@ class RetrievalService(BaseRetrievalService):
         logger.info(
             "Starting retrieval for query='%s' for user_id=%d.",
             query,
-            user_id,
+            access.user_id,
         )
 
         start = perf_counter()
@@ -158,7 +159,7 @@ class RetrievalService(BaseRetrievalService):
         #
         hybrid_results = self._hybrid_service(
             query=query,
-            user_id=user_id,
+            access=access,
             limit=settings.QDRANT_HYBRID_CANDIDATE_LIMIT,
         )
 
@@ -336,7 +337,7 @@ class RetrievalService(BaseRetrievalService):
         self,
         *,
         query: str,
-        user_id: int,
+        access: AccessContext,
     ) -> RetrievalResult:
         """
         Callable wrapper.
@@ -347,5 +348,5 @@ class RetrievalService(BaseRetrievalService):
 
         return self.retrieve(
             query=query,
-            user_id=user_id,
+            access=access,
         )

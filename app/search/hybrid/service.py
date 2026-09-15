@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from app.embeddings.embedder import OpenAIEmbedder
+from app.retrieval.access import AccessContext
 from app.search.dense.repository import DenseRepository
 from app.search.hybrid.models import HybridSearchResult
 from app.search.sparse.encoder import SparseEncoder
@@ -51,7 +52,7 @@ class HybridService:
     )
     def search(
         self,
-        user_id: int,
+        access: AccessContext,
         query: str,
         limit: int = 10,
     ) -> list[HybridSearchResult]:
@@ -78,24 +79,24 @@ class HybridService:
             sparse_indices=sparse_vector.indices,
 
             sparse_values=sparse_vector.values,
-            
-            user_id=user_id,
+
+            access=access,
 
             limit=limit,
 
         )
-        
+
         return results
 
     def __call__(
         self,
         query: str,
-        user_id: int,
+        access: AccessContext,
         limit: int = 10,
     ) -> list[HybridSearchResult]:
 
         return self.search(
             query=query,
-            user_id=user_id,
+            access=access,
             limit=limit,
         )

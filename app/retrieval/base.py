@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
+from app.retrieval.access import AccessContext
 from app.retrieval.models import RetrievalResult
 
 
@@ -15,21 +16,24 @@ class BaseRetrievalService(ABC):
         self,
         *,
         query: str,
-        user_id: int,
+        access: AccessContext,
     ) -> RetrievalResult:
         """
         Execute the complete retrieval pipeline.
 
         Retrieval is keyword-only and always tenant-scoped: results are
-        restricted to documents owned by ``user_id``. An empty result is
-        returned as an empty ``RetrievalResult`` rather than raising.
+        restricted to documents owned by ``access.user_id``. ``access`` is
+        the single trusted authorization-context input -- it is not yet
+        used for organisation/team/role-based filtering (that is RBAC-5C).
+        An empty result is returned as an empty ``RetrievalResult`` rather
+        than raising.
         """
 
     def __call__(
         self,
         *,
         query: str,
-        user_id: int,
+        access: AccessContext,
     ) -> RetrievalResult:
         """
         Allow the service to be invoked like a function.
@@ -37,5 +41,5 @@ class BaseRetrievalService(ABC):
 
         return self.retrieve(
             query=query,
-            user_id=user_id,
+            access=access,
         )

@@ -6,7 +6,9 @@ from pprint import pprint
 
 from app.chunking.pipeline import ChunkPipeline
 from app.config.settings import settings
+from app.enums.organisation import OrgRole
 from app.ingestion.processors.pdf import PDFProcessor
+from app.retrieval.access import AccessContext
 from app.retrieval.service import RetrievalService
 from app.reranking.service import RerankingService
 from app.search.hybrid.pipeline import HybridPipeline
@@ -23,6 +25,18 @@ logger = logging.getLogger(__name__)
 PDF_PATH = Path("tests/test_documents/LLM.pdf")
 
 QUERY = "Explain semantic chunking and why it improves RAG."
+
+# PLACEHOLDER organisation_id -- see evaluation/predictor.py for the full
+# rationale. settings.EVALUATION_USER_ID is only a Qdrant payload user_id
+# stamped onto fixture chunks, not a real users.id; reusing it here as
+# organisation_id is harmless only because RBAC-5B's Qdrant filter never
+# reads organisation_id. Must be revisited before RBAC-5C.
+_ACCESS = AccessContext(
+    user_id=settings.EVALUATION_USER_ID,
+    organisation_id=settings.EVALUATION_USER_ID,
+    team_ids=(),
+    role=OrgRole.MEMBER,
+)
 
 
 def print_results(result) -> None:
@@ -112,7 +126,7 @@ def test_retrieval_pipeline() -> None:
 
     result = retrieval_service(
         query=QUERY,
-        user_id=settings.EVALUATION_USER_ID,
+        access=_ACCESS,
     )
 
     assert result.query == QUERY

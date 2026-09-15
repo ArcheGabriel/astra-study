@@ -14,6 +14,7 @@ from app.generation.models import (
 )
 from app.generation.service import GenerationService
 from app.models.message import ChatMessage
+from app.retrieval.access import AccessContext
 from app.retrieval.service import RetrievalService
 from app.services.llm import LLMService
 from app.enums.message import MessageRole
@@ -54,7 +55,7 @@ class AIPipeline:
         self,
         *,
         conversation: list[ChatMessage],
-        user_id: int,
+        access: AccessContext,
         summary: str | None = None,
     ) -> AIResponse:
         """
@@ -74,7 +75,7 @@ class AIPipeline:
 
         retrieval = self._retrieval_service.retrieve(
             query=retrieval_query,
-            user_id=user_id,
+            access=access,
         )
 
         resolved_summary = self._resolve_summary(
@@ -111,7 +112,7 @@ class AIPipeline:
         self,
         *,
         conversation: list[ChatMessage],
-        user_id: int,
+        access: AccessContext,
         summary: str | None = None,
     ) -> Iterator[StreamEvent]:
         """
@@ -131,7 +132,7 @@ class AIPipeline:
 
         retrieval = self._retrieval_service.retrieve(
             query=retrieval_query,
-            user_id=user_id,
+            access=access,
         )
 
         resolved_summary = self._resolve_summary(

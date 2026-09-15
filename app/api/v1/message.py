@@ -4,12 +4,14 @@ from dataclasses import asdict
 from fastapi import APIRouter, BackgroundTasks, Depends, status
 from fastapi.responses import StreamingResponse
 
+from app.dependencies.access import get_access_context
 from app.dependencies.auth import get_current_user
 from app.dependencies.services import (
     get_conversation_service,
     get_message_service,
 )
 from app.models.user import User
+from app.retrieval.access import AccessContext
 from app.schemas.conversation import ConversationResponse
 from app.schemas.message import (
     MessageCreate,
@@ -34,6 +36,7 @@ def create_message(
     message_data: MessageCreate,
     background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
+    access: AccessContext = Depends(get_access_context),
     conversation_service: ConversationService = Depends(
         get_conversation_service,
     ),
@@ -45,6 +48,7 @@ def create_message(
     return conversation_service.send_message(
         chat_id=chat_id,
         current_user=current_user,
+        access=access,
         message_data=message_data,
         background_tasks=background_tasks,
     )
@@ -59,6 +63,7 @@ def stream_message(
     message_data: MessageCreate,
     background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
+    access: AccessContext = Depends(get_access_context),
     conversation_service: ConversationService = Depends(
         get_conversation_service,
     ),
@@ -72,6 +77,7 @@ def stream_message(
             for event in conversation_service.stream_message(
                 chat_id=chat_id,
                 current_user=current_user,
+                access=access,
                 message_data=message_data,
                 background_tasks=background_tasks,
             ):

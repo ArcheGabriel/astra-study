@@ -3,7 +3,9 @@ from pathlib import Path
 from app.chunking.pipeline import ChunkPipeline
 from app.config.settings import settings
 from app.embeddings.embedder import OpenAIEmbedder
+from app.enums.organisation import OrgRole
 from app.ingestion.processors.pdf import PDFProcessor
+from app.retrieval.access import AccessContext
 from app.search.dense.pipeline import DensePipeline
 from app.search.hybrid.pipeline import HybridPipeline
 from app.search.hybrid.service import HybridService
@@ -11,6 +13,18 @@ from app.search.hybrid.service import HybridService
 
 PDF_PATH = Path(
     "storage/uploads/e1767367-fdff-461a-86c1-579bb9fec1de.pdf"
+)
+
+# PLACEHOLDER organisation_id -- see evaluation/predictor.py for the full
+# rationale. settings.EVALUATION_USER_ID is only a Qdrant payload user_id
+# stamped onto fixture chunks, not a real users.id; reusing it here as
+# organisation_id is harmless only because RBAC-5B's Qdrant filter never
+# reads organisation_id. Must be revisited before RBAC-5C.
+_ACCESS = AccessContext(
+    user_id=settings.EVALUATION_USER_ID,
+    organisation_id=settings.EVALUATION_USER_ID,
+    team_ids=(),
+    role=OrgRole.MEMBER,
 )
 
 
@@ -85,7 +99,7 @@ def test_retrieval_comparison() -> None:
 
         hybrid_results = hybrid_service.search(
             query=query,
-            user_id=settings.EVALUATION_USER_ID,
+            access=_ACCESS,
             limit=3,
         )
 
