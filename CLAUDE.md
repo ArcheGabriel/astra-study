@@ -176,9 +176,14 @@ a failing test.
   structural report (token distribution, over-limit / heading-only / structural-atomicity /
   provenance / range / determinism metrics), `compare` two reports. Frozen block snapshots and
   stage-to-stage comparisons live in `evaluation/artifacts/`.
-- `scripts/reingest_document.py` re-runs one document through
-  `DoclingProcessor → ChunkPipeline → HybridPipeline.index`; it is **dry-run by default** and
-  refuses to write to Qdrant without `--commit --yes-write-to-qdrant --user-id`.
+- `scripts/reingest_document.py` re-runs one document (identified by `--document-id`, not a raw
+  file path) through `LocalStorageService.get_file_path → DoclingProcessor → ChunkPipeline →
+  HybridPipeline.index`; it is **dry-run by default** and refuses to write to Qdrant without
+  `--commit --yes-write-to-qdrant`. It reads the `documents` table (to resolve the authoritative
+  `document_id`/`user_id`/`organisation_id`/`team_id`/`access_scope` RBAC fields and the stored
+  file path from the one `Document` row identified by `--document-id`, exactly mirroring
+  `IngestionService.ingest_document`'s own stamping) but never writes to it — no row is created,
+  updated, or deleted, and no status transition occurs.
 
 ### Retrieval + generation (`app/ai/pipeline.py::AIPipeline`)
 
