@@ -5,6 +5,7 @@ from fastapi import (
     BackgroundTasks,
     Depends,
     File,
+    Form,
     Response,
     UploadFile,
     status,
@@ -12,12 +13,10 @@ from fastapi import (
 from fastapi.responses import FileResponse
 
 from app.dependencies.access import get_access_context
-from app.dependencies.auth import get_current_user
 from app.dependencies.services import (
     get_document_service,
     get_ingestion_service,
 )
-from app.models.user import User
 from app.retrieval.access import AccessContext
 from app.schemas.document import DocumentResponse
 from app.services.document import DocumentService
@@ -37,7 +36,9 @@ router = APIRouter(
 async def upload_documents(
     background_tasks: BackgroundTasks,
     files: list[UploadFile] = File(...),
-    current_user: User = Depends(get_current_user),
+    access_scope: str | None = Form(None),
+    team_id: int | None = Form(None),
+    access: AccessContext = Depends(get_access_context),
     document_service: DocumentService = Depends(get_document_service),
     ingestion_service: IngestionService = Depends(
         get_ingestion_service,
@@ -46,13 +47,22 @@ async def upload_documents(
     """
     Upload one or more documents.
 
+    ``access_scope``/``team_id`` are optional multipart form fields
+    alongside ``files``: omitted entirely, they reproduce today's
+    exact behavior (INDIVIDUAL, no team). When supplied, creation is
+    authorized against the trusted ``access`` context -- never against
+    anything else the client sends -- see
+    ``DocumentService._can_create``.
+
     After upload, ingestion starts in the background.
     """
 
     uploaded_documents = (
         await document_service.upload_documents(
             files=files,
-            current_user=current_user,
+            access=access,
+            access_scope=access_scope,
+            team_id=team_id,
         )
     )
 

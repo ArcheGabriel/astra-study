@@ -5,10 +5,16 @@ from fastapi import UploadFile
 from app.enums.document import DocumentAccessScope, DocumentStatus
 from app.enums.organisation import OrgRole
 from app.enums.team import TeamRole
-from app.exceptions.document import DocumentNotFoundError
+from app.exceptions.document import (
+    DocumentNotFoundError,
+    InvalidAccessScopeError,
+    OrganisationScopeForbiddenError,
+    TeamMembershipRequiredError,
+    TeamNotFoundError,
+)
 from app.models.document import Document
-from app.models.user import User
 from app.repositories.document import DocumentRepository
+from app.repositories.team import TeamRepository
 from app.repositories.team_membership import TeamMembershipRepository
 from app.retrieval.access import AccessContext
 from app.schemas.document import DocumentResponse
@@ -21,12 +27,11 @@ class DocumentService:
     """
     Handles document upload, read, and delete business logic.
 
-    Read/delete authorization is based on the trusted ``AccessContext``
-    (identity, role, organisation, team membership) -- never on
-    ``document_id``/``team_id``/``organisation_id`` alone. Upload behavior
-    is unchanged by this: every new document is still created as
-    INDIVIDUAL-scoped, owned by the uploader (RBAC-5D intentionally does
-    not add scope/team selection to upload -- see ``upload_documents``).
+    Create/read/delete authorization is all based on the trusted
+    ``AccessContext`` (identity, role, organisation, team membership) --
+    never on ``document_id``/``team_id``/``organisation_id`` alone, and
+    never on client-supplied ``organisation_id`` (see ``upload_documents``
+    / ``_can_create``).
     """
 
     def __init__(
@@ -35,23 +40,44 @@ class DocumentService:
         storage_service: BaseStorageService,
         team_membership_repository: TeamMembershipRepository,
         dense_repository: DenseRepository,
+        team_repository: TeamRepository,
     ) -> None:
         self.document_repository = document_repository
         self.storage_service = storage_service
         self.team_membership_repository = team_membership_repository
         self.dense_repository = dense_repository
+        self.team_repository = team_repository
 
     async def upload_documents(
         self,
         *,
         files: list[UploadFile],
-        current_user: User,
+        access: AccessContext,
+        access_scope: str | None = None,
+        team_id: int | None = None,
     ) -> list[Document]:
         """
-        Upload one or more documents.
+        Upload one or more documents under one, single authorized scope.
+
+        Scope/team authorization (``_can_create``) runs once, before any
+        file is validated or stored -- an unauthorized request creates
+        nothing, and every file in the batch is created under the same
+        authorized ``access_scope``/``team_id`` (there is no per-file
+        scope override).
+
+        ``access_scope`` is the raw client-supplied value (``None`` when
+        omitted, matching today's INDIVIDUAL-only clients exactly);
+        ``organisation_id`` is never accepted from the caller at all --
+        it always comes from ``access.organisation_id``.
 
         Returns the created Document models.
         """
+
+        resolved_scope, resolved_team_id = self._can_create(
+            access=access,
+            access_scope=access_scope,
+            team_id=team_id,
+        )
 
         uploaded_documents: list[Document] = []
 
@@ -68,8 +94,10 @@ class DocumentService:
             )
 
             document = Document(
-                user_id=current_user.id,
-                organisation_id=current_user.organisation_id,
+                user_id=access.user_id,
+                organisation_id=access.organisation_id,
+                team_id=resolved_team_id,
+                access_scope=resolved_scope,
                 filename=file.filename,
                 stored_filename=stored_filename,
                 content_type=file.content_type,
@@ -88,6 +116,91 @@ class DocumentService:
             )
 
         return uploaded_documents
+
+    def _can_create(
+        self,
+        *,
+        access: AccessContext,
+        access_scope: str | None,
+        team_id: int | None,
+    ) -> tuple[DocumentAccessScope, int | None]:
+        """
+        CREATE-time authorization. Returns the validated
+        ``(access_scope, team_id)`` pair to persist, or raises.
+
+        - INDIVIDUAL: allowed for every authenticated user; ``team_id``
+          must not be supplied.
+        - TEAM: allowed for any role (``OrgRole`` MEMBER/MANAGER/ADMIN,
+          ``TeamRole`` MEMBER/MANAGER all qualify -- deliberate product
+          decision, TEAM creation is a membership check, not a role
+          check) provided the requester is an actual member of a
+          ``team_id`` that exists in their own organisation.
+        - ORGANISATION: ``access.role == OrgRole.ADMIN`` only;
+          ``team_id`` must not be supplied.
+
+        ``organisation_id`` is never a parameter here -- every branch
+        persists ``access.organisation_id``, never anything client
+        supplied.
+        """
+
+        if access_scope is None:
+            resolved_scope = DocumentAccessScope.INDIVIDUAL
+        else:
+            try:
+                resolved_scope = DocumentAccessScope(access_scope)
+            except ValueError:
+                raise InvalidAccessScopeError(
+                    f"Unrecognised access_scope: {access_scope!r}."
+                ) from None
+
+        if resolved_scope == DocumentAccessScope.INDIVIDUAL:
+
+            if team_id is not None:
+                raise InvalidAccessScopeError(
+                    "team_id must not be supplied for an INDIVIDUAL document."
+                )
+
+            return resolved_scope, None
+
+        if resolved_scope == DocumentAccessScope.TEAM:
+
+            if team_id is None:
+                raise InvalidAccessScopeError(
+                    "team_id is required for a TEAM document."
+                )
+
+            team = self.team_repository.get_by_id(team_id)
+
+            # Nonexistent team and cross-organisation team collapse into
+            # the same response -- see TeamNotFoundError's docstring --
+            # so a requester can never enumerate another organisation's
+            # teams by probing team_id values.
+            if team is None or team.organisation_id != access.organisation_id:
+                raise TeamNotFoundError()
+
+            membership = self.team_membership_repository.get_membership(
+                user_id=access.user_id,
+                team_id=team.id,
+            )
+
+            # Membership is checked regardless of TeamRole -- MEMBER and
+            # MANAGER both qualify; only *actual* membership matters.
+            if membership is None:
+                raise TeamMembershipRequiredError()
+
+            return resolved_scope, team.id
+
+        # resolved_scope == DocumentAccessScope.ORGANISATION
+
+        if team_id is not None:
+            raise InvalidAccessScopeError(
+                "team_id must not be supplied for an ORGANISATION document."
+            )
+
+        if access.role != OrgRole.ADMIN:
+            raise OrganisationScopeForbiddenError()
+
+        return resolved_scope, None
 
     def get_documents(
         self,

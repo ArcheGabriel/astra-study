@@ -50,6 +50,7 @@ from app.models.team_membership import TeamMembership
 from app.models.user import User
 from app.repositories.document import DocumentRepository
 from app.repositories.user import UserRepository
+from app.retrieval.access import AccessContext
 from app.schemas.user import UserCreate
 from app.services.document import DocumentService
 from app.services.user import DEFAULT_ORGANISATION_SLUG, UserService
@@ -358,11 +359,21 @@ def test_document_upload_receives_uploaders_organisation_id(db):
     service = DocumentService(
         document_repository=DocumentRepository(db),
         storage_service=FakeStorageService(),
-        # upload_documents (the only method this test exercises) uses
-        # neither -- unaffected by RBAC-5D's read/delete authorization,
-        # which is what these two dependencies exist for.
+        # upload_documents (the only method this test exercises) creates
+        # only an INDIVIDUAL document (access_scope omitted) -- unaffected
+        # by RBAC-5D's read/delete authorization or RBAC-5E's TEAM/
+        # ORGANISATION creation checks, which is what these three
+        # dependencies exist for.
         team_membership_repository=MagicMock(),
         dense_repository=MagicMock(),
+        team_repository=MagicMock(),
+    )
+
+    access = AccessContext(
+        user_id=user.id,
+        organisation_id=user.organisation_id,
+        team_ids=(),
+        role=user.role,
     )
 
     # No pytest-asyncio/anyio plugin is configured for this project
@@ -373,7 +384,7 @@ def test_document_upload_receives_uploaders_organisation_id(db):
     uploaded = asyncio.run(
         service.upload_documents(
             files=[make_upload_file()],
-            current_user=user,
+            access=access,
         )
     )
 

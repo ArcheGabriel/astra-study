@@ -180,6 +180,10 @@ def make_document_service(db) -> DocumentService:
         storage_service=MagicMock(delete_file=AsyncMock()),
         team_membership_repository=TeamMembershipRepository(db),
         dense_repository=MagicMock(),
+        # This file exercises read/delete only (RBAC-5D) -- never
+        # upload_documents/_can_create (RBAC-5E) -- so a MagicMock is
+        # sufficient; it is never called.
+        team_repository=MagicMock(),
     )
 
 
@@ -539,6 +543,7 @@ def test_delete_authorization_happens_before_any_destructive_call(db):
         storage_service=storage_service,
         team_membership_repository=TeamMembershipRepository(db),
         dense_repository=dense_repository,
+        team_repository=MagicMock(),
     )
 
     with pytest.raises(DocumentNotFoundError):
@@ -569,6 +574,7 @@ def test_qdrant_delete_failure_aborts_before_file_and_sql_deletion(db):
         storage_service=storage_service,
         team_membership_repository=TeamMembershipRepository(db),
         dense_repository=dense_repository,
+        team_repository=MagicMock(),
     )
 
     with pytest.raises(RuntimeError, match="Qdrant is unreachable"):
@@ -607,6 +613,7 @@ def test_download_document_authorized_team_document_succeeds(db):
         storage_service=storage_service,
         team_membership_repository=TeamMembershipRepository(db),
         dense_repository=MagicMock(),
+        team_repository=MagicMock(),
     )
 
     file_path, filename = service.download_document(
@@ -630,6 +637,7 @@ def test_download_document_unauthorized_raises_not_found(db):
         storage_service=storage_service,
         team_membership_repository=TeamMembershipRepository(db),
         dense_repository=MagicMock(),
+        team_repository=MagicMock(),
     )
 
     with pytest.raises(DocumentNotFoundError):

@@ -12,7 +12,7 @@ migration and evaluation harness:
 - `frontend/` – Streamlit workspace UI that talks to the backend over HTTP/SSE
 - `evaluation/` – LangSmith dataset sync + experiment runner; `chunking_report.py` offline
   structural evaluator + `artifacts/`
-- `scripts/` – operational one-offs (`reingest_document.py`)
+- `scripts/` – operational one-offs (`reingest_document.py`, `grant_admin.py`)
 - `alembic/` – database migrations
 
 Package/dependency manager is **uv**. Python 3.11–3.13.
@@ -38,11 +38,15 @@ uv run pytest tests/unit/test_provenance.py::test_pdf_page_and_bbox_provenance -
 uv run pytest tests/unit/test_conversation_memory.py -q   # rolling-summary / recent-window spec
 uv run pytest tests/unit/test_qdrant_isolation.py -q      # offline regression for the test-collection guard
 uv run pytest tests/unit/test_access_context.py tests/unit/test_rbac_5b_propagation.py -q   # AccessContext + retrieval-threading spec
+uv run pytest tests/unit/test_rbac_5c_authorization_filter.py tests/unit/test_rbac_5c_payload.py tests/unit/test_rbac_5c_evaluation_access.py -q   # Qdrant retrieval authorization filter + payload spec
+uv run pytest tests/unit/test_rbac_5d_document_authorization.py -q   # document list/get/download/delete authorization spec
 
 uv run pytest tests/integration/test_hybrid_pipeline.py -q   # one integration file: live Qdrant+OpenAI+Docling, minutes per file, isolated to astra_study_test
 
 uv run python -m evaluation.runner                  # run LangSmith evaluation experiment
 uv run python -m evaluation.chunking_report analyze --blocks <blocks.json> --out <report.json>   # offline chunk structural report
+
+uv run python -m scripts.grant_admin --email user@example.com   # promote an existing user to OrgRole.ADMIN
 ```
 
 Frontend API base URL is overridable with `ASTRA_API_URL`.
@@ -187,11 +191,13 @@ from OpenAI, and derives citations.
 `RetrievalService.retrieve` / `__call__` (and `BaseRetrievalService`) are **keyword-only and
 tenant-scoped**: `retrieve(*, query: str, access: AccessContext)`. `AccessContext` (see
 "Authorization (RBAC)" below) is threaded unmodified through `AIPipeline → RetrievalService →
-HybridService → DenseRepository.hybrid_search`, which still filters Qdrant only on
-`access.user_id` (plus `is_reference=False` / `is_appendix=False`) — organisation/team/role-based
-visibility is not yet implemented (see below). An empty result (no hybrid hits, or everything
-filtered out in reranking) returns an empty `RetrievalResult` — it does **not** raise
-(`NoRetrievalResultsError` exists but is unused).
+HybridService → DenseRepository.hybrid_search`, which builds its Qdrant filter from the full
+`AccessContext` (own INDIVIDUAL documents, TEAM documents for teams the requester belongs to, and
+— ADMIN only — ORGANISATION documents in their organisation; see
+`DenseRepository._authorization_filter` under "Authorization (RBAC)"), combined via AND with the
+existing `is_reference=False` / `is_appendix=False` structural filter. An empty result (no hybrid
+hits, or everything filtered out in reranking) returns an empty `RetrievalResult` — it does **not**
+raise (`NoRetrievalResultsError` exists but is unused).
 
 `app/ai/` is the orchestration layer (query rewriting, title/summary generation, the
 conversation `AIPipeline`); `app/generation/` is the narrower "build prompt → call LLM →
@@ -272,15 +278,16 @@ lean on `heading_path`/`section` and `sheet_name` instead.
 
 Treated as frozen unless a change is explicitly required and backed by a failing test: the
 chunking pipeline (see its contract above), retrieval ranking, citation scoring, the Qdrant
-payload schema / mappers, `BlockProvenance`, the `uuid5` ID strategy, `ChunkPipeline` stage
-ordering, the SSE streaming protocol, and the Streamlit layout. Citation-precision work is
-deterministic (no LLM in the citation path).
+payload schema / mappers, `DenseRepository._authorization_filter`, `AccessContext`'s structure,
+`BlockProvenance`, the `uuid5` ID strategy, `ChunkPipeline` stage ordering, the SSE streaming
+protocol, and the Streamlit layout. Citation-precision work is deterministic (no LLM in the
+citation path).
 
 ### Authorization (RBAC)
 
-The relational schema and `AccessContext` identity threading are in place; Qdrant document
-visibility is still user-only (see below) — treat this as a mid-migration state, not a finished
-feature.
+The relational schema, `AccessContext` identity threading, Qdrant retrieval-visibility filtering,
+and the document-management API's read/delete authorization are all in place and enforced. Upload
+is the one path RBAC deliberately hasn't touched (see below).
 
 - **Org/team model** (`app/models/organisation.py`, `team.py`, `team_membership.py`): every
   `User` belongs to exactly one `Organisation` (`User.organisation_id`, NOT NULL) with an
@@ -292,26 +299,63 @@ feature.
 - **Document access scope** (`app/models/document.py`): `organisation_id`, optional `team_id`,
   and `access_scope` (`DocumentAccessScope` in `app/enums/document.py`: `INDIVIDUAL` / `TEAM` /
   `ORGANISATION`) are separate, deliberately-orthogonal concepts from role — access scope is a
-  property of the document, never derived from the requester's role.
+  property of the document, never derived from the requester's role. Uploads are always created
+  INDIVIDUAL-scoped, owned by the uploader — there is no upload-time scope/team-selection API yet
+  (`DocumentService.upload_documents` is unchanged by RBAC); an ADMIN/MANAGER wanting a TEAM or
+  ORGANISATION document currently sets `access_scope`/`team_id` outside the API.
 - **Migration**: `alembic/versions/116ced32c143_rbac_organisation_team_foundation.py` seeds one
   `Organisation` (slug `"default"`, looked up by slug — never a hardcoded id — in
   `UserService._get_default_organisation`) and adds the columns above via the SQLite-safe
   add-nullable → backfill → tighten-to-NOT-NULL `batch_alter_table` pattern (this project's dev
-  DB is SQLite — see "Persistence").
+  DB is SQLite — see "Persistence"). `scripts/grant_admin.py --email <email>` promotes an
+  *existing* user to `OrgRole.ADMIN` (never creates a user, never touches org membership, no
+  hardcoded email) — the only bootstrap path to a first ADMIN.
 - **`AccessContext`** (`app/retrieval/access.py`) is the single trusted, request-scoped
   authorization identity: a frozen/slotted dataclass of `user_id`, `organisation_id`,
   `team_ids: tuple[int, ...]` (canonical sorted/deduped, never a wildcard-empty list), and `role`.
-  It has no methods (no `can_read`, no `is_admin`) — it is a value object, not a policy.
-  `app/dependencies/access.py::get_access_context` builds it from `current_user` (itself resolved
-  from the JWT by `get_current_user`) plus a fresh `TeamMembershipRepository` lookup — never from
-  JWT claims or any client-supplied field.
-- **Current retrieval boundary**: `AccessContext` is threaded through the full chat path
+  It has no methods (no `can_read`, no `is_admin`) — it is a value object, not a policy; it also
+  deliberately carries no per-team `TeamRole` (a flat set of team ids, not a role map) — anything
+  that needs to know *which* role a user holds on a specific team (e.g. delete authorization,
+  below) does a targeted `TeamMembershipRepository.get_membership(user_id=, team_id=)` lookup
+  instead. `app/dependencies/access.py::get_access_context` builds it from `current_user` (itself
+  resolved from the JWT by `get_current_user`) plus a fresh `TeamMembershipRepository` lookup —
+  never from JWT claims or any client-supplied field.
+- **Retrieval visibility (chat/RAG path)**: `AccessContext` is threaded through the full chat path
   (`app/api/v1/message.py` → `ConversationService` → `AIPipeline` → `RetrievalService` →
-  `HybridService` → `DenseRepository.hybrid_search`), but the Qdrant filter still only reads
-  `access.user_id` — organisation/team/`access_scope`/role-based document visibility has **not**
-  been implemented yet. `current_user` (not `access`) remains the sole input to chat-ownership
-  checks (`ConversationService._validate_chat`) and document/message authorship — do not conflate
-  the two identities.
+  `HybridService` → `DenseRepository.hybrid_search`), and `DenseRepository._authorization_filter`
+  builds the actual Qdrant filter: AND of the structural conditions
+  (`is_reference=False`/`is_appendix=False`) with the OR of every scope branch the requester
+  qualifies for — INDIVIDUAL (own, plus legacy `schema_version=2` points grandfathered in to their
+  owner only via `IsEmptyCondition` on the missing `access_scope` field, never relaxed further),
+  TEAM (only built when `access.team_ids` is non-empty; same organisation *and* team membership),
+  ORGANISATION (only built when `access.role == OrgRole.ADMIN`; `role` is a Python-level decision
+  about which branch exists, never a condition evaluated inside Qdrant itself). This filter and
+  the Qdrant payload schema it depends on (`schema_version`, `access_scope`, `organisation_id`,
+  `team_id`, `document_id`, written by `HybridMapper.build_payload`) are treated as frozen — see
+  "Treated as frozen" below.
+- **Document-management API (list/get/download/delete)**: `app/api/v1/document.py`'s
+  `GET /documents`, `GET /documents/{id}`, `GET /documents/{id}/download`, and
+  `DELETE /documents/{id}` all take `access: AccessContext` (not `current_user`) and delegate to
+  `DocumentService`, which delegates read visibility to
+  `DocumentRepository.get_visible` / `get_by_id_visible` — the SQL-level mirror of
+  `DenseRepository._authorization_filter`'s branch logic (`_visibility_conditions`), kept in one
+  place so list/get/download can never authorize inconsistently with each other. An unauthorized
+  or nonexistent document is indistinguishable (`DocumentNotFoundError`/404 either way — no
+  enumeration signal). Delete authorization (`DocumentService._can_delete`) is *stricter* than
+  read visibility: owner always; a TEAM document additionally by a `TeamRole.MANAGER` of that
+  specific team (never a plain member, resolved via the targeted membership lookup above, never
+  from `AccessContext.team_ids` alone); an ORGANISATION document additionally by an `OrgRole.ADMIN`
+  of the same organisation; cross-organisation access is always denied first. Deletion order is
+  deliberate and not a distributed transaction: `DenseRepository.delete_by_document_id` (Qdrant)
+  → `storage_service.delete_file` → SQL row delete — if the Qdrant step fails the exception
+  propagates and nothing else is touched, so a failed delete never reproduces the pre-RBAC-5D bug
+  (SQL/file gone, Qdrant vectors orphaned forever). `delete_by_document_id` filters on the real SQL
+  `Document.id` (written into the payload only by `HybridMapper.build_payload`, always paired with
+  `schema_version=3`), which makes it structurally incapable of matching a legacy
+  `schema_version=2` point — no separate schema-version heuristic needed.
+- `current_user` (not `access`) remains the sole input to chat-ownership checks
+  (`ConversationService._validate_chat`) and document/message authorship — do not conflate the two
+  identities.
 
 ### Streaming protocol
 
