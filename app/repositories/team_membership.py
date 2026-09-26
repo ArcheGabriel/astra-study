@@ -1,5 +1,5 @@
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.models.team_membership import TeamMembership
 from app.repositories.base import BaseRepository
@@ -62,3 +62,30 @@ class TeamMembershipRepository(BaseRepository[TeamMembership]):
         result = self.db.execute(statement)
 
         return result.scalar_one_or_none()
+
+    def get_memberships_with_team_by_user_id(
+        self,
+        user_id: int,
+    ) -> list[TeamMembership]:
+        """
+        Return every TeamMembership row for a user, with its Team eagerly
+        loaded in the same query (``joinedload``) -- avoids one lazy-load
+        query per membership when a caller needs ``team_id``/team name/
+        ``role`` together (e.g. the ``GET /users/me`` profile).
+
+        Ordered by ``team_id`` ascending for a deterministic response --
+        ``team_id`` is unique per user (``TeamMembership``'s own
+        ``UniqueConstraint`` on ``(user_id, team_id)``), so this order
+        never depends on insertion order or string collation.
+        """
+
+        statement = (
+            select(TeamMembership)
+            .where(TeamMembership.user_id == user_id)
+            .options(joinedload(TeamMembership.team))
+            .order_by(TeamMembership.team_id)
+        )
+
+        result = self.db.execute(statement)
+
+        return list(result.scalars().unique().all())

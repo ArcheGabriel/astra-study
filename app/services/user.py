@@ -5,8 +5,9 @@ from app.exceptions.user import EmailAlreadyExistsError
 
 from app.models.organisation import Organisation
 from app.models.user import User
+from app.repositories.team_membership import TeamMembershipRepository
 from app.repositories.user import UserRepository
-from app.schemas.user import UserCreate
+from app.schemas.user import TeamMembershipResponse, UserCreate, UserProfileResponse
 from app.core.security import security
 
 # Every newly registered user is attached to the single organisation seeded
@@ -26,8 +27,10 @@ class UserService:
     def __init__(
         self,
         user_repository: UserRepository,
+        team_membership_repository: TeamMembershipRepository,
     ):
         self.user_repository = user_repository
+        self.team_membership_repository = team_membership_repository
 
     def register(
         self,
@@ -97,3 +100,42 @@ class UserService:
             )
 
         return organisation
+
+    def get_profile(
+        self,
+        user: User,
+    ) -> UserProfileResponse:
+        """
+        Build the ``GET /users/me`` response for an already-authenticated
+        user.
+
+        ``organisation_id``/``role`` come directly from ``user`` (already
+        loaded, no extra query); team memberships come from a single
+        eager-loaded repository query. Never uses ``AccessContext`` --
+        that value object deliberately carries no team name/per-team
+        ``TeamRole``, and ``organisation_id``/``role`` are already on
+        ``user`` -- so it would add a second, heavier identity-resolution
+        path for values already in hand.
+        """
+
+        memberships = (
+            self.team_membership_repository.get_memberships_with_team_by_user_id(
+                user.id,
+            )
+        )
+
+        return UserProfileResponse(
+            id=user.id,
+            username=user.username,
+            email=user.email,
+            organisation_id=user.organisation_id,
+            role=user.role,
+            teams=[
+                TeamMembershipResponse(
+                    team_id=membership.team_id,
+                    team_name=membership.team.name,
+                    role=membership.role,
+                )
+                for membership in memberships
+            ],
+        )

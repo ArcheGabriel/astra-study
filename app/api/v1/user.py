@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends
 
 from app.dependencies.auth import get_current_user
+from app.dependencies.services import get_user_service
 from app.models.user import User
-from app.schemas.user import UserResponse
+from app.schemas.user import UserProfileResponse
+from app.services.user import UserService
 
 router = APIRouter(
     prefix="/users",
@@ -12,13 +14,15 @@ router = APIRouter(
 
 @router.get(
     "/me",
-    response_model=UserResponse,
+    response_model=UserProfileResponse,
 )
 def get_current_user_profile(
     current_user: User = Depends(get_current_user),
-) -> UserResponse:
+    user_service: UserService = Depends(get_user_service),
+) -> UserProfileResponse:
     """
-    Return the currently authenticated user's profile.
+    Return the currently authenticated user's profile, including their
+    organisation role and team memberships.
     """
 
-    return UserResponse.model_validate(current_user)
+    return user_service.get_profile(current_user)

@@ -40,6 +40,9 @@ uv run pytest tests/unit/test_qdrant_isolation.py -q      # offline regression f
 uv run pytest tests/unit/test_access_context.py tests/unit/test_rbac_5b_propagation.py -q   # AccessContext + retrieval-threading spec
 uv run pytest tests/unit/test_rbac_5c_authorization_filter.py tests/unit/test_rbac_5c_payload.py tests/unit/test_rbac_5c_evaluation_access.py -q   # Qdrant retrieval authorization filter + payload spec
 uv run pytest tests/unit/test_rbac_5d_document_authorization.py -q   # document list/get/download/delete authorization spec
+uv run pytest tests/unit/test_rbac_5e_document_creation_authorization.py -q   # document upload (INDIVIDUAL/TEAM/ORGANISATION) creation authorization spec
+uv run pytest tests/unit/test_rbac_5f_reingest_metadata.py -q   # scripts/reingest_document.py RBAC metadata sourcing spec
+uv run pytest tests/unit/test_rbac_5g_whoami.py -q   # GET /users/me RBAC context (organisation role + team memberships) spec
 
 uv run pytest tests/integration/test_hybrid_pipeline.py -q   # one integration file: live Qdrant+OpenAI+Docling, minutes per file, isolated to astra_study_test
 
@@ -291,8 +294,7 @@ citation path).
 ### Authorization (RBAC)
 
 The relational schema, `AccessContext` identity threading, Qdrant retrieval-visibility filtering,
-and the document-management API's read/delete authorization are all in place and enforced. Upload
-is the one path RBAC deliberately hasn't touched (see below).
+and the document-management API's create/read/delete authorization are all in place and enforced.
 
 - **Org/team model** (`app/models/organisation.py`, `team.py`, `team_membership.py`): every
   `User` belongs to exactly one `Organisation` (`User.organisation_id`, NOT NULL) with an
@@ -300,14 +302,29 @@ is the one path RBAC deliberately hasn't touched (see below).
   belongs to one `Organisation`; `TeamMembership` (unique on `(user_id, team_id)`) carries its
   own per-membership `TeamRole` (`app/enums/team.py`: `MEMBER` / `MANAGER`) — a user can be a
   `MANAGER` of one team and a plain `MEMBER` of another. `OrgRole`/`TeamRole` govern *capabilities*
-  (who may create an org-scoped document, manage teams/roles), never document visibility directly.
+  (document creation/deletion, below), never document visibility directly. There is no team/org
+  *management* API (creating a team, adding a member) — `TeamMembership` rows only exist via
+  direct DB access or a migration; `app/repositories/team.py::TeamRepository` is deliberately
+  minimal (`get_by_id` only, inherited from `BaseRepository`).
 - **Document access scope** (`app/models/document.py`): `organisation_id`, optional `team_id`,
   and `access_scope` (`DocumentAccessScope` in `app/enums/document.py`: `INDIVIDUAL` / `TEAM` /
   `ORGANISATION`) are separate, deliberately-orthogonal concepts from role — access scope is a
-  property of the document, never derived from the requester's role. Uploads are always created
-  INDIVIDUAL-scoped, owned by the uploader — there is no upload-time scope/team-selection API yet
-  (`DocumentService.upload_documents` is unchanged by RBAC); an ADMIN/MANAGER wanting a TEAM or
-  ORGANISATION document currently sets `access_scope`/`team_id` outside the API.
+  property of the document, never derived from the requester's role. `POST /documents/upload`
+  accepts optional `access_scope`/`team_id` multipart form fields alongside `files`; omitted
+  entirely (every pre-RBAC-5E client), they default to `INDIVIDUAL`/`None`, identical to legacy
+  behavior. `DocumentService._can_create` authorizes the requested scope *before* any file is
+  validated or stored — INDIVIDUAL: any authenticated user; TEAM: the requester must be an actual
+  `TeamMembership` member of a `team_id` that belongs to their own organisation (**any** `OrgRole`
+  or `TeamRole` qualifies — TEAM creation is a membership check, not a role check, and
+  `TeamRole.MANAGER` is *not* required, unlike TEAM deletion below); ORGANISATION:
+  `OrgRole.ADMIN` only. `organisation_id` is never accepted from the client in any branch — always
+  `access.organisation_id`. A nonexistent `team_id` and a `team_id` belonging to a different
+  organisation are deliberately indistinguishable (both raise `TeamNotFoundError`, 404) so a
+  requester can never enumerate another organisation's teams; being an authenticated non-member of
+  a team that *does* exist in their own org raises `TeamMembershipRequiredError` (403); a non-ADMIN
+  requesting ORGANISATION raises `OrganisationScopeForbiddenError` (403); a malformed scope/team_id
+  combination (e.g. `TEAM` with no `team_id`, `INDIVIDUAL`/`ORGANISATION` with one supplied) raises
+  `InvalidAccessScopeError` (400) — all four in `app/exceptions/document.py`.
 - **Migration**: `alembic/versions/116ced32c143_rbac_organisation_team_foundation.py` seeds one
   `Organisation` (slug `"default"`, looked up by slug — never a hardcoded id — in
   `UserService._get_default_organisation`) and adds the columns above via the SQLite-safe
@@ -338,10 +355,10 @@ is the one path RBAC deliberately hasn't touched (see below).
   the Qdrant payload schema it depends on (`schema_version`, `access_scope`, `organisation_id`,
   `team_id`, `document_id`, written by `HybridMapper.build_payload`) are treated as frozen — see
   "Treated as frozen" below.
-- **Document-management API (list/get/download/delete)**: `app/api/v1/document.py`'s
-  `GET /documents`, `GET /documents/{id}`, `GET /documents/{id}/download`, and
-  `DELETE /documents/{id}` all take `access: AccessContext` (not `current_user`) and delegate to
-  `DocumentService`, which delegates read visibility to
+- **Document-management API (upload/list/get/download/delete)**: every route in
+  `app/api/v1/document.py`, including `POST /documents/upload`, takes `access: AccessContext`
+  (not `current_user`) and delegates to `DocumentService`. `GET /documents`,
+  `GET /documents/{id}`, `GET /documents/{id}/download` delegate read visibility to
   `DocumentRepository.get_visible` / `get_by_id_visible` — the SQL-level mirror of
   `DenseRepository._authorization_filter`'s branch logic (`_visibility_conditions`), kept in one
   place so list/get/download can never authorize inconsistently with each other. An unauthorized
@@ -358,9 +375,36 @@ is the one path RBAC deliberately hasn't touched (see below).
   `Document.id` (written into the payload only by `HybridMapper.build_payload`, always paired with
   `schema_version=3`), which makes it structurally incapable of matching a legacy
   `schema_version=2` point — no separate schema-version heuristic needed.
+  `scripts/reingest_document.py` (see its bullet above) uses the same `document_id`-sourcing
+  discipline for manual re-indexing, so a reingested document remains deletable the same way.
+- `evaluation/service.py::EvaluationService._resolve_access` builds a real, database-backed
+  `AccessContext` for `settings.EVALUATION_USER_ID` (actual `organisation_id`/`role`/team
+  memberships, via a short-lived `SessionLocal()` session) — distinct from `tests/integration/*`'s
+  own hardcoded `_ACCESS` fixtures (see "Qdrant test isolation" above), which still use
+  `organisation_id=settings.EVALUATION_USER_ID` as an explicit placeholder, not real data.
 - `current_user` (not `access`) remains the sole input to chat-ownership checks
   (`ConversationService._validate_chat`) and document/message authorship — do not conflate the two
   identities.
+- **Who-am-I / RBAC context exposure (`GET /users/me`)**: returns `UserProfileResponse`
+  (`app/schemas/user.py`) — `id`/`username`/`email` plus `organisation_id`, `role` (`OrgRole`), and
+  `teams: list[TeamMembershipResponse]` (`team_id`/`team_name`/`role` per membership, ordered by
+  `team_id` ascending via `TeamMembershipRepository.get_memberships_with_team_by_user_id`'s
+  `joinedload`). `UserService.get_profile` builds this from `current_user` directly
+  (`organisation_id`/`role` need no extra query) plus that one repository call — it deliberately
+  does **not** use `AccessContext`, which carries no team name or per-team `TeamRole` and would add
+  a second, heavier identity path for values already in hand. `UserProfileResponse` is a separate
+  schema from `UserResponse`/`TokenResponse`, which remain completely unchanged (still returned
+  as-is by `POST /auth/register`/`POST /auth/login`/`POST /auth/token`) — extending `UserResponse`
+  directly would have leaked this profile into those three responses and broken their existing
+  `UserResponse.model_validate(user)` calls, since `User` has no `teams` attribute (only the lazy,
+  name-less `team_memberships` relationship). The frontend mirrors this: `frontend/models/user.py`'s
+  `User` dataclass carries the same optional `organisation_id`/`role`/`teams` fields (defaulted, so
+  the slim login-response shape still parses). `frontend/ui/login.py` fetches
+  `AuthService.get_current_user_profile()` **before** writing anything to session state: only if
+  that call succeeds are `st.session_state.token` and `st.session_state.current_user` set together
+  (replacing `token.user` with the richer profile) — if it raises, neither is set, so a login that
+  succeeds but whose follow-up `/users/me` call fails can never leave the session authenticated
+  (`frontend/app.py` gates the workspace on `token`) with `current_user` still `None`.
 
 ### Streaming protocol
 
@@ -413,7 +457,8 @@ LangSmith tracing is pervasive via `@traceable` decorators on service/pipeline m
   `HF_HUB_DISABLE_SYMLINKS` before importing Docling, so first-run HuggingFace model downloads
   work without Developer Mode.
 - Unit tests fake Docling and the ML models; do not add tests that require downloading models.
-- `tests/unit` should be fully green. A single `langsmith` deprecation warning is expected.
+- `tests/unit` should be fully green. Two deprecation warnings are expected (`langsmith`'s
+  `_openai_agents` module move, and stdlib `ast.Str` from a LangSmith dependency).
   Anything under `tests/integration` needs live services (Qdrant, OpenAI, downloaded models),
   takes minutes per file, and is not part of a normal check; it is isolated from the production
   Qdrant collection by `tests/conftest.py` (see "Qdrant test isolation"). Integration runs also

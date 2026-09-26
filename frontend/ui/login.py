@@ -108,12 +108,23 @@ def login_screen() -> None:
                         token.access_token,
                     )
 
+                    # token.user only carries id/username/email -- fetch
+                    # the richer GET /users/me profile (organisation_id,
+                    # role, team memberships) before committing anything
+                    # to session state. If this call fails, nothing below
+                    # runs, so st.session_state.token/current_user are
+                    # never set: the session is authenticated atomically
+                    # (login succeeds AND /users/me succeeds) or not at
+                    # all -- never left with a valid token and
+                    # current_user=None.
+                    profile = auth_service.get_current_user_profile()
+
                     st.session_state.token = (
                         token.access_token
                     )
 
                     st.session_state.current_user = (
-                        token.user
+                        profile
                     )
 
                     _load_workspace(

@@ -42,8 +42,11 @@ def get_user_service(
 
     user_repository = UserRepository(db)
 
+    team_membership_repository = TeamMembershipRepository(db)
+
     return UserService(
         user_repository=user_repository,
+        team_membership_repository=team_membership_repository,
     )
 
 

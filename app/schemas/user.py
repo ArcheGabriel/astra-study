@@ -1,5 +1,8 @@
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
+from app.enums.organisation import OrgRole
+from app.enums.team import TeamRole
+
 
 class UserCreate(BaseModel):
     """
@@ -31,6 +34,46 @@ class UserResponse(BaseModel):
     id: int
     username: str
     email: EmailStr
+
+    model_config = ConfigDict(
+        from_attributes=True,
+        extra="forbid",
+    )
+
+
+class TeamMembershipResponse(BaseModel):
+    """
+    One of the requester's team memberships, as returned by
+    ``GET /users/me``.
+    """
+
+    team_id: int
+    team_name: str
+    role: TeamRole
+
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+
+
+class UserProfileResponse(UserResponse):
+    """
+    ``GET /users/me`` response only -- extends ``UserResponse`` with RBAC
+    context (organisation role and team memberships).
+
+    Deliberately kept as its own schema, never merged into ``UserResponse``
+    itself: ``UserResponse`` is also the exact type ``POST /auth/register``
+    returns and that ``TokenResponse.user`` embeds for
+    ``POST /auth/login``/``POST /auth/token`` -- extending it in place
+    would leak this profile data into those three responses and would
+    break their existing ``UserResponse.model_validate(user)`` calls,
+    since ``User`` has no ``teams`` attribute (only the lazy
+    ``team_memberships`` relationship, which carries no team name).
+    """
+
+    organisation_id: int
+    role: OrgRole
+    teams: list[TeamMembershipResponse]
 
     model_config = ConfigDict(
         from_attributes=True,
