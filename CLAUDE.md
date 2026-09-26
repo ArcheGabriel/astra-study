@@ -43,6 +43,7 @@ uv run pytest tests/unit/test_rbac_5d_document_authorization.py -q   # document 
 uv run pytest tests/unit/test_rbac_5e_document_creation_authorization.py -q   # document upload (INDIVIDUAL/TEAM/ORGANISATION) creation authorization spec
 uv run pytest tests/unit/test_rbac_5f_reingest_metadata.py -q   # scripts/reingest_document.py RBAC metadata sourcing spec
 uv run pytest tests/unit/test_rbac_5g_whoami.py -q   # GET /users/me RBAC context (organisation role + team memberships) spec
+uv run pytest tests/unit/test_rbac_5h_team_creation_and_listing.py -q   # team creation (ADMIN/MANAGER) + organisation-scoped listing spec
 
 uv run pytest tests/integration/test_hybrid_pipeline.py -q   # one integration file: live Qdrant+OpenAI+Docling, minutes per file, isolated to astra_study_test
 
@@ -405,6 +406,23 @@ and the document-management API's create/read/delete authorization are all in pl
   (replacing `token.user` with the richer profile) — if it raises, neither is set, so a login that
   succeeds but whose follow-up `/users/me` call fails can never leave the session authenticated
   (`frontend/app.py` gates the workspace on `token`) with `current_user` still `None`.
+- **Team creation & organisation-scoped listing (`POST /teams`, `GET /teams`)**: `TeamService.create_team`
+  requires `access.role` to be `OrgRole.ADMIN` or `OrgRole.MANAGER` (`OrgRole.MEMBER` rejected before
+  any database read, matching `_can_create`'s ordering); `organisation_id` always comes from
+  `AccessContext` (`TeamCreate` has no `organisation_id` field at all — structurally, not just
+  validation-wise, unsupplyable). `TeamRepository.create_with_initial_manager` persists the `Team`
+  and its creator's initial `TeamMembership` (`role=TeamRole.MANAGER`) in **one transaction**
+  (`add` → `flush` → `add` → `commit`, all inside one `try`/`except IntegrityError`) so a team can
+  never exist with zero managers, even under failure — this is the first place `OrgRole.MANAGER`
+  gains any defined behavior anywhere in this codebase. A duplicate `(organisation_id, name)` is
+  rejected pre-emptively (`get_by_organisation_and_name`) and, for the TOCTOU race between that
+  check and the commit, the commit-time `IntegrityError` is narrowly matched against the exact
+  SQLite message for this constraint (`"teams.organisation_id"` and `"teams.name"` both present)
+  and translated to `TeamNameAlreadyExistsError` — any other `IntegrityError` cause re-raises
+  unchanged. `TeamService.list_teams` returns every team in `access.organisation_id` ordered by
+  `id` ascending; membership is never a filter (listing does not imply membership). Member/role
+  management, team rename/delete, and organisation management are all explicitly deferred to later
+  milestones — see this stage's investigation and implementation-plan reports.
 
 ### Streaming protocol
 

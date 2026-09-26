@@ -20,6 +20,7 @@ from app.services.document import DocumentService
 from app.services.ingestion import IngestionService
 from app.services.llm import LLMService
 from app.services.message import MessageService
+from app.services.team import TeamService
 from app.services.user import UserService
 
 from app.storage.local import LocalStorageService
@@ -308,4 +309,19 @@ def get_ingestion_service(
     return IngestionService(
         document_repository=document_repository,
         storage_service=storage_service,
+    )
+
+
+# ----------------------------------------------------------------------
+# Team
+# ----------------------------------------------------------------------
+
+def get_team_service(
+    db: Annotated[Session, Depends(get_db)],
+) -> TeamService:
+
+    team_repository = TeamRepository(db)
+
+    return TeamService(
+        team_repository=team_repository,
     )
