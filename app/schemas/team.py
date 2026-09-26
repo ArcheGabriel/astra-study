@@ -1,5 +1,7 @@
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from app.enums.team import TeamRole
+
 
 class TeamCreate(BaseModel):
     """
@@ -47,6 +49,49 @@ class TeamResponse(BaseModel):
     organisation_id: int
 
     name: str
+
+    model_config = ConfigDict(
+        from_attributes=True,
+        extra="forbid",
+    )
+
+
+class AddTeamMemberRequest(BaseModel):
+    """
+    Schema used to add an existing user to a team.
+
+    Deliberately has no ``role`` field -- a newly added member always
+    starts as ``TeamRole.MEMBER`` (see ``TeamMembershipRepository.add_membership``);
+    promotion to ``TeamRole.MANAGER`` is a separate, explicit operation.
+    No ``team_id``/``organisation_id`` field either -- ``team_id`` comes
+    from the URL path and ``organisation_id`` is never client-supplied
+    anywhere in this API, matching ``TeamCreate``'s existing precedent.
+    """
+
+    user_id: int
+
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+
+
+class TeamMemberResponse(BaseModel):
+    """
+    Schema returned for one team membership after a direct
+    membership-management operation (add/promote).
+
+    Deliberately a distinct class from
+    ``app.schemas.user.TeamMembershipResponse`` (the ``GET /users/me``
+    shape, which carries ``team_name`` and no ``user_id``) -- this one
+    is keyed the other way, by ``user_id`` within one ``team_id``, and
+    carries no team name.
+    """
+
+    user_id: int
+
+    team_id: int
+
+    role: TeamRole
 
     model_config = ConfigDict(
         from_attributes=True,

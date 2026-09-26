@@ -44,6 +44,7 @@ uv run pytest tests/unit/test_rbac_5e_document_creation_authorization.py -q   # 
 uv run pytest tests/unit/test_rbac_5f_reingest_metadata.py -q   # scripts/reingest_document.py RBAC metadata sourcing spec
 uv run pytest tests/unit/test_rbac_5g_whoami.py -q   # GET /users/me RBAC context (organisation role + team memberships) spec
 uv run pytest tests/unit/test_rbac_5h_team_creation_and_listing.py -q   # team creation (ADMIN/MANAGER) + organisation-scoped listing spec
+uv run pytest tests/unit/test_rbac_5i_team_membership_management.py -q   # direct team membership management (add/remove/promote, last-manager invariant) spec
 
 uv run pytest tests/integration/test_hybrid_pipeline.py -q   # one integration file: live Qdrant+OpenAI+Docling, minutes per file, isolated to astra_study_test
 
@@ -303,10 +304,12 @@ and the document-management API's create/read/delete authorization are all in pl
   belongs to one `Organisation`; `TeamMembership` (unique on `(user_id, team_id)`) carries its
   own per-membership `TeamRole` (`app/enums/team.py`: `MEMBER` / `MANAGER`) — a user can be a
   `MANAGER` of one team and a plain `MEMBER` of another. `OrgRole`/`TeamRole` govern *capabilities*
-  (document creation/deletion, below), never document visibility directly. There is no team/org
-  *management* API (creating a team, adding a member) — `TeamMembership` rows only exist via
-  direct DB access or a migration; `app/repositories/team.py::TeamRepository` is deliberately
-  minimal (`get_by_id` only, inherited from `BaseRepository`).
+  (document creation/deletion, below), never document visibility directly. Team creation/listing
+  (RBAC-5H) and direct team-membership management (RBAC-5I, below) exist; there is still no
+  broader organisation-*management* API (creating an organisation, changing a user's `OrgRole`) —
+  `app/repositories/team.py::TeamRepository` remains deliberately minimal beyond what team
+  creation/listing needs (`get_by_id` inherited from `BaseRepository`, plus its own
+  name-lookup/atomic-create methods below).
 - **Document access scope** (`app/models/document.py`): `organisation_id`, optional `team_id`,
   and `access_scope` (`DocumentAccessScope` in `app/enums/document.py`: `INDIVIDUAL` / `TEAM` /
   `ORGANISATION`) are separate, deliberately-orthogonal concepts from role — access scope is a
@@ -423,6 +426,38 @@ and the document-management API's create/read/delete authorization are all in pl
   `id` ascending; membership is never a filter (listing does not imply membership). Member/role
   management, team rename/delete, and organisation management are all explicitly deferred to later
   milestones — see this stage's investigation and implementation-plan reports.
+- **Direct team membership management (`POST/DELETE /teams/{team_id}/members`,
+  `POST /teams/{team_id}/members/{user_id}/promote`)**: `TeamMembershipService` (a class distinct
+  from `TeamService` — different authorization model, per-team `TeamRole` rather than org-wide
+  `OrgRole`) implements exactly four operations: add a `TeamRole.MEMBER`, remove a member of either
+  role, promote `MEMBER → MANAGER`, and remove a `MANAGER` subject to the last-manager invariant.
+  **Only that specific team's own `TeamRole.MANAGER` may call any of the four** — resolved via a
+  targeted `TeamMembershipRepository.get_membership(user_id=access.user_id, team_id=team_id)`
+  lookup, never `AccessContext.team_ids` (which carries no per-team role). `OrgRole.ADMIN` and
+  `OrgRole.MANAGER` (without independently holding that team's `TeamRole.MANAGER`) both have **no**
+  direct membership-mutation authority — an ADMIN-initiated add is deferred to a future
+  membership-request/approval-workflow milestone, not built here. There is **no
+  `MANAGER → MEMBER` demotion operation anywhere** — a `TeamRole.MANAGER` only ever stops being one
+  by being removed from the team entirely (`TeamMembershipRepository.remove_membership`), never by
+  having its `role` rewritten; a team must always retain at least one manager. This last-manager
+  invariant is enforced by the **DELETE statement itself**, not by a prior `SELECT count(...)`: the
+  remaining-manager count is a correlated subquery embedded in the DELETE's own `WHERE` clause, so
+  SQLite evaluates "does another manager exist" and "remove this row" as one indivisible write —
+  closing a genuine race where two concurrent removals of two *different* managers on the same
+  two-manager team could otherwise both observe "one other manager remains" and both succeed,
+  leaving zero. `add_membership` similarly wraps its insert in the same `IntegrityError`-translation
+  pattern as `TeamRepository.create_with_initial_manager` (pre-check, then guard the commit itself
+  against the TOCTOU race). Both concurrency properties have permanent, repository-tracked
+  regression tests using a real file-backed SQLite database, independent sessions, real OS threads,
+  and a `threading.Barrier` (`tests/unit/test_rbac_5i_team_membership_management.py`) — not just
+  sequential test calls. Team/target-user organisation checks (`TeamNotFoundError` /
+  `UserNotFoundError`, both collapsing "doesn't exist" and "wrong organisation" for
+  enumeration-safety, mirroring `TeamNotFoundError`'s existing precedent) run before authorization
+  is even reached for the team, and target-user resolution runs only *after* authorization succeeds
+  — an unauthorized actor never learns whether a given target user id exists. RBAC-5J
+  (organisation-manager team jurisdiction — a supervisory relationship distinct from
+  `TeamMembership`, not yet implemented anywhere in this codebase) remains future work; this stage
+  introduces no jurisdiction concept, model, or field.
 
 ### Streaming protocol
 

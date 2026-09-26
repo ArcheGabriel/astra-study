@@ -21,6 +21,7 @@ from app.services.ingestion import IngestionService
 from app.services.llm import LLMService
 from app.services.message import MessageService
 from app.services.team import TeamService
+from app.services.team_membership import TeamMembershipService
 from app.services.user import UserService
 
 from app.storage.local import LocalStorageService
@@ -324,4 +325,21 @@ def get_team_service(
 
     return TeamService(
         team_repository=team_repository,
+    )
+
+
+def get_team_membership_service(
+    db: Annotated[Session, Depends(get_db)],
+) -> TeamMembershipService:
+
+    team_membership_repository = TeamMembershipRepository(db)
+
+    team_repository = TeamRepository(db)
+
+    user_repository = UserRepository(db)
+
+    return TeamMembershipService(
+        team_membership_repository=team_membership_repository,
+        team_repository=team_repository,
+        user_repository=user_repository,
     )
