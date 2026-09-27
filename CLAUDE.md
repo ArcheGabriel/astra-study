@@ -50,6 +50,8 @@ uv run pytest tests/unit/test_rbac_5j_org_manager_jurisdiction.py -q   # Org Man
 uv run pytest tests/integration/test_hybrid_pipeline.py -q   # one integration file: live Qdrant+OpenAI+Docling, minutes per file, isolated to astra_study_test
 uv run pytest tests/integration/test_rbac_qdrant_authorization.py -q   # real Qdrant round-trip: full RBAC authorization matrix via DenseRepository.hybrid_search, isolated to astra_study_test, no OpenAI/Docling
 
+uv run pytest tests/frontend -v   # frontend RBAC logic: User/Team models, TeamService, access-scope validation, upload form-field wiring -- no Streamlit runtime, no backend/network
+
 uv run python -m evaluation.runner                  # run LangSmith evaluation experiment
 uv run python -m evaluation.chunking_report analyze --blocks <blocks.json> --out <report.json>   # offline chunk structural report
 
@@ -431,8 +433,9 @@ and the document-management API's create/read/delete authorization are all in pl
   directly would have leaked this profile into those three responses and broken their existing
   `UserResponse.model_validate(user)` calls, since `User` has no `teams` attribute (only the lazy,
   name-less `team_memberships` relationship). The frontend mirrors this: `frontend/models/user.py`'s
-  `User` dataclass carries the same optional `organisation_id`/`role`/`teams` fields (defaulted, so
-  the slim login-response shape still parses). `frontend/ui/login.py` fetches
+  `User` dataclass carries the same optional `organisation_id`/`role`/`teams`/`managed_teams` fields
+  (defaulted, so the slim login-response shape still parses -- see "Frontend" below).
+  `frontend/ui/login.py` fetches
   `AuthService.get_current_user_profile()` **before** writing anything to session state: only if
   that call succeeds are `st.session_state.token` and `st.session_state.current_user` set together
   (replacing `token.user` with the richer profile) — if it raises, neither is set, so a login that
@@ -547,6 +550,47 @@ parsing); `frontend/ui/*` are the view functions; `frontend/models/*` are respon
 cross-render state (JWT token, active chat, messages, citations, documents) lives in
 `st.session_state`, initialised in `frontend/ui/state.py`. Auth is a JWT bearer token obtained
 from `/api/v1/auth` and attached to every request.
+
+**Frontend RBAC (Phase A)** surfaces the backend RBAC context and lets a user pick a document's
+access scope on upload; it does not implement team/jurisdiction management UI (create/add
+member/promote/remove/grant jurisdiction all remain API-only).
+
+- `frontend/access_scope.py` is a small, Streamlit-free module holding the upload-scope UX logic
+  so it's directly unit-testable: `selectable_teams(user)` returns only `user.teams` (actual
+  `TeamMembership` rows -- both `TeamRole.MEMBER` and `TeamRole.MANAGER` qualify) and deliberately
+  never consults `GET /teams` (organisation-wide visibility, not membership) or
+  `user.managed_teams` (Org Manager jurisdiction, which does not grant TEAM document creation);
+  `can_select_organisation_scope(user)` is `True` only for `OrgRole.ADMIN`; `validate_upload_scope`
+  is a UX-only safeguard (the backend `DocumentService._can_create` remains authoritative) that
+  rejects an unselected/foreign team for TEAM or a non-ADMIN attempt at ORGANISATION before the
+  request is even sent.
+- `frontend/api/team_service.py::TeamService.list_teams()` calls `GET /teams` (read-only,
+  visibility only -- mirrors `ChatService`'s structure) and is rendered by `sidebar.py`'s "Teams"
+  section, annotated with the current user's own `TeamRole` (from `current_user.teams`) where a
+  membership exists; a team the user hasn't joined shows with no role, never a fabricated one.
+- `sidebar.py`'s "Account" expander displays `current_user.organisation_id`/`role`/`teams` (with
+  `TeamRole`) and `managed_teams` (name only, under its own "Managed teams (Org Manager)" heading
+  -- never merged into or displayed as membership) straight from session state, with no extra
+  backend calls.
+- `frontend/api/document_service.py::upload_documents` and `frontend/api/api_client.py::post`
+  gained optional `access_scope`/`team_id` parameters, sent as extra multipart `data` fields
+  alongside `files` (one shared scope per upload batch, matching the backend's per-request, not
+  per-file, contract). `ApiClient._request`/`post` gained a `data` kwarg attached only when `files`
+  is also given -- the prior `files` XOR `json` client had no way to send extra form fields
+  alongside a multipart upload.
+- `frontend/models/team.py::Team` mirrors `TeamResponse` (`id`/`organisation_id`/`name`);
+  `frontend/models/user.py::ManagedTeam` mirrors `ManagedTeamResponse` (`team_id`/`team_name`,
+  deliberately no `role` field, so a `TeamRole` can never be fabricated for a jurisdiction-only
+  team).
+- `tests/frontend/` is a pure-Python test suite (no Streamlit runtime, no backend, no
+  Qdrant/SQLite) covering this logic: model parsing (`test_user_model.py`), `TeamService`
+  (`test_team_service.py`), the `access_scope.py` matrix (`test_access_scope.py`), the upload
+  form-field wiring (`test_document_service_upload.py`), and the `ApiClient` `data`/`files`
+  behavior (`test_api_client_data_field.py`) -- all via hand-rolled fakes, matching this project's
+  existing `tests/unit` convention rather than a mocking framework.
+- The backend `DocumentResponse` still does not expose `access_scope`/`team_id`/`organisation_id`
+  (see "Authorization (RBAC)" above), so document-scope display (e.g. a "shared with Team X"
+  badge) remains out of scope until that schema changes.
 
 ### Persistence
 
