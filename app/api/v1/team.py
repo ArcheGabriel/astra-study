@@ -1,14 +1,20 @@
 from fastapi import APIRouter, Depends, Response, status
 
 from app.dependencies.access import get_access_context
-from app.dependencies.services import get_team_membership_service, get_team_service
+from app.dependencies.services import (
+    get_org_manager_team_service,
+    get_team_membership_service,
+    get_team_service,
+)
 from app.retrieval.access import AccessContext
 from app.schemas.team import (
     AddTeamMemberRequest,
+    OrgManagerTeamResponse,
     TeamCreate,
     TeamMemberResponse,
     TeamResponse,
 )
+from app.services.org_manager_team import OrgManagerTeamService
 from app.services.team import TeamService
 from app.services.team_membership import TeamMembershipService
 
@@ -140,4 +146,60 @@ def promote_team_member(
         access=access,
         team_id=team_id,
         user_id=user_id,
+    )
+
+
+@router.post(
+    "/{team_id}/managers/{user_id}",
+    response_model=OrgManagerTeamResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def grant_org_manager_jurisdiction(
+    team_id: int,
+    user_id: int,
+    access: AccessContext = Depends(get_access_context),
+    org_manager_team_service: OrgManagerTeamService = Depends(
+        get_org_manager_team_service,
+    ),
+) -> OrgManagerTeamResponse:
+    """
+    Grant an Org Manager jurisdiction over a team.
+
+    Only ``OrgRole.ADMIN`` may call this. The target user must currently
+    hold ``OrgRole.MANAGER`` in the ADMIN's own organisation.
+    """
+
+    return org_manager_team_service.grant_jurisdiction(
+        access=access,
+        team_id=team_id,
+        user_id=user_id,
+    )
+
+
+@router.delete(
+    "/{team_id}/managers/{user_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def revoke_org_manager_jurisdiction(
+    team_id: int,
+    user_id: int,
+    access: AccessContext = Depends(get_access_context),
+    org_manager_team_service: OrgManagerTeamService = Depends(
+        get_org_manager_team_service,
+    ),
+) -> Response:
+    """
+    Revoke an Org Manager's jurisdiction over a team.
+
+    Only ``OrgRole.ADMIN`` may call this.
+    """
+
+    org_manager_team_service.revoke_jurisdiction(
+        access=access,
+        team_id=team_id,
+        user_id=user_id,
+    )
+
+    return Response(
+        status_code=status.HTTP_204_NO_CONTENT,
     )

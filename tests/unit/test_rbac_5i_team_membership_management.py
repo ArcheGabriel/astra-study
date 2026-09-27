@@ -122,6 +122,7 @@ def build_access(user: User) -> AccessContext:
         user_id=user.id,
         organisation_id=user.organisation_id,
         team_ids=(),
+        jurisdiction_team_ids=(),
         role=user.role,
     )
 

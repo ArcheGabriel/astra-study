@@ -45,6 +45,7 @@ uv run pytest tests/unit/test_rbac_5f_reingest_metadata.py -q   # scripts/reinge
 uv run pytest tests/unit/test_rbac_5g_whoami.py -q   # GET /users/me RBAC context (organisation role + team memberships) spec
 uv run pytest tests/unit/test_rbac_5h_team_creation_and_listing.py -q   # team creation (ADMIN/MANAGER) + organisation-scoped listing spec
 uv run pytest tests/unit/test_rbac_5i_team_membership_management.py -q   # direct team membership management (add/remove/promote, last-manager invariant) spec
+uv run pytest tests/unit/test_rbac_5j_org_manager_jurisdiction.py -q   # Org Manager <-> Team jurisdiction (grant/revoke, SQL/Qdrant parity) spec
 
 uv run pytest tests/integration/test_hybrid_pipeline.py -q   # one integration file: live Qdrant+OpenAI+Docling, minutes per file, isolated to astra_study_test
 
@@ -338,14 +339,18 @@ and the document-management API's create/read/delete authorization are all in pl
   hardcoded email) — the only bootstrap path to a first ADMIN.
 - **`AccessContext`** (`app/retrieval/access.py`) is the single trusted, request-scoped
   authorization identity: a frozen/slotted dataclass of `user_id`, `organisation_id`,
-  `team_ids: tuple[int, ...]` (canonical sorted/deduped, never a wildcard-empty list), and `role`.
-  It has no methods (no `can_read`, no `is_admin`) — it is a value object, not a policy; it also
-  deliberately carries no per-team `TeamRole` (a flat set of team ids, not a role map) — anything
-  that needs to know *which* role a user holds on a specific team (e.g. delete authorization,
-  below) does a targeted `TeamMembershipRepository.get_membership(user_id=, team_id=)` lookup
-  instead. `app/dependencies/access.py::get_access_context` builds it from `current_user` (itself
-  resolved from the JWT by `get_current_user`) plus a fresh `TeamMembershipRepository` lookup —
-  never from JWT claims or any client-supplied field.
+  `team_ids: tuple[int, ...]` (canonical sorted/deduped, never a wildcard-empty list),
+  `jurisdiction_team_ids: tuple[int, ...]` (RBAC-5J, identical canonicalization, a structurally
+  independent relationship — see the jurisdiction bullet below), and `role`. It has no methods (no
+  `can_read`, no `is_admin`) — it is a value object, not a policy; it also deliberately carries no
+  per-team `TeamRole` (a flat set of team ids, not a role map) — anything that needs to know
+  *which* role a user holds on a specific team (e.g. delete authorization, below) does a targeted
+  `TeamMembershipRepository.get_membership(user_id=, team_id=)` lookup instead.
+  `app/dependencies/access.py::get_access_context` builds it from `current_user` (itself resolved
+  from the JWT by `get_current_user`) plus a fresh `TeamMembershipRepository` lookup and a fresh
+  `OrgManagerTeamRepository` lookup — never from JWT claims or any client-supplied field.
+  `evaluation/service.py::EvaluationService._resolve_access` builds the same complete
+  `AccessContext` (including `jurisdiction_team_ids`) for the configured evaluation user.
 - **Retrieval visibility (chat/RAG path)**: `AccessContext` is threaded through the full chat path
   (`app/api/v1/message.py` → `ConversationService` → `AIPipeline` → `RetrievalService` →
   `HybridService` → `DenseRepository.hybrid_search`), and `DenseRepository._authorization_filter`
@@ -353,19 +358,26 @@ and the document-management API's create/read/delete authorization are all in pl
   (`is_reference=False`/`is_appendix=False`) with the OR of every scope branch the requester
   qualifies for — INDIVIDUAL (own, plus legacy `schema_version=2` points grandfathered in to their
   owner only via `IsEmptyCondition` on the missing `access_scope` field, never relaxed further),
-  TEAM (only built when `access.team_ids` is non-empty; same organisation *and* team membership),
-  ORGANISATION (only built when `access.role == OrgRole.ADMIN`; `role` is a Python-level decision
-  about which branch exists, never a condition evaluated inside Qdrant itself). This filter and
-  the Qdrant payload schema it depends on (`schema_version`, `access_scope`, `organisation_id`,
-  `team_id`, `document_id`, written by `HybridMapper.build_payload`) are treated as frozen — see
-  "Treated as frozen" below.
+  TEAM-membership (only built when `access.team_ids` is non-empty; same organisation *and* team
+  membership), TEAM-jurisdiction (RBAC-5J; only built when `access.role == OrgRole.MANAGER` *and*
+  `access.jurisdiction_team_ids` is non-empty; same organisation *and* jurisdiction over that
+  specific team — structurally independent of the membership branch, a jurisdiction team id never
+  needs to also be a membership team id), TEAM-ADMIN (RBAC-5J; only built when
+  `access.role == OrgRole.ADMIN`; unconditional over every TEAM document in the requester's own
+  organisation, regardless of membership or jurisdiction), ORGANISATION (only built when
+  `access.role == OrgRole.ADMIN`; `role` is a Python-level decision about which branches exist,
+  never a condition evaluated inside Qdrant itself). This filter and the Qdrant payload schema it
+  depends on (`schema_version`, `access_scope`, `organisation_id`, `team_id`, `document_id`,
+  written by `HybridMapper.build_payload`) are treated as frozen — see "Treated as frozen" below;
+  the RBAC-5J branches are additive OR-terms only and do not change this schema.
 - **Document-management API (upload/list/get/download/delete)**: every route in
   `app/api/v1/document.py`, including `POST /documents/upload`, takes `access: AccessContext`
   (not `current_user`) and delegates to `DocumentService`. `GET /documents`,
   `GET /documents/{id}`, `GET /documents/{id}/download` delegate read visibility to
   `DocumentRepository.get_visible` / `get_by_id_visible` — the SQL-level mirror of
-  `DenseRepository._authorization_filter`'s branch logic (`_visibility_conditions`), kept in one
-  place so list/get/download can never authorize inconsistently with each other. An unauthorized
+  `DenseRepository._authorization_filter`'s branch logic (`_visibility_conditions`, including the
+  RBAC-5J TEAM-jurisdiction and TEAM-ADMIN branches), kept in one place so list/get/download can
+  never authorize inconsistently with each other. An unauthorized
   or nonexistent document is indistinguishable (`DocumentNotFoundError`/404 either way — no
   enumeration signal). Delete authorization (`DocumentService._can_delete`) is *stricter* than
   read visibility: owner always; a TEAM document additionally by a `TeamRole.MANAGER` of that
@@ -390,13 +402,18 @@ and the document-management API's create/read/delete authorization are all in pl
   (`ConversationService._validate_chat`) and document/message authorship — do not conflate the two
   identities.
 - **Who-am-I / RBAC context exposure (`GET /users/me`)**: returns `UserProfileResponse`
-  (`app/schemas/user.py`) — `id`/`username`/`email` plus `organisation_id`, `role` (`OrgRole`), and
+  (`app/schemas/user.py`) — `id`/`username`/`email` plus `organisation_id`, `role` (`OrgRole`),
   `teams: list[TeamMembershipResponse]` (`team_id`/`team_name`/`role` per membership, ordered by
   `team_id` ascending via `TeamMembershipRepository.get_memberships_with_team_by_user_id`'s
-  `joinedload`). `UserService.get_profile` builds this from `current_user` directly
-  (`organisation_id`/`role` need no extra query) plus that one repository call — it deliberately
-  does **not** use `AccessContext`, which carries no team name or per-team `TeamRole` and would add
-  a second, heavier identity path for values already in hand. `UserProfileResponse` is a separate
+  `joinedload`), and `managed_teams: list[ManagedTeamResponse]` (RBAC-5J; `team_id`/`team_name`
+  only, **no `role` field** — jurisdiction is a single binary state, not a `TeamRole`, sourced from
+  `OrgManagerTeamRepository.get_jurisdictions_with_team_by_user_id`). `teams` and `managed_teams`
+  are populated by two independent repository calls and stay structurally separate — a user may
+  appear in either, both, or neither; `managed_teams` is never derived from or merged into `teams`.
+  `UserService.get_profile` builds this from `current_user` directly (`organisation_id`/`role`
+  need no extra query) plus those two repository calls — it deliberately does **not** use
+  `AccessContext`, which carries no team name or per-team `TeamRole` and would add a second,
+  heavier identity path for values already in hand. `UserProfileResponse` is a separate
   schema from `UserResponse`/`TokenResponse`, which remain completely unchanged (still returned
   as-is by `POST /auth/register`/`POST /auth/login`/`POST /auth/token`) — extending `UserResponse`
   directly would have leaked this profile into those three responses and broken their existing
@@ -454,10 +471,46 @@ and the document-management API's create/read/delete authorization are all in pl
   `UserNotFoundError`, both collapsing "doesn't exist" and "wrong organisation" for
   enumeration-safety, mirroring `TeamNotFoundError`'s existing precedent) run before authorization
   is even reached for the team, and target-user resolution runs only *after* authorization succeeds
-  — an unauthorized actor never learns whether a given target user id exists. RBAC-5J
-  (organisation-manager team jurisdiction — a supervisory relationship distinct from
-  `TeamMembership`, not yet implemented anywhere in this codebase) remains future work; this stage
-  introduces no jurisdiction concept, model, or field.
+  — an unauthorized actor never learns whether a given target user id exists. This stage introduces
+  no jurisdiction concept, model, or field — see the RBAC-5J bullet below for that separate,
+  supervisory relationship.
+- **Org Manager jurisdiction (`POST/DELETE /teams/{team_id}/managers/{user_id}`)**: `OrgManagerTeam`
+  (`app/models/org_manager_team.py`) is a many-to-many relationship — unique on `(user_id, team_id)`,
+  no `role` column — recording which `OrgRole.MANAGER` supervises which team. **Structurally
+  independent of `TeamMembership`**: a user can hold jurisdiction over a team without ever having a
+  `TeamMembership` row for it, and vice versa; `OrgManagerTeamService`/`Repository` never read or
+  write `TeamMembership`, and granting/revoking jurisdiction never creates, deletes, or touches a
+  `TeamMembership` row. `TeamRole.MANAGER` (operational, per-team) and `OrgRole.MANAGER`-with-
+  jurisdiction (supervisory, org-level) remain distinct concepts — jurisdiction never grants
+  `TeamRole.MANAGER`, and being a team's `TeamRole.MANAGER` grants no jurisdiction-mutation
+  authority. **Only `OrgRole.ADMIN` may grant or revoke jurisdiction** (`OrgManagerTeamService`):
+  authorization runs first (`access.role != OrgRole.ADMIN` rejected before any database read tied
+  to the request), then team/target-user are resolved in the ADMIN's own organisation
+  (`TeamNotFoundError`/`UserNotFoundError`, both collapsing "doesn't exist" and "wrong
+  organisation" for enumeration safety, mirroring existing precedent), then the target user's
+  *current* `OrgRole` is verified to be `MANAGER` (`TargetNotOrgManagerError` otherwise) — the
+  target's own role is checked for eligibility only, never consulted for authority. Creating a team
+  does **not** automatically grant the creator jurisdiction over it (`TeamService.create_team` is
+  untouched) — jurisdiction only ever exists after an explicit ADMIN grant. `OrgManagerTeamRepository.grant`
+  uses the same pre-check + `IntegrityError`-translation pattern as `TeamMembershipRepository.add_membership`
+  for the concurrent-duplicate-grant race; `revoke` has **no** minimum-jurisdiction-holder invariant
+  (unlike the last-manager invariant for `TeamMembership` — a team may validly have zero Org
+  Managers overseeing it, since its operational management continues via `TeamRole.MANAGER`
+  regardless), so a plain fetch-then-delete is safe. Jurisdiction is **read-only**: it adds a TEAM
+  branch to `DenseRepository._authorization_filter` / `DocumentRepository._visibility_conditions`
+  (see above) but is never consulted by `DocumentService._can_create` (TEAM creation still requires
+  actual `TeamMembership`) or `_can_delete` (unchanged — owner, that team's `TeamRole.MANAGER`, or
+  ADMIN-for-ORGANISATION-scope only). As part of this same milestone, `OrgRole.ADMIN` additionally
+  gained **unconditional** TEAM-document read visibility across their own organisation (the
+  TEAM-ADMIN branch above) — a deliberate behavior change from ADMIN's previous membership-only
+  TEAM visibility. Migration: `alembic/versions/d18a69b8ede3_rbac_org_manager_team_jurisdiction.py`
+  (purely additive — one new table, no backfill, no existing table altered).
+  `tests/unit/test_rbac_5j_org_manager_jurisdiction.py` includes a permanent SQL/Qdrant-parity
+  test suite that evaluates the actual `Filter` object `_authorization_filter` returns (via a
+  generic Qdrant boolean-semantics walker, never a second reimplementation of the authorization
+  logic) against a real document's payload, so a future regression in either authorization path is
+  caught by direct comparison, not by two independently-written expectations. Membership-request
+  workflows and any Org-Manager-management UI remain out of scope for this stage.
 
 ### Streaming protocol
 

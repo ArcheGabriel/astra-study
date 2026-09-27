@@ -34,6 +34,7 @@ _ACCESS = AccessContext(
     user_id=_USER_ID,
     organisation_id=1,
     team_ids=(),
+    jurisdiction_team_ids=(),
     role=OrgRole.MEMBER,
 )
 

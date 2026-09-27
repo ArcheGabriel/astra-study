@@ -9,6 +9,7 @@ from app.database.session import get_db
 from app.repositories.chat import ChatRepository
 from app.repositories.document import DocumentRepository
 from app.repositories.message import MessageRepository
+from app.repositories.org_manager_team import OrgManagerTeamRepository
 from app.repositories.team import TeamRepository
 from app.repositories.team_membership import TeamMembershipRepository
 from app.repositories.user import UserRepository
@@ -20,6 +21,7 @@ from app.services.document import DocumentService
 from app.services.ingestion import IngestionService
 from app.services.llm import LLMService
 from app.services.message import MessageService
+from app.services.org_manager_team import OrgManagerTeamService
 from app.services.team import TeamService
 from app.services.team_membership import TeamMembershipService
 from app.services.user import UserService
@@ -46,9 +48,12 @@ def get_user_service(
 
     team_membership_repository = TeamMembershipRepository(db)
 
+    org_manager_team_repository = OrgManagerTeamRepository(db)
+
     return UserService(
         user_repository=user_repository,
         team_membership_repository=team_membership_repository,
+        org_manager_team_repository=org_manager_team_repository,
     )
 
 
@@ -340,6 +345,27 @@ def get_team_membership_service(
 
     return TeamMembershipService(
         team_membership_repository=team_membership_repository,
+        team_repository=team_repository,
+        user_repository=user_repository,
+    )
+
+
+# ----------------------------------------------------------------------
+# Org Manager Jurisdiction
+# ----------------------------------------------------------------------
+
+def get_org_manager_team_service(
+    db: Annotated[Session, Depends(get_db)],
+) -> OrgManagerTeamService:
+
+    org_manager_team_repository = OrgManagerTeamRepository(db)
+
+    team_repository = TeamRepository(db)
+
+    user_repository = UserRepository(db)
+
+    return OrgManagerTeamService(
+        org_manager_team_repository=org_manager_team_repository,
         team_repository=team_repository,
         user_repository=user_repository,
     )

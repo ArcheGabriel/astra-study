@@ -328,9 +328,13 @@ def test_registration_attaches_default_organisation_and_member_role(db):
     make_organisation(db, slug=DEFAULT_ORGANISATION_SLUG, name="Default Organisation")
 
     # register() (the only method this test exercises) never touches
-    # team memberships -- unaffected by RBAC-5G's get_profile, which is
-    # what this dependency exists for.
-    service = UserService(UserRepository(db), team_membership_repository=MagicMock())
+    # team memberships or jurisdiction -- unaffected by RBAC-5G/5J's
+    # get_profile, which is what these dependencies exist for.
+    service = UserService(
+        UserRepository(db),
+        team_membership_repository=MagicMock(),
+        org_manager_team_repository=MagicMock(),
+    )
 
     user = service.register(
         UserCreate(username="newuser", email="newuser@example.com", password="password123")
@@ -343,7 +347,11 @@ def test_registration_attaches_default_organisation_and_member_role(db):
 
 def test_registration_fails_clearly_when_default_organisation_is_missing(db):
     # No organisation seeded -- simulates an unmigrated / misconfigured database.
-    service = UserService(UserRepository(db), team_membership_repository=MagicMock())
+    service = UserService(
+        UserRepository(db),
+        team_membership_repository=MagicMock(),
+        org_manager_team_repository=MagicMock(),
+    )
 
     with pytest.raises(RuntimeError):
         service.register(
@@ -376,6 +384,7 @@ def test_document_upload_receives_uploaders_organisation_id(db):
         user_id=user.id,
         organisation_id=user.organisation_id,
         team_ids=(),
+        jurisdiction_team_ids=(),
         role=user.role,
     )
 

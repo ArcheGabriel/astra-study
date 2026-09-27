@@ -178,7 +178,7 @@ def test_resolve_access_missing_user_fails_loudly(db, monkeypatch):
 
 def test_evaluation_predictor_uses_the_access_context_it_was_given():
     access = AccessContext(
-        user_id=5, organisation_id=1, team_ids=(2, 3), role=OrgRole.MEMBER,
+        user_id=5, organisation_id=1, team_ids=(2, 3), jurisdiction_team_ids=(), role=OrgRole.MEMBER,
     )
     pipeline = MagicMock()
     pipeline.generate_response.return_value = SimpleNamespace(answer="a", citations=[])

@@ -9,6 +9,7 @@ from app.dependencies.resources import (
 )
 from app.generation.prompt_builder import PromptBuilder
 from app.generation.service import GenerationService
+from app.repositories.org_manager_team import OrgManagerTeamRepository
 from app.repositories.team_membership import TeamMembershipRepository
 from app.repositories.user import UserRepository
 from app.retrieval.access import AccessContext
@@ -71,8 +72,9 @@ class EvaluationService:
 
         Opens a short-lived session (outside any request context, same
         pattern as ``run_summary_refresh``) purely to read the user's
-        actual ``organisation_id``/``role`` and team memberships -- never
-        fabricated. No write occurs.
+        actual ``organisation_id``/``role``, team memberships, and Org
+        Manager jurisdiction (RBAC-5J) -- never fabricated. No write
+        occurs.
         """
 
         db = SessionLocal()
@@ -92,10 +94,17 @@ class EvaluationService:
                 user.id,
             )
 
+            jurisdiction_team_ids = OrgManagerTeamRepository(
+                db,
+            ).get_team_ids_by_user_id(
+                user.id,
+            )
+
             return AccessContext(
                 user_id=user.id,
                 organisation_id=user.organisation_id,
                 team_ids=tuple(team_ids),
+                jurisdiction_team_ids=tuple(jurisdiction_team_ids),
                 role=user.role,
             )
 

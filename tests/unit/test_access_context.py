@@ -35,9 +35,11 @@ from app.retrieval.access import AccessContext
 import app.models  # noqa: F401
 
 from app.models.organisation import Organisation
+from app.models.org_manager_team import OrgManagerTeam
 from app.models.team import Team
 from app.models.team_membership import TeamMembership
 from app.models.user import User
+from app.repositories.org_manager_team import OrgManagerTeamRepository
 from app.repositories.team_membership import TeamMembershipRepository
 
 
@@ -101,6 +103,14 @@ def make_membership(db, *, user: User, team: Team, role: TeamRole = TeamRole.MEM
     return membership
 
 
+def make_jurisdiction(db, *, user: User, team: Team) -> OrgManagerTeam:
+    jurisdiction = OrgManagerTeam(user_id=user.id, team_id=team.id)
+    db.add(jurisdiction)
+    db.commit()
+    db.refresh(jurisdiction)
+    return jurisdiction
+
+
 # --------------------------------------------------------------------------- #
 # AccessContext
 # --------------------------------------------------------------------------- #
@@ -111,17 +121,21 @@ def test_access_context_valid_construction():
         user_id=1,
         organisation_id=2,
         team_ids=(3, 4),
+        jurisdiction_team_ids=(5, 6),
         role=OrgRole.MEMBER,
     )
 
     assert access.user_id == 1
     assert access.organisation_id == 2
     assert access.team_ids == (3, 4)
+    assert access.jurisdiction_team_ids == (5, 6)
     assert access.role == OrgRole.MEMBER
 
 
 def test_access_context_is_frozen():
-    access = AccessContext(user_id=1, organisation_id=2, team_ids=(), role=OrgRole.MEMBER)
+    access = AccessContext(
+        user_id=1, organisation_id=2, team_ids=(), jurisdiction_team_ids=(), role=OrgRole.MEMBER,
+    )
 
     with pytest.raises(dataclasses.FrozenInstanceError):
         access.user_id = 999
@@ -129,24 +143,40 @@ def test_access_context_is_frozen():
 
 def test_access_context_missing_organisation_id_is_rejected():
     with pytest.raises(ValueError):
-        AccessContext(user_id=1, organisation_id=None, team_ids=(), role=OrgRole.MEMBER)
+        AccessContext(
+            user_id=1, organisation_id=None, team_ids=(), jurisdiction_team_ids=(), role=OrgRole.MEMBER,
+        )
 
 
 def test_access_context_required_identity_cannot_silently_become_none():
     with pytest.raises(ValueError):
-        AccessContext(user_id=None, organisation_id=2, team_ids=(), role=OrgRole.MEMBER)
+        AccessContext(
+            user_id=None, organisation_id=2, team_ids=(), jurisdiction_team_ids=(), role=OrgRole.MEMBER,
+        )
 
     with pytest.raises(ValueError):
-        AccessContext(user_id=1, organisation_id=2, team_ids=(), role=None)
+        AccessContext(
+            user_id=1, organisation_id=2, team_ids=(), jurisdiction_team_ids=(), role=None,
+        )
 
     with pytest.raises(ValueError):
-        AccessContext(user_id=1, organisation_id=2, team_ids=None, role=OrgRole.MEMBER)
+        AccessContext(
+            user_id=1, organisation_id=2, team_ids=None, jurisdiction_team_ids=(), role=OrgRole.MEMBER,
+        )
+
+    with pytest.raises(ValueError):
+        AccessContext(
+            user_id=1, organisation_id=2, team_ids=(), jurisdiction_team_ids=None, role=OrgRole.MEMBER,
+        )
 
 
 def test_access_context_zero_team_context_is_valid():
-    access = AccessContext(user_id=1, organisation_id=2, team_ids=(), role=OrgRole.MEMBER)
+    access = AccessContext(
+        user_id=1, organisation_id=2, team_ids=(), jurisdiction_team_ids=(), role=OrgRole.MEMBER,
+    )
 
     assert access.team_ids == ()
+    assert access.jurisdiction_team_ids == ()
 
 
 def test_access_context_team_ids_are_deterministic_and_deduplicated():
@@ -157,11 +187,44 @@ def test_access_context_team_ids_are_deterministic_and_deduplicated():
         user_id=1,
         organisation_id=2,
         team_ids=[5, 3, 5, 1],
+        jurisdiction_team_ids=(),
         role=OrgRole.MEMBER,
     )
 
     assert access.team_ids == (1, 3, 5)
     assert isinstance(access.team_ids, tuple)
+
+
+def test_access_context_jurisdiction_team_ids_are_deterministic_and_deduplicated():
+    # Same canonicalization contract as team_ids: unsorted, duplicated,
+    # and supplied as a list -- must normalise to the same sorted,
+    # deduplicated, immutable tuple.
+    access = AccessContext(
+        user_id=1,
+        organisation_id=2,
+        team_ids=(),
+        jurisdiction_team_ids=[9, 7, 9, 5],
+        role=OrgRole.MEMBER,
+    )
+
+    assert access.jurisdiction_team_ids == (5, 7, 9)
+    assert isinstance(access.jurisdiction_team_ids, tuple)
+
+
+def test_access_context_jurisdiction_team_ids_independent_of_team_ids():
+    # jurisdiction_team_ids is a structurally independent relationship --
+    # it must never be derived from, or collapsed into, team_ids, even
+    # when their values happen to overlap.
+    access = AccessContext(
+        user_id=1,
+        organisation_id=2,
+        team_ids=(1, 2),
+        jurisdiction_team_ids=(2, 3),
+        role=OrgRole.MANAGER,
+    )
+
+    assert access.team_ids == (1, 2)
+    assert access.jurisdiction_team_ids == (2, 3)
 
 
 # --------------------------------------------------------------------------- #
@@ -260,6 +323,63 @@ def test_get_access_context_propagates_team_membership_lookup_failure(db, monkey
         get_access_context(current_user=user, db=db)
 
 
+def test_get_access_context_resolves_jurisdiction_team_ids_from_repository(db):
+    organisation = make_organisation(db)
+    manager = make_user(db, organisation, username="mgr", role=OrgRole.MANAGER)
+    team_a = make_team(db, organisation, name="Research")
+    team_b = make_team(db, organisation, name="Support")
+    make_jurisdiction(db, user=manager, team=team_a)
+    make_jurisdiction(db, user=manager, team=team_b)
+
+    access = get_access_context(current_user=manager, db=db)
+
+    assert set(access.jurisdiction_team_ids) == {team_a.id, team_b.id}
+
+
+def test_get_access_context_zero_jurisdiction_produces_empty_jurisdiction_team_ids(db):
+    organisation = make_organisation(db)
+    user = make_user(db, organisation)
+
+    access = get_access_context(current_user=user, db=db)
+
+    assert access.jurisdiction_team_ids == ()
+
+
+def test_get_access_context_jurisdiction_independent_of_team_membership(db):
+    """A user's jurisdiction_team_ids must reflect only OrgManagerTeam
+    rows, never TeamMembership rows -- even when the user is a member of
+    other teams entirely."""
+
+    organisation = make_organisation(db)
+    manager = make_user(db, organisation, username="mgr", role=OrgRole.MANAGER)
+    member_team = make_team(db, organisation, name="Design")
+    jurisdiction_team = make_team(db, organisation, name="Research")
+    make_membership(db, user=manager, team=member_team)
+    make_jurisdiction(db, user=manager, team=jurisdiction_team)
+
+    access = get_access_context(current_user=manager, db=db)
+
+    assert access.team_ids == (member_team.id,)
+    assert access.jurisdiction_team_ids == (jurisdiction_team.id,)
+
+
+def test_get_access_context_propagates_jurisdiction_lookup_failure(db, monkeypatch):
+    organisation = make_organisation(db)
+    user = make_user(db, organisation)
+
+    def _boom(self, user_id):
+        raise RuntimeError("jurisdiction lookup failed")
+
+    monkeypatch.setattr(
+        OrgManagerTeamRepository,
+        "get_team_ids_by_user_id",
+        _boom,
+    )
+
+    with pytest.raises(RuntimeError):
+        get_access_context(current_user=user, db=db)
+
+
 def test_get_access_context_signature_accepts_no_client_controllable_input():
     # The dependency's only parameters are server-resolved (current_user via
     # get_current_user's JWT decode, db via get_db) -- there is structurally
@@ -269,5 +389,5 @@ def test_get_access_context_signature_accepts_no_client_controllable_input():
 
     assert set(parameters) == {"current_user", "db"}
 
-    for name in ("organisation_id", "team_ids", "role"):
+    for name in ("organisation_id", "team_ids", "jurisdiction_team_ids", "role"):
         assert name not in parameters

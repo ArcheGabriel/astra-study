@@ -5,6 +5,7 @@ SQLAlchemy ORM Models
 from app.models.chat import ChatSession
 from app.models.document import Document
 from app.models.message import ChatMessage
+from app.models.org_manager_team import OrgManagerTeam
 from app.models.organisation import Organisation
 from app.models.team import Team
 from app.models.team_membership import TeamMembership
@@ -18,4 +19,5 @@ __all__ = [
     "Organisation",
     "Team",
     "TeamMembership",
+    "OrgManagerTeam",
 ]

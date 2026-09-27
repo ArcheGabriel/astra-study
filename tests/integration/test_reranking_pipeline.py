@@ -50,6 +50,7 @@ _ACCESS = AccessContext(
     user_id=settings.EVALUATION_USER_ID,
     organisation_id=settings.EVALUATION_USER_ID,
     team_ids=(),
+    jurisdiction_team_ids=(),
     role=OrgRole.MEMBER,
 )
 

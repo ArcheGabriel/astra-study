@@ -53,10 +53,12 @@ import app.models  # noqa: F401
 
 from app.models.document import Document
 from app.models.organisation import Organisation
+from app.models.org_manager_team import OrgManagerTeam
 from app.models.team import Team
 from app.models.team_membership import TeamMembership
 from app.models.user import User
 from app.repositories.document import DocumentRepository
+from app.repositories.org_manager_team import OrgManagerTeamRepository
 from app.repositories.team_membership import TeamMembershipRepository
 from app.services.document import DocumentService
 
@@ -145,15 +147,28 @@ def make_document(
     return document
 
 
+def make_jurisdiction(db, *, user: User, team: Team) -> OrgManagerTeam:
+    jurisdiction = OrgManagerTeam(user_id=user.id, team_id=team.id)
+    db.add(jurisdiction)
+    db.commit()
+    db.refresh(jurisdiction)
+    return jurisdiction
+
+
 def build_access(db, user: User) -> AccessContext:
-    """Mirrors get_access_context's real logic (RBAC-5A, unchanged) --
-    a genuine team-membership lookup, not a fabricated team_ids tuple."""
+    """Mirrors get_access_context's real logic (RBAC-5A/5J, unchanged) --
+    genuine team-membership and jurisdiction lookups, never fabricated
+    tuples."""
 
     team_ids = TeamMembershipRepository(db).get_team_ids_by_user_id(user.id)
+    jurisdiction_team_ids = OrgManagerTeamRepository(db).get_team_ids_by_user_id(
+        user.id,
+    )
     return AccessContext(
         user_id=user.id,
         organisation_id=user.organisation_id,
         team_ids=tuple(team_ids),
+        jurisdiction_team_ids=tuple(jurisdiction_team_ids),
         role=user.role,
     )
 
@@ -265,6 +280,127 @@ def test_manager_sees_team_document_for_their_team(db):
     result = service.get_document(document_id=doc.id, access=build_access(db, manager))
 
     assert result.id == doc.id
+
+
+# --------------------------------------------------------------------------- #
+# RBAC-5J: Org Manager jurisdiction + ADMIN blanket TEAM read
+# --------------------------------------------------------------------------- #
+
+
+def test_org_manager_sees_team_document_with_jurisdiction(db):
+    org = make_organisation(db, slug="acme")
+    team = make_team(db, org, name="Research")
+    owner = make_user(db, org, username="alice")
+    org_manager = make_user(db, org, username="mgr", role=OrgRole.MANAGER)
+    make_jurisdiction(db, user=org_manager, team=team)
+    doc = make_document(db, owner=owner, organisation=org, access_scope=DocumentAccessScope.TEAM, team=team)
+    service = make_document_service(db)
+
+    result = service.get_document(document_id=doc.id, access=build_access(db, org_manager))
+
+    assert result.id == doc.id
+
+
+def test_org_manager_without_jurisdiction_cannot_see_team_document(db):
+    org = make_organisation(db, slug="acme")
+    team = make_team(db, org, name="Research")
+    owner = make_user(db, org, username="alice")
+    org_manager = make_user(db, org, username="mgr", role=OrgRole.MANAGER)
+    # No jurisdiction row created -- org_manager has no relationship to team.
+    doc = make_document(db, owner=owner, organisation=org, access_scope=DocumentAccessScope.TEAM, team=team)
+    service = make_document_service(db)
+
+    with pytest.raises(DocumentNotFoundError):
+        service.get_document(document_id=doc.id, access=build_access(db, org_manager))
+
+
+def test_org_manager_jurisdiction_does_not_leak_to_other_teams(db):
+    org = make_organisation(db, slug="acme")
+    team_a = make_team(db, org, name="Research")
+    team_b = make_team(db, org, name="Support")
+    owner = make_user(db, org, username="alice")
+    org_manager = make_user(db, org, username="mgr", role=OrgRole.MANAGER)
+    make_jurisdiction(db, user=org_manager, team=team_a)
+    doc_b = make_document(db, owner=owner, organisation=org, access_scope=DocumentAccessScope.TEAM, team=team_b)
+    service = make_document_service(db)
+
+    with pytest.raises(DocumentNotFoundError):
+        service.get_document(document_id=doc_b.id, access=build_access(db, org_manager))
+
+
+def test_cross_org_jurisdiction_is_denied(db):
+    """A numerically-identical team_id belonging to a different
+    organisation must never satisfy jurisdiction visibility -- mirrors
+    the existing team-membership cross-org guard."""
+
+    org_a = make_organisation(db, slug="acme")
+    org_b = make_organisation(db, slug="globex")
+    team_a = make_team(db, org_a, name="Research")
+    owner = make_user(db, org_a, username="alice")
+    org_manager_b = make_user(db, org_b, username="mgr", role=OrgRole.MANAGER)
+    doc = make_document(db, owner=owner, organisation=org_a, access_scope=DocumentAccessScope.TEAM, team=team_a)
+    service = make_document_service(db)
+
+    with pytest.raises(DocumentNotFoundError):
+        service.get_document(document_id=doc.id, access=build_access(db, org_manager_b))
+
+
+def test_admin_sees_team_document_without_membership_or_jurisdiction(db):
+    org = make_organisation(db, slug="acme")
+    team = make_team(db, org, name="Research")
+    owner = make_user(db, org, username="alice")
+    admin = make_user(db, org, username="root", role=OrgRole.ADMIN)
+    doc = make_document(db, owner=owner, organisation=org, access_scope=DocumentAccessScope.TEAM, team=team)
+    service = make_document_service(db)
+
+    result = service.get_document(document_id=doc.id, access=build_access(db, admin))
+
+    assert result.id == doc.id
+
+
+def test_admin_cannot_see_team_document_from_another_organisation(db):
+    org_a = make_organisation(db, slug="acme")
+    org_b = make_organisation(db, slug="globex")
+    team_a = make_team(db, org_a, name="Research")
+    owner = make_user(db, org_a, username="alice")
+    admin_b = make_user(db, org_b, username="root", role=OrgRole.ADMIN)
+    doc = make_document(db, owner=owner, organisation=org_a, access_scope=DocumentAccessScope.TEAM, team=team_a)
+    service = make_document_service(db)
+
+    with pytest.raises(DocumentNotFoundError):
+        service.get_document(document_id=doc.id, access=build_access(db, admin_b))
+
+
+def test_unrelated_same_org_member_still_cannot_see_team_document(db):
+    """Confirms jurisdiction/ADMIN additions did not accidentally widen
+    plain MEMBER visibility -- an unrelated same-org member remains
+    denied."""
+
+    org = make_organisation(db, slug="acme")
+    team = make_team(db, org, name="Research")
+    owner = make_user(db, org, username="alice")
+    unrelated = make_user(db, org, username="bob")
+    doc = make_document(db, owner=owner, organisation=org, access_scope=DocumentAccessScope.TEAM, team=team)
+    service = make_document_service(db)
+
+    with pytest.raises(DocumentNotFoundError):
+        service.get_document(document_id=doc.id, access=build_access(db, unrelated))
+
+
+def test_jurisdiction_does_not_grant_organisation_scope_visibility(db):
+    """Jurisdiction is TEAM-scope-only -- an Org Manager with jurisdiction
+    over a team must not gain any ORGANISATION-scope visibility from it."""
+
+    org = make_organisation(db, slug="acme")
+    team = make_team(db, org, name="Research")
+    owner = make_user(db, org, username="alice")
+    org_manager = make_user(db, org, username="mgr", role=OrgRole.MANAGER)
+    make_jurisdiction(db, user=org_manager, team=team)
+    org_doc = make_document(db, owner=owner, organisation=org, access_scope=DocumentAccessScope.ORGANISATION)
+    service = make_document_service(db)
+
+    with pytest.raises(DocumentNotFoundError):
+        service.get_document(document_id=org_doc.id, access=build_access(db, org_manager))
 
 
 def test_member_cannot_see_organisation_document(db):
@@ -380,8 +516,9 @@ def test_get_documents_returns_the_correct_mixed_visibility_set(db):
         access_scope=DocumentAccessScope.TEAM, team=team_mine,
     )
 
-    # 4. TEAM document in a team the requester does NOT belong to -- not visible
-    make_document(
+    # 4. TEAM document in a team the requester does NOT belong to -- not
+    #    visible to the requester, but visible to ADMIN (RBAC-5J).
+    team_other_doc = make_document(
         db, owner=other_user, organisation=org,
         access_scope=DocumentAccessScope.TEAM, team=team_other,
     )
@@ -407,11 +544,14 @@ def test_get_documents_returns_the_correct_mixed_visibility_set(db):
     assert other_org_doc.id not in visible_ids
 
     # Same dataset, viewed by an ADMIN of the same organisation: additionally
-    # sees the ORGANISATION document, but still never the other
-    # organisation's document.
+    # sees the ORGANISATION document and, per RBAC-5J, EVERY TEAM document
+    # in their own organisation regardless of membership -- but still
+    # never the other organisation's document.
     admin_visible_ids = {d.id for d in service.get_documents(access=build_access(db, admin))}
 
     assert org_doc.id in admin_visible_ids
+    assert team_mine_doc.id in admin_visible_ids
+    assert team_other_doc.id in admin_visible_ids
     assert other_org_doc.id not in admin_visible_ids
 
 
@@ -485,6 +625,25 @@ def test_team_manager_from_another_team_cannot_delete_it(db):
 
     with pytest.raises(DocumentNotFoundError):
         asyncio.run(service.delete_document(document_id=doc.id, access=build_access(db, manager_b)))
+
+    assert DocumentRepository(db).get_by_id(doc.id) is not None
+
+
+def test_org_manager_jurisdiction_does_not_grant_delete_authority(db):
+    """RBAC-5J: jurisdiction is READ authorization only. An Org Manager
+    with jurisdiction over a team, but no TeamMembership/TeamRole.MANAGER
+    on it, must not be able to delete that team's documents."""
+
+    org = make_organisation(db, slug="acme")
+    team = make_team(db, org, name="Research")
+    owner = make_user(db, org, username="alice")
+    org_manager = make_user(db, org, username="mgr", role=OrgRole.MANAGER)
+    make_jurisdiction(db, user=org_manager, team=team)
+    doc = make_document(db, owner=owner, organisation=org, access_scope=DocumentAccessScope.TEAM, team=team)
+    service = make_document_service(db)
+
+    with pytest.raises(DocumentNotFoundError):
+        asyncio.run(service.delete_document(document_id=doc.id, access=build_access(db, org_manager)))
 
     assert DocumentRepository(db).get_by_id(doc.id) is not None
 

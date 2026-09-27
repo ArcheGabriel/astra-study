@@ -145,6 +145,7 @@ def build_access(db, user: User) -> AccessContext:
         user_id=user.id,
         organisation_id=user.organisation_id,
         team_ids=tuple(team_ids),
+        jurisdiction_team_ids=(),
         role=user.role,
     )
 

@@ -5,9 +5,15 @@ from app.exceptions.user import EmailAlreadyExistsError
 
 from app.models.organisation import Organisation
 from app.models.user import User
+from app.repositories.org_manager_team import OrgManagerTeamRepository
 from app.repositories.team_membership import TeamMembershipRepository
 from app.repositories.user import UserRepository
-from app.schemas.user import TeamMembershipResponse, UserCreate, UserProfileResponse
+from app.schemas.user import (
+    ManagedTeamResponse,
+    TeamMembershipResponse,
+    UserCreate,
+    UserProfileResponse,
+)
 from app.core.security import security
 
 # Every newly registered user is attached to the single organisation seeded
@@ -28,9 +34,11 @@ class UserService:
         self,
         user_repository: UserRepository,
         team_membership_repository: TeamMembershipRepository,
+        org_manager_team_repository: OrgManagerTeamRepository,
     ):
         self.user_repository = user_repository
         self.team_membership_repository = team_membership_repository
+        self.org_manager_team_repository = org_manager_team_repository
 
     def register(
         self,
@@ -111,15 +119,25 @@ class UserService:
 
         ``organisation_id``/``role`` come directly from ``user`` (already
         loaded, no extra query); team memberships come from a single
-        eager-loaded repository query. Never uses ``AccessContext`` --
-        that value object deliberately carries no team name/per-team
-        ``TeamRole``, and ``organisation_id``/``role`` are already on
-        ``user`` -- so it would add a second, heavier identity-resolution
-        path for values already in hand.
+        eager-loaded repository query, and Org Manager jurisdiction
+        (RBAC-5J) from a second, independent repository query -- kept
+        structurally separate from ``teams``, never merged, since
+        membership and jurisdiction are two different relationships (a
+        user may appear in either, both, or neither). Never uses
+        ``AccessContext`` -- that value object deliberately carries no
+        team name/per-team ``TeamRole``, and ``organisation_id``/``role``
+        are already on ``user`` -- so it would add a second, heavier
+        identity-resolution path for values already in hand.
         """
 
         memberships = (
             self.team_membership_repository.get_memberships_with_team_by_user_id(
+                user.id,
+            )
+        )
+
+        jurisdictions = (
+            self.org_manager_team_repository.get_jurisdictions_with_team_by_user_id(
                 user.id,
             )
         )
@@ -137,5 +155,12 @@ class UserService:
                     role=membership.role,
                 )
                 for membership in memberships
+            ],
+            managed_teams=[
+                ManagedTeamResponse(
+                    team_id=team_id,
+                    team_name=team_name,
+                )
+                for team_id, team_name in jurisdictions
             ],
         )

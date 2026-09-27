@@ -37,12 +37,14 @@ def make_access(
     user_id: int = 1,
     organisation_id: int = 1,
     team_ids: tuple[int, ...] = (),
+    jurisdiction_team_ids: tuple[int, ...] = (),
     role: OrgRole = OrgRole.MEMBER,
 ) -> AccessContext:
     return AccessContext(
         user_id=user_id,
         organisation_id=organisation_id,
         team_ids=team_ids,
+        jurisdiction_team_ids=jurisdiction_team_ids,
         role=role,
     )
 
@@ -264,6 +266,41 @@ def _organisation_branches(retrieval_filter: Filter):
     ]
 
 
+def _team_branches(retrieval_filter: Filter):
+    branches = branch_filter(retrieval_filter).should
+    return [
+        b for b in branches
+        if isinstance(b, Filter)
+        and any(c.key == "access_scope" and c.match.value == "team" for c in b.must)
+    ]
+
+
+def _admin_team_branches(retrieval_filter: Filter):
+    """RBAC-5J: the ADMIN blanket-TEAM branch is the one TEAM branch with
+    no ``team_id`` condition at all -- distinct from both the membership
+    branch (team_id from access.team_ids) and the jurisdiction branch
+    (team_id from access.jurisdiction_team_ids), which both carry one."""
+
+    return [
+        b for b in _team_branches(retrieval_filter)
+        if not any(c.key == "team_id" for c in b.must)
+    ]
+
+
+def _jurisdiction_team_branches(retrieval_filter: Filter, jurisdiction_team_ids):
+    """The TEAM branch whose team_id MatchAny matches exactly the given
+    jurisdiction team ids -- distinguishes it from a membership branch
+    that might otherwise carry a different team_ids value."""
+
+    target = set(jurisdiction_team_ids)
+    matches = []
+    for b in _team_branches(retrieval_filter):
+        team_id_conditions = [c for c in b.must if c.key == "team_id"]
+        if team_id_conditions and set(team_id_conditions[0].match.any) == target:
+            matches.append(b)
+    return matches
+
+
 def test_admin_receives_organisation_branch():
     repository = make_dense_repository_with_fake_client()
     access = make_access(role=OrgRole.ADMIN)
@@ -348,12 +385,18 @@ def _branch_count(retrieval_filter: Filter) -> int:
     return len(branch_filter(retrieval_filter).should)
 
 
-def test_admin_with_teams_gets_individual_team_and_organisation():
+def test_admin_with_teams_gets_individual_team_organisation_and_admin_team():
+    """RBAC-5J: ADMIN additionally receives an unconditional TEAM branch
+    (all TEAM documents in their own organisation) alongside the
+    pre-existing membership-based TEAM branch -- both are separate OR
+    branches, so an ADMIN who also happens to be a team member gets 4
+    branches total, not 3."""
+
     repository = make_dense_repository_with_fake_client()
     access = make_access(role=OrgRole.ADMIN, team_ids=(1, 2))
 
     retrieval_filter, _ = call_hybrid_search(repository, access)
-    assert _branch_count(retrieval_filter) == 3
+    assert _branch_count(retrieval_filter) == 4
 
 
 def test_member_or_manager_with_teams_gets_individual_and_team_only():
@@ -375,13 +418,18 @@ def test_zero_teams_non_admin_gets_individual_only():
     assert _branch_count(retrieval_filter) == 1
 
 
-def test_zero_teams_admin_gets_individual_and_organisation():
+def test_zero_teams_admin_gets_individual_organisation_and_admin_team():
+    """RBAC-5J: even with zero team memberships, ADMIN still receives
+    the unconditional TEAM branch -- ADMIN's TEAM visibility never
+    depends on team_ids."""
+
     repository = make_dense_repository_with_fake_client()
     access = make_access(role=OrgRole.ADMIN, team_ids=())
 
     retrieval_filter, _ = call_hybrid_search(repository, access)
-    assert _branch_count(retrieval_filter) == 2
+    assert _branch_count(retrieval_filter) == 3
     assert len(_organisation_branches(retrieval_filter)) == 1
+    assert len(_admin_team_branches(retrieval_filter)) == 1
 
 
 # --------------------------------------------------------------------------- #
@@ -472,3 +520,136 @@ def test_dense_and_sparse_prefetch_share_the_same_filter_object():
     dense_filter, sparse_filter = call_hybrid_search(repository, access)
 
     assert dense_filter == sparse_filter
+
+
+# --------------------------------------------------------------------------- #
+# H. RBAC-5J: Org Manager jurisdiction
+# --------------------------------------------------------------------------- #
+
+
+def test_jurisdiction_branch_exists_for_manager_with_jurisdiction():
+    repository = make_dense_repository_with_fake_client()
+    access = make_access(role=OrgRole.MANAGER, jurisdiction_team_ids=(10, 11))
+
+    retrieval_filter, _ = call_hybrid_search(repository, access)
+
+    assert len(_jurisdiction_team_branches(retrieval_filter, (10, 11))) == 1
+
+
+def test_jurisdiction_branch_absent_for_manager_without_jurisdiction():
+    repository = make_dense_repository_with_fake_client()
+    access = make_access(role=OrgRole.MANAGER, jurisdiction_team_ids=())
+
+    retrieval_filter, _ = call_hybrid_search(repository, access)
+
+    assert _team_branches(retrieval_filter) == []
+
+
+def test_jurisdiction_branch_absent_for_member_even_with_jurisdiction_ids():
+    """jurisdiction_team_ids alone never grants a branch -- role must
+    also be OrgRole.MANAGER. A plain MEMBER can never have jurisdiction
+    in practice, but the filter must not trust the tuple's mere presence
+    over the role."""
+
+    repository = make_dense_repository_with_fake_client()
+    access = make_access(role=OrgRole.MEMBER, jurisdiction_team_ids=(10,))
+
+    retrieval_filter, _ = call_hybrid_search(repository, access)
+
+    assert _jurisdiction_team_branches(retrieval_filter, (10,)) == []
+
+
+def test_jurisdiction_branch_absent_for_admin_even_with_jurisdiction_ids():
+    """ADMIN's TEAM visibility comes from the unconditional admin-team
+    branch, never the jurisdiction branch -- jurisdiction_team_ids on an
+    ADMIN (however it got there) must not produce a second, narrower
+    team_id-scoped branch alongside the blanket one."""
+
+    repository = make_dense_repository_with_fake_client()
+    access = make_access(role=OrgRole.ADMIN, jurisdiction_team_ids=(10,))
+
+    retrieval_filter, _ = call_hybrid_search(repository, access)
+
+    assert _jurisdiction_team_branches(retrieval_filter, (10,)) == []
+    assert len(_admin_team_branches(retrieval_filter)) == 1
+
+
+def test_jurisdiction_matchany_contains_supplied_jurisdiction_ids():
+    repository = make_dense_repository_with_fake_client()
+    access = make_access(role=OrgRole.MANAGER, jurisdiction_team_ids=(3, 1, 2))
+
+    retrieval_filter, _ = call_hybrid_search(repository, access)
+    branch = _jurisdiction_team_branches(retrieval_filter, (1, 2, 3))[0]
+
+    team_id_condition = next(c for c in branch.must if c.key == "team_id")
+    assert set(team_id_condition.match.any) == {1, 2, 3}
+
+
+def test_jurisdiction_branch_requires_organisation_id():
+    repository = make_dense_repository_with_fake_client()
+    access = make_access(
+        role=OrgRole.MANAGER, organisation_id=42, jurisdiction_team_ids=(1,),
+    )
+
+    retrieval_filter, _ = call_hybrid_search(repository, access)
+    branch = _jurisdiction_team_branches(retrieval_filter, (1,))[0]
+
+    org_condition = next(c for c in branch.must if c.key == "organisation_id")
+    assert org_condition.match.value == 42
+
+
+def test_jurisdiction_branch_does_not_require_user_id():
+    repository = make_dense_repository_with_fake_client()
+    access = make_access(role=OrgRole.MANAGER, jurisdiction_team_ids=(1,))
+
+    retrieval_filter, _ = call_hybrid_search(repository, access)
+    branch = _jurisdiction_team_branches(retrieval_filter, (1,))[0]
+
+    assert "user_id" not in {c.key for c in branch.must}
+
+
+def test_jurisdiction_matchany_with_empty_list_is_never_generated():
+    repository = make_dense_repository_with_fake_client()
+
+    for access in (
+        make_access(role=OrgRole.MANAGER, jurisdiction_team_ids=()),
+        make_access(role=OrgRole.MANAGER, jurisdiction_team_ids=(1,)),
+        make_access(role=OrgRole.ADMIN, jurisdiction_team_ids=(1, 2, 3)),
+    ):
+        retrieval_filter, _ = call_hybrid_search(repository, access)
+        for match_any in find_matchany(retrieval_filter):
+            assert match_any.any != []
+
+
+def test_admin_team_branch_has_no_team_id_condition():
+    """The ADMIN blanket-TEAM branch is unconditional over every TEAM
+    document in the organisation -- it must never carry a team_id
+    condition (that would narrow it back down to a specific set)."""
+
+    repository = make_dense_repository_with_fake_client()
+    access = make_access(role=OrgRole.ADMIN)
+
+    retrieval_filter, _ = call_hybrid_search(repository, access)
+    admin_branches = _admin_team_branches(retrieval_filter)
+
+    assert len(admin_branches) == 1
+    assert "team_id" not in {c.key for c in admin_branches[0].must}
+
+
+def test_admin_team_branch_requires_organisation_id():
+    repository = make_dense_repository_with_fake_client()
+    access = make_access(role=OrgRole.ADMIN, organisation_id=77)
+
+    retrieval_filter, _ = call_hybrid_search(repository, access)
+    admin_branch = _admin_team_branches(retrieval_filter)[0]
+
+    org_condition = next(c for c in admin_branch.must if c.key == "organisation_id")
+    assert org_condition.match.value == 77
+
+
+def test_manager_and_member_never_receive_admin_team_branch():
+    repository = make_dense_repository_with_fake_client()
+
+    for role in (OrgRole.MEMBER, OrgRole.MANAGER):
+        retrieval_filter, _ = call_hybrid_search(repository, make_access(role=role))
+        assert _admin_team_branches(retrieval_filter) == []

@@ -29,6 +29,7 @@ class DocumentRepository(BaseRepository[Document]):
         """
         The SQL-level mirror of ``DenseRepository._authorization_filter``'s
         branch logic: individual (own), team (member, same organisation),
+        team (Org Manager jurisdiction, RBAC-5J), team (ADMIN, RBAC-5J),
         organisation (ADMIN only, same organisation). Kept in one place so
         list/get/download can never authorize inconsistently with one
         another -- see ``get_visible`` / ``get_by_id_visible``.
@@ -54,10 +55,26 @@ class DocumentRepository(BaseRepository[Document]):
                 ),
             )
 
+        if access.role == OrgRole.MANAGER and access.jurisdiction_team_ids:
+            conditions.append(
+                and_(
+                    Document.access_scope == DocumentAccessScope.TEAM,
+                    Document.organisation_id == access.organisation_id,
+                    Document.team_id.in_(access.jurisdiction_team_ids),
+                ),
+            )
+
         if access.role == OrgRole.ADMIN:
             conditions.append(
                 and_(
                     Document.access_scope == DocumentAccessScope.ORGANISATION,
+                    Document.organisation_id == access.organisation_id,
+                ),
+            )
+
+            conditions.append(
+                and_(
+                    Document.access_scope == DocumentAccessScope.TEAM,
                     Document.organisation_id == access.organisation_id,
                 ),
             )

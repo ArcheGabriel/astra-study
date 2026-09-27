@@ -30,6 +30,13 @@ class AccessContext:
     # never treated as a wildcard by anything that reads this field.
     team_ids: tuple[int, ...]
 
+    # Same shape and canonicalization as team_ids, but a structurally
+    # independent relationship: the teams this user holds Org Manager
+    # jurisdiction over (RBAC-5J), never derived from or implying
+    # TeamMembership. An empty tuple means "no jurisdiction over any
+    # team" -- never a wildcard.
+    jurisdiction_team_ids: tuple[int, ...]
+
     role: OrgRole
 
     def __post_init__(self) -> None:
@@ -68,6 +75,12 @@ class AccessContext:
                 "for a user with no team memberships, never None."
             )
 
+        if self.jurisdiction_team_ids is None:
+            raise ValueError(
+                "AccessContext.jurisdiction_team_ids is required; pass an "
+                "empty tuple for a user with no jurisdiction, never None."
+            )
+
         # Canonicalise into a deterministic, immutable, deduplicated tuple
         # regardless of what iterable the caller supplied (list, set,
         # generator, an already-sorted tuple, ...). frozen dataclasses
@@ -81,3 +94,19 @@ class AccessContext:
             )
 
         object.__setattr__(self, "team_ids", normalised_team_ids)
+
+        normalised_jurisdiction_team_ids = tuple(
+            sorted(set(self.jurisdiction_team_ids))
+        )
+
+        if not all(
+            isinstance(team_id, int) for team_id in normalised_jurisdiction_team_ids
+        ):
+            raise ValueError(
+                "AccessContext.jurisdiction_team_ids must contain only "
+                f"ints; got {self.jurisdiction_team_ids!r}."
+            )
+
+        object.__setattr__(
+            self, "jurisdiction_team_ids", normalised_jurisdiction_team_ids
+        )

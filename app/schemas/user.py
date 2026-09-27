@@ -56,10 +56,32 @@ class TeamMembershipResponse(BaseModel):
     )
 
 
+class ManagedTeamResponse(BaseModel):
+    """
+    One team the requester holds Org Manager jurisdiction over (RBAC-5J),
+    as returned by ``GET /users/me``.
+
+    Deliberately carries no ``role`` field -- jurisdiction is a single
+    binary state, structurally independent of ``TeamMembership``/
+    ``TeamRole``. Kept as its own class, distinct from
+    ``TeamMembershipResponse``, so ``teams`` (membership) and
+    ``managed_teams`` (jurisdiction) can never be conflated: a user may
+    independently appear in both, neither, or only one.
+    """
+
+    team_id: int
+    team_name: str
+
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+
+
 class UserProfileResponse(UserResponse):
     """
     ``GET /users/me`` response only -- extends ``UserResponse`` with RBAC
-    context (organisation role and team memberships).
+    context (organisation role, team memberships, and Org Manager
+    jurisdiction).
 
     Deliberately kept as its own schema, never merged into ``UserResponse``
     itself: ``UserResponse`` is also the exact type ``POST /auth/register``
@@ -74,6 +96,7 @@ class UserProfileResponse(UserResponse):
     organisation_id: int
     role: OrgRole
     teams: list[TeamMembershipResponse]
+    managed_teams: list[ManagedTeamResponse]
 
     model_config = ConfigDict(
         from_attributes=True,

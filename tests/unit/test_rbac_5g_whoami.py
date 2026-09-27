@@ -40,9 +40,11 @@ import app.models  # noqa: F401
 
 from app.api.v1.user import get_current_user_profile
 from app.models.organisation import Organisation
+from app.models.org_manager_team import OrgManagerTeam
 from app.models.team import Team
 from app.models.team_membership import TeamMembership
 from app.models.user import User
+from app.repositories.org_manager_team import OrgManagerTeamRepository
 from app.repositories.team_membership import TeamMembershipRepository
 from app.repositories.user import UserRepository
 from app.services.user import UserService
@@ -107,10 +109,19 @@ def make_membership(
     return membership
 
 
+def make_jurisdiction(db, *, user: User, team: Team) -> OrgManagerTeam:
+    jurisdiction = OrgManagerTeam(user_id=user.id, team_id=team.id)
+    db.add(jurisdiction)
+    db.commit()
+    db.refresh(jurisdiction)
+    return jurisdiction
+
+
 def make_user_service(db) -> UserService:
     return UserService(
         UserRepository(db),
         team_membership_repository=TeamMembershipRepository(db),
+        org_manager_team_repository=OrgManagerTeamRepository(db),
     )
 
 
@@ -222,6 +233,56 @@ def test_get_profile_returns_empty_teams_list_for_user_with_no_memberships(db):
     profile = service.get_profile(user)
 
     assert profile.teams == []
+
+
+# --------------------------------------------------------------------------- #
+# RBAC-5J: managed_teams (Org Manager jurisdiction) on the profile
+# --------------------------------------------------------------------------- #
+
+
+def test_get_profile_returns_managed_teams_for_org_manager_jurisdiction(db):
+    org = make_organisation(db)
+    manager = make_user(db, org, username="mgr", role=OrgRole.MANAGER)
+    team_a = make_team(db, org, name="Research")
+    team_b = make_team(db, org, name="Support")
+    make_jurisdiction(db, user=manager, team=team_a)
+    make_jurisdiction(db, user=manager, team=team_b)
+    service = make_user_service(db)
+
+    profile = service.get_profile(manager)
+
+    names_by_team_id = {t.team_id: t.team_name for t in profile.managed_teams}
+    assert names_by_team_id == {team_a.id: "Research", team_b.id: "Support"}
+
+
+def test_get_profile_returns_empty_managed_teams_for_user_with_no_jurisdiction(db):
+    org = make_organisation(db)
+    user = make_user(db, org)
+    service = make_user_service(db)
+
+    profile = service.get_profile(user)
+
+    assert profile.managed_teams == []
+
+
+def test_get_profile_teams_and_managed_teams_remain_independent(db):
+    """A user can appear in `teams` (membership) and `managed_teams`
+    (jurisdiction) independently -- membership in one team and
+    jurisdiction over a completely different team must never be
+    conflated or cross-populate the other list."""
+
+    org = make_organisation(db)
+    manager = make_user(db, org, username="mgr", role=OrgRole.MANAGER)
+    member_team = make_team(db, org, name="Design")
+    jurisdiction_team = make_team(db, org, name="Research")
+    make_membership(db, user=manager, team=member_team, role=TeamRole.MEMBER)
+    make_jurisdiction(db, user=manager, team=jurisdiction_team)
+    service = make_user_service(db)
+
+    profile = service.get_profile(manager)
+
+    assert [t.team_id for t in profile.teams] == [member_team.id]
+    assert [t.team_id for t in profile.managed_teams] == [jurisdiction_team.id]
 
 
 # --------------------------------------------------------------------------- #

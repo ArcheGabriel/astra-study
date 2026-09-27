@@ -97,3 +97,23 @@ class TeamMemberResponse(BaseModel):
         from_attributes=True,
         extra="forbid",
     )
+
+
+class OrgManagerTeamResponse(BaseModel):
+    """
+    Schema returned for one Org Manager jurisdiction grant (RBAC-5J).
+
+    Deliberately carries no ``role`` field -- jurisdiction is a single
+    binary state, structurally independent of ``TeamMembership``/
+    ``TeamRole``. Distinct from ``TeamMemberResponse`` (which represents
+    operational team membership, not supervisory jurisdiction).
+    """
+
+    user_id: int
+
+    team_id: int
+
+    model_config = ConfigDict(
+        from_attributes=True,
+        extra="forbid",
+    )

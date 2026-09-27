@@ -421,10 +421,22 @@ class DenseRepository:
           accommodation for legacy points -- they can never satisfy the
           TEAM or ORGANISATION branches below, which both require an
           explicit, present ``access_scope`` value legacy points don't have.
-        - TEAM: only constructed when ``access.team_ids`` is non-empty
-          (never ``MatchAny(any=[])``); requires the same organisation
-          *and* team membership, so a numerically-matching team id in a
-          different organisation can never match.
+        - TEAM (membership): only constructed when ``access.team_ids`` is
+          non-empty (never ``MatchAny(any=[])``); requires the same
+          organisation *and* team membership, so a numerically-matching
+          team id in a different organisation can never match.
+        - TEAM (Org Manager jurisdiction, RBAC-5J): only constructed when
+          ``access.role == OrgRole.MANAGER`` *and*
+          ``access.jurisdiction_team_ids`` is non-empty (never
+          ``MatchAny(any=[])``, mirroring the membership branch's
+          empty-tuple guard); requires the same organisation *and*
+          jurisdiction over that specific team. Structurally independent
+          of the membership branch above -- a jurisdiction team id never
+          needs to also appear in ``access.team_ids``.
+        - TEAM (ADMIN, RBAC-5J): only constructed when ``access.role``
+          is ``OrgRole.ADMIN`` -- unconditional over every TEAM-scoped
+          document in the requester's own organisation, regardless of
+          membership or jurisdiction.
         - ORGANISATION: only constructed when ``access.role`` is
           ``OrgRole.ADMIN`` -- this is a Python-level decision about
           which branches exist, never a ``role`` condition inside the
@@ -486,6 +498,28 @@ class DenseRepository:
                 )
             )
 
+        if access.role == OrgRole.MANAGER and access.jurisdiction_team_ids:
+            branches.append(
+                Filter(
+                    must=[
+                        FieldCondition(
+                            key="access_scope",
+                            match=MatchValue(
+                                value=DocumentAccessScope.TEAM.value,
+                            ),
+                        ),
+                        FieldCondition(
+                            key="organisation_id",
+                            match=MatchValue(value=access.organisation_id),
+                        ),
+                        FieldCondition(
+                            key="team_id",
+                            match=MatchAny(any=list(access.jurisdiction_team_ids)),
+                        ),
+                    ],
+                )
+            )
+
         if access.role == OrgRole.ADMIN:
             branches.append(
                 Filter(
@@ -494,6 +528,23 @@ class DenseRepository:
                             key="access_scope",
                             match=MatchValue(
                                 value=DocumentAccessScope.ORGANISATION.value,
+                            ),
+                        ),
+                        FieldCondition(
+                            key="organisation_id",
+                            match=MatchValue(value=access.organisation_id),
+                        ),
+                    ],
+                )
+            )
+
+            branches.append(
+                Filter(
+                    must=[
+                        FieldCondition(
+                            key="access_scope",
+                            match=MatchValue(
+                                value=DocumentAccessScope.TEAM.value,
                             ),
                         ),
                         FieldCondition(
