@@ -52,12 +52,28 @@ class DocumentService:
     def upload_documents(
         self,
         uploaded_files: list[BinaryIO],
+        access_scope: str | None = None,
+        team_id: int | None = None,
     ) -> list[Document]:
         """
         Upload one or more documents.
+
+        ``access_scope``/``team_id`` apply to the entire request (every
+        file in ``uploaded_files`` shares the same scope) and are sent as
+        the same optional multipart form fields the backend
+        ``POST /documents/upload`` already accepts. Omitted entirely,
+        this reproduces the exact prior behavior (INDIVIDUAL, no team).
         """
 
         files = []
+
+        data: dict[str, str] = {}
+
+        if access_scope is not None:
+            data["access_scope"] = access_scope
+
+        if team_id is not None:
+            data["team_id"] = str(team_id)
 
         try:
 
@@ -79,6 +95,7 @@ class DocumentService:
             response = self.client.post(
                 "/documents/upload",
                 files=files,
+                data=data or None,
             )
 
         finally:

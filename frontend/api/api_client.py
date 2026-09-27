@@ -61,6 +61,7 @@ class ApiClient:
         *,
         params: dict | None = None,
         json: dict | None = None,
+        data: dict | None = None,
         files=None,
         stream: bool = False,
     ) -> requests.Response:
@@ -77,6 +78,11 @@ class ApiClient:
 
         if files is not None:
             kwargs["files"] = files
+            # Additional multipart form fields alongside the uploaded
+            # files (e.g. access_scope/team_id) -- requests sends these
+            # as regular form parts of the same multipart request.
+            if data is not None:
+                kwargs["data"] = data
         elif json is not None:
             kwargs["json"] = json
 
@@ -181,6 +187,7 @@ class ApiClient:
         endpoint: str,
         *,
         json: dict | None = None,
+        data: dict | None = None,
         files=None,
     ) -> Any:
 
@@ -188,6 +195,7 @@ class ApiClient:
             "POST",
             endpoint,
             json=json,
+            data=data,
             files=files,
         )
 

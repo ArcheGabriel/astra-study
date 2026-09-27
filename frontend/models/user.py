@@ -19,6 +19,29 @@ class TeamMembership:
 
 
 @dataclass(slots=True)
+class ManagedTeam:
+    """
+    One team the user holds Org Manager jurisdiction over.
+
+    Deliberately carries no ``role`` -- jurisdiction is a single binary
+    state, structurally independent of ``TeamMembership``/``TeamRole``.
+    Never conflate this with ``TeamMembership``: a user may hold
+    jurisdiction over a team without being one of its members, and vice
+    versa.
+    """
+
+    team_id: int
+    team_name: str
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "ManagedTeam":
+        return cls(
+            team_id=data["team_id"],
+            team_name=data["team_name"],
+        )
+
+
+@dataclass(slots=True)
 class User:
     id: int
     username: str
@@ -26,6 +49,7 @@ class User:
     organisation_id: int | None = None
     role: str | None = None
     teams: list[TeamMembership] = field(default_factory=list)
+    managed_teams: list[ManagedTeam] = field(default_factory=list)
 
     @classmethod
     def from_dict(cls, data: dict) -> "User":
@@ -38,5 +62,9 @@ class User:
             teams=[
                 TeamMembership.from_dict(team)
                 for team in data.get("teams", [])
+            ],
+            managed_teams=[
+                ManagedTeam.from_dict(team)
+                for team in data.get("managed_teams", [])
             ],
         )

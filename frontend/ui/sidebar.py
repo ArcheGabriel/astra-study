@@ -2,11 +2,26 @@ from __future__ import annotations
 
 import streamlit as st
 
+from frontend.access_scope import (
+    INDIVIDUAL,
+    ORGANISATION,
+    TEAM,
+    can_select_organisation_scope,
+    selectable_teams,
+    validate_upload_scope,
+)
 from frontend.api.api_client import ApiClient, ApiException
 from frontend.api.chat_service import ChatService
 from frontend.api.document_service import DocumentService
 from frontend.api.message_service import MessageService
+from frontend.api.team_service import TeamService
 from frontend.ui.state import logout
+
+_SCOPE_LABELS = {
+    "Individual": INDIVIDUAL,
+    "Team": TEAM,
+    "Organisation": ORGANISATION,
+}
 
 
 def _client() -> ApiClient:
@@ -72,7 +87,20 @@ def _create_chat() -> None:
     st.rerun()
 
 
-def _upload_documents(uploaded_files: list) -> None:
+def _list_teams(client: ApiClient):
+    """
+    Return every team in the requester's own organisation (visibility
+    only -- does not imply membership).
+    """
+
+    return TeamService(client).list_teams()
+
+
+def _upload_documents(
+    uploaded_files: list,
+    access_scope: str | None = None,
+    team_id: int | None = None,
+) -> None:
     """
     Upload selected documents.
     """
@@ -84,6 +112,8 @@ def _upload_documents(uploaded_files: list) -> None:
     with st.spinner("Uploading documents..."):
         document_service.upload_documents(
             uploaded_files,
+            access_scope=access_scope,
+            team_id=team_id,
         )
 
     _refresh_workspace()
@@ -144,6 +174,77 @@ Astra <span>Study</span>
             ):
                 logout()
                 st.rerun()
+
+        current_user = st.session_state.current_user
+
+        if current_user is not None:
+
+            st.caption(
+                f"{current_user.username} · "
+                f"Org #{current_user.organisation_id} · "
+                f"{current_user.role}"
+            )
+
+            with st.expander("Account"):
+
+                if current_user.teams:
+
+                    st.markdown("**Team memberships**")
+
+                    for membership in current_user.teams:
+                        st.caption(
+                            f"{membership.team_name} — {membership.role}"
+                        )
+
+                else:
+                    st.caption("No team memberships.")
+
+                if current_user.managed_teams:
+
+                    st.markdown("**Managed teams (Org Manager)**")
+
+                    for managed in current_user.managed_teams:
+                        st.caption(managed.team_name)
+
+                else:
+                    st.caption("No managed teams.")
+
+            st.markdown(
+                "<div class='eyebrow'>Teams</div>",
+                unsafe_allow_html=True,
+            )
+
+            try:
+
+                organisation_teams = _list_teams(
+                    _client(),
+                )
+
+            except ApiException as exc:
+
+                st.error(str(exc))
+                organisation_teams = []
+
+            if organisation_teams:
+
+                membership_by_team_id = {
+                    membership.team_id: membership.role
+                    for membership in current_user.teams
+                }
+
+                for team in organisation_teams:
+
+                    role = membership_by_team_id.get(team.id)
+
+                    st.caption(
+                        f"{team.name} — {role}"
+                        if role
+                        else team.name
+                    )
+
+            else:
+
+                st.caption("No teams in your organisation.")
 
         st.markdown(
             "<div class='eyebrow'>Chats</div>",
@@ -211,6 +312,44 @@ Astra <span>Study</span>
                 "No uploaded documents."
             )
 
+        current_user = st.session_state.current_user
+
+        upload_teams = selectable_teams(current_user)
+
+        scope_options = ["Individual"]
+
+        if upload_teams:
+            scope_options.append("Team")
+
+        if can_select_organisation_scope(current_user):
+            scope_options.append("Organisation")
+
+        scope_choice = st.selectbox(
+            "Visibility",
+            scope_options,
+            key="upload_scope_choice",
+            label_visibility="collapsed",
+        )
+
+        team_id_choice: int | None = None
+
+        if scope_choice == "Team":
+
+            team_names_by_id = {
+                team.team_id: team.team_name
+                for team in upload_teams
+            }
+
+            selected_team_id = st.selectbox(
+                "Team",
+                list(team_names_by_id.keys()),
+                format_func=lambda team_id: team_names_by_id[team_id],
+                key="upload_team_choice",
+                label_visibility="collapsed",
+            )
+
+            team_id_choice = selected_team_id
+
         uploaded_files = st.file_uploader(
             "Upload Documents",
             accept_multiple_files=True,
@@ -225,12 +364,29 @@ Astra <span>Study</span>
                 use_container_width=True,
             )
         ):
-            try:
 
-                _upload_documents(
-                    uploaded_files,
-                )
+            scope_value = _SCOPE_LABELS[scope_choice]
 
-            except ApiException as exc:
+            validation_error = validate_upload_scope(
+                scope=scope_value,
+                team_id=team_id_choice,
+                user=current_user,
+            )
 
-                st.error(str(exc))
+            if validation_error:
+
+                st.error(validation_error)
+
+            else:
+
+                try:
+
+                    _upload_documents(
+                        uploaded_files,
+                        access_scope=scope_value,
+                        team_id=team_id_choice,
+                    )
+
+                except ApiException as exc:
+
+                    st.error(str(exc))
