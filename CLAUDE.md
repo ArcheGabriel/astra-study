@@ -48,6 +48,7 @@ uv run pytest tests/unit/test_rbac_5i_team_membership_management.py -q   # direc
 uv run pytest tests/unit/test_rbac_5j_org_manager_jurisdiction.py -q   # Org Manager <-> Team jurisdiction (grant/revoke, SQL/Qdrant parity) spec
 
 uv run pytest tests/integration/test_hybrid_pipeline.py -q   # one integration file: live Qdrant+OpenAI+Docling, minutes per file, isolated to astra_study_test
+uv run pytest tests/integration/test_rbac_qdrant_authorization.py -q   # real Qdrant round-trip: full RBAC authorization matrix via DenseRepository.hybrid_search, isolated to astra_study_test, no OpenAI/Docling
 
 uv run python -m evaluation.runner                  # run LangSmith evaluation experiment
 uv run python -m evaluation.chunking_report analyze --blocks <blocks.json> --out <report.json>   # offline chunk structural report
@@ -85,6 +86,17 @@ resolves to. `DenseRepository.COLLECTION_NAME` is a **class attribute bound at i
 `tests/unit/test_qdrant_isolation.py` is the offline regression. Do not weaken this guard or edit
 `tests/conftest.py` casually. To run integration tests against real Qdrant, leave
 `QDRANT_COLLECTION_NAME` unset so isolation applies.
+
+`tests/integration/test_rbac_qdrant_authorization.py` is the real-Qdrant round-trip regression for
+the full RBAC authorization chain (RBAC-6): it seeds points via the real `HybridMapper.build_payload`
+into `astra_study_test` and asserts ALLOW/DENY for every branch of `DenseRepository._authorization_filter`
+(team membership, Org Manager jurisdiction, ADMIN, INDIVIDUAL, ORGANISATION, `is_reference`/`is_appendix`
+exclusion) by calling `DenseRepository.hybrid_search` itself — never a reimplemented shadow filter. It
+needs no OpenAI/Docling (dense/sparse vectors are small deterministic non-semantic values, since only
+payload fields participate in authorization filtering), so it is far cheaper than
+`test_hybrid_pipeline.py` despite also being a live-Qdrant integration test. Its fixture creates and
+drops `astra_study_test` itself, independently re-asserting the collection name at every step on top of
+`tests/conftest.py`'s guard.
 
 Each integration test is **self-contained**: it extracts + chunks a fixture PDF (tracked ones
 live in `tests/test_documents/`; `storage/uploads/*` is gitignored), `recreate_collection()`s the
