@@ -8,11 +8,13 @@ from app.models.user import User
 from app.repositories.org_manager_team import OrgManagerTeamRepository
 from app.repositories.team_membership import TeamMembershipRepository
 from app.repositories.user import UserRepository
+from app.retrieval.access import AccessContext
 from app.schemas.user import (
     ManagedTeamResponse,
     TeamMembershipResponse,
     UserCreate,
     UserProfileResponse,
+    UserResponse,
 )
 from app.core.security import security
 
@@ -23,6 +25,11 @@ from app.core.security import security
 # choose an organisation or a role (UserCreate has extra="forbid" and no
 # role field; new users always default to OrgRole.MEMBER on the model).
 DEFAULT_ORGANISATION_SLUG = "default"
+
+# Caps the organisation-scoped user-lookup endpoint's result set -- a
+# lookup to identify one user for team membership management, not a
+# general-purpose directory.
+USER_SEARCH_RESULT_LIMIT = 20
 
 
 class UserService:
@@ -164,3 +171,40 @@ class UserService:
                 for team_id, team_name in jurisdictions
             ],
         )
+
+    def search_organisation_users(
+        self,
+        *,
+        access: AccessContext,
+        query: str,
+    ) -> list[UserResponse]:
+        """
+        Search for users within the requester's own organisation by a
+        partial, case-insensitive match on username or email.
+
+        ``organisation_id`` always comes from the trusted ``AccessContext``
+        -- never client-supplied -- so a user in one organisation can
+        never be discovered by a requester in another (both "no match"
+        and "matches, but in a different organisation" are
+        indistinguishable: neither ever appears in the result).
+
+        Returns ``UserResponse`` (id/username/email only, no RBAC/team
+        context) -- the same minimal, already-established "safe to
+        expose" user identity shape this project already returns from
+        registration, reused here rather than introducing a new schema
+        for an identical shape. This is deliberately not
+        ``UserProfileResponse``, which carries organisation/role/team
+        data that has no place in a lookup used only to resolve a
+        ``user_id`` for team membership management.
+        """
+
+        users = self.user_repository.search_by_organisation(
+            organisation_id=access.organisation_id,
+            query=query,
+            limit=USER_SEARCH_RESULT_LIMIT,
+        )
+
+        return [
+            UserResponse.model_validate(user)
+            for user in users
+        ]

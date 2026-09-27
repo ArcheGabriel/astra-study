@@ -6,14 +6,16 @@ from app.repositories.team import TeamRepository
 from app.repositories.team_membership import TeamMembershipRepository
 from app.repositories.user import UserRepository
 from app.retrieval.access import AccessContext
-from app.schemas.team import TeamMemberResponse
+from app.schemas.team import TeamMemberResponse, TeamRosterMemberResponse
 
 
 class TeamMembershipService:
     """
     Handles direct team-membership management (RBAC-5I): add member,
     remove member, promote MEMBER -> MANAGER, and remove MANAGER
-    (subject to the last-manager invariant).
+    (subject to the last-manager invariant); plus roster retrieval
+    (``list_members``, RBAC-Phase-B.0) so a manager can see whom to act
+    on.
 
     Deliberately separate from ``TeamService``, which owns team creation
     and organisation-scoped listing only. The two services authorize
@@ -128,6 +130,43 @@ class TeamMembershipService:
         )
 
         return TeamMemberResponse.model_validate(membership)
+
+    def list_members(
+        self,
+        *,
+        access: AccessContext,
+        team_id: int,
+    ) -> list[TeamRosterMemberResponse]:
+        """
+        Return every member of ``team_id``, ordered by username
+        ascending.
+
+        Only ``team_id``'s own ``TeamRole.MANAGER`` may call this -- the
+        exact same authorization boundary as add/remove/promote above
+        (never ``OrgRole.ADMIN``, never ``OrgRole.MANAGER`` alone, never
+        Org Manager jurisdiction), since the roster exists to support
+        those same decisions (whom to promote/remove), not general team
+        browsing by non-managers.
+        """
+
+        self._resolve_team(team_id=team_id, access=access)
+        self._authorize_team_manager(access=access, team_id=team_id)
+
+        memberships = (
+            self.team_membership_repository.get_memberships_with_user_by_team_id(
+                team_id,
+            )
+        )
+
+        return [
+            TeamRosterMemberResponse(
+                user_id=membership.user_id,
+                username=membership.user.username,
+                email=membership.user.email,
+                role=membership.role,
+            )
+            for membership in memberships
+        ]
 
     def _resolve_team(
         self,

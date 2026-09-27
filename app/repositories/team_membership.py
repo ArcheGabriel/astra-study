@@ -9,6 +9,7 @@ from app.exceptions.team import (
     TeamMembershipAlreadyExistsError,
 )
 from app.models.team_membership import TeamMembership
+from app.models.user import User
 from app.repositories.base import BaseRepository
 
 
@@ -91,6 +92,33 @@ class TeamMembershipRepository(BaseRepository[TeamMembership]):
             .where(TeamMembership.user_id == user_id)
             .options(joinedload(TeamMembership.team))
             .order_by(TeamMembership.team_id)
+        )
+
+        result = self.db.execute(statement)
+
+        return list(result.scalars().unique().all())
+
+    def get_memberships_with_user_by_team_id(
+        self,
+        team_id: int,
+    ) -> list[TeamMembership]:
+        """
+        Return every ``TeamMembership`` row for one team, with its
+        ``User`` eagerly loaded in the same query (``joinedload``) --
+        avoids one lazy-load query per member when a caller needs
+        ``user_id``/username/email/``role`` together (the team roster).
+
+        Ordered by the member's username ascending -- deterministic
+        regardless of membership insertion order, and a natural sort for
+        a management UI browsing a roster.
+        """
+
+        statement = (
+            select(TeamMembership)
+            .where(TeamMembership.team_id == team_id)
+            .join(TeamMembership.user)
+            .options(joinedload(TeamMembership.user))
+            .order_by(User.username)
         )
 
         result = self.db.execute(statement)

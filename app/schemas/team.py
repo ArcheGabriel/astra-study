@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 from app.enums.team import TeamRole
 
@@ -95,6 +95,34 @@ class TeamMemberResponse(BaseModel):
 
     model_config = ConfigDict(
         from_attributes=True,
+        extra="forbid",
+    )
+
+
+class TeamRosterMemberResponse(BaseModel):
+    """
+    One member of a team roster, as returned by
+    ``GET /teams/{team_id}/members``.
+
+    Distinct from ``TeamMemberResponse`` (the result of a single
+    add/promote mutation, keyed by ``user_id``/``team_id``/``role`` only,
+    with no username/email) -- this is the read shape for browsing an
+    entire team's membership, so it carries enough identity
+    (``username``/``email``) to support a management UI deciding whom to
+    promote/remove. This exposes nothing beyond what ``UserResponse``
+    (and the organisation-scoped user-lookup endpoint) already exposes
+    for the same users -- no password hash or other internal field.
+    """
+
+    user_id: int
+
+    username: str
+
+    email: EmailStr
+
+    role: TeamRole
+
+    model_config = ConfigDict(
         extra="forbid",
     )
 

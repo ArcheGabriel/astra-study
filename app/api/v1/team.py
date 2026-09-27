@@ -13,6 +13,7 @@ from app.schemas.team import (
     TeamCreate,
     TeamMemberResponse,
     TeamResponse,
+    TeamRosterMemberResponse,
 )
 from app.services.org_manager_team import OrgManagerTeamService
 from app.services.team import TeamService
@@ -61,6 +62,32 @@ def list_teams(
 
     return team_service.list_teams(
         access=access,
+    )
+
+
+@router.get(
+    "/{team_id}/members",
+    response_model=list[TeamRosterMemberResponse],
+)
+def get_team_members(
+    team_id: int,
+    access: AccessContext = Depends(get_access_context),
+    team_membership_service: TeamMembershipService = Depends(
+        get_team_membership_service,
+    ),
+) -> list[TeamRosterMemberResponse]:
+    """
+    Return every member of a team, ordered by username ascending.
+
+    Only that team's own ``TeamRole.MANAGER`` may call this -- the same
+    authorization boundary as add/remove/promote below, since the
+    roster exists to support those same membership-management
+    decisions, not general browsing.
+    """
+
+    return team_membership_service.list_members(
+        access=access,
+        team_id=team_id,
     )
 
 

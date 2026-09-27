@@ -46,6 +46,7 @@ uv run pytest tests/unit/test_rbac_5g_whoami.py -q   # GET /users/me RBAC contex
 uv run pytest tests/unit/test_rbac_5h_team_creation_and_listing.py -q   # team creation (ADMIN/MANAGER) + organisation-scoped listing spec
 uv run pytest tests/unit/test_rbac_5i_team_membership_management.py -q   # direct team membership management (add/remove/promote, last-manager invariant) spec
 uv run pytest tests/unit/test_rbac_5j_org_manager_jurisdiction.py -q   # Org Manager <-> Team jurisdiction (grant/revoke, SQL/Qdrant parity) spec
+uv run pytest tests/unit/test_rbac_phase_b0_user_lookup_and_roster.py -q   # GET /users (org-scoped lookup) + GET /teams/{id}/members (roster) spec
 
 uv run pytest tests/integration/test_hybrid_pipeline.py -q   # one integration file: live Qdrant+OpenAI+Docling, minutes per file, isolated to astra_study_test
 uv run pytest tests/integration/test_rbac_qdrant_authorization.py -q   # real Qdrant round-trip: full RBAC authorization matrix via DenseRepository.hybrid_search, isolated to astra_study_test, no OpenAI/Docling
@@ -489,6 +490,32 @@ and the document-management API's create/read/delete authorization are all in pl
   — an unauthorized actor never learns whether a given target user id exists. This stage introduces
   no jurisdiction concept, model, or field — see the RBAC-5J bullet below for that separate,
   supervisory relationship.
+- **Team roster + organisation-scoped user lookup (RBAC Phase B.0, backend-only — no frontend
+  consumer yet)**: two read endpoints that close the contract gaps a frontend team-membership UI
+  needs, without changing any existing authorization semantics.
+  - `GET /teams/{team_id}/members` → `list[TeamRosterMemberResponse]` (`user_id`/`username`/
+    `email`/`role`, `app/schemas/team.py`) is served by `TeamMembershipService.list_members`, which
+    reuses the *exact same* authorization boundary as add/remove/promote above (`_resolve_team` →
+    `_authorize_team_manager`): only that specific team's own `TeamRole.MANAGER` may view its
+    roster — not `OrgRole.ADMIN`, not `OrgRole.MANAGER` alone, not Org Manager jurisdiction, and
+    not a plain `TeamRole.MEMBER`. A cross-organisation or nonexistent `team_id` raises the same
+    `TeamNotFoundError` (404) as the mutation endpoints. Backed by
+    `TeamMembershipRepository.get_memberships_with_user_by_team_id` — one `joinedload`'d query
+    (no N+1), ordered by the member's `username` ascending.
+  - `GET /users?q=<query>` → `list[UserResponse]` (`id`/`username`/`email` — the same minimal
+    shape already returned by registration; never `UserProfileResponse`, which carries
+    organisation/role/team data with no place in a lookup used only to resolve a `user_id`) is
+    served by `UserService.search_organisation_users`, a case-insensitive partial match on
+    username *or* email via `UserRepository.search_by_organisation`. `q` is **required**
+    (`Query(..., min_length=1)`) — there is deliberately no "list every user" call shape, this is
+    a lookup, not a directory. Always scoped to `access.organisation_id` (never a client-supplied
+    value); a user in a different organisation is indistinguishable from no match at all — never a
+    separate signal. Results are ordered by `username` ascending and capped at
+    `UserService.USER_SEARCH_RESULT_LIMIT` (= 20).
+  - Neither endpoint is consumed by the frontend yet — that is a separate, later milestone (RBAC
+    Phase B.1). `tests/unit/test_rbac_phase_b0_user_lookup_and_roster.py` is the executable spec,
+    including explicit tests that `OrgRole.ADMIN`, `OrgRole.MANAGER` alone, and Org Manager
+    jurisdiction each fail to grant roster access.
 - **Org Manager jurisdiction (`POST/DELETE /teams/{team_id}/managers/{user_id}`)**: `OrgManagerTeam`
   (`app/models/org_manager_team.py`) is a many-to-many relationship — unique on `(user_id, team_id)`,
   no `role` column — recording which `OrgRole.MANAGER` supervises which team. **Structurally
