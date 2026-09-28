@@ -1,12 +1,20 @@
 """
-RBAC-10A: end-to-end acceptance tests for the multi-step RBAC workflows
-that no existing test exercises together:
+RBAC-10A/10B: end-to-end acceptance tests for the multi-step RBAC
+workflows that no existing test exercises together:
 
 1. document upload -> RBAC metadata -> retrieval
 2. jurisdiction grant -> retrieval visibility
 3. jurisdiction revoke -> retrieval visibility removal
 4. team membership add -> retrieval visibility
 5. team membership remove -> retrieval visibility removal
+6. ORGANISATION document upload -> retrieval ALLOW/DENY (incl. a real
+   second organisation) -> deletion -> SQL + Qdrant cleanup (RBAC-10B)
+7. TEAM document deletion authorization (TeamRole.MANAGER vs MEMBER)
+   -> SQL + Qdrant cleanup (RBAC-10B)
+8. INDIVIDUAL document deletion -> SQL + Qdrant cleanup -> retrieval
+   removed (RBAC-10B)
+9. TEAM document uploader-leaves-team asymmetry: retrieval is lost,
+   delete authority is retained -> SQL + Qdrant cleanup (RBAC-10B)
 
 Every workflow below drives the REAL FastAPI application through
 ``fastapi.testclient.TestClient`` -- real routers, real services, real
@@ -432,6 +440,20 @@ class _Env:
             headers=self.auth_headers(manager),
         )
 
+    def delete_document(self, username: str, document_id: int):
+        """
+        Real ``DELETE /documents/{document_id}`` call, authenticated as
+        ``username``. Returns the raw response so individual tests can
+        assert the expected status code (204 on success, 404 for an
+        unauthorized/nonexistent document -- see
+        ``DocumentService._can_delete``/``DocumentNotFoundError``).
+        """
+
+        return self.client.delete(
+            f"/api/v1/documents/{document_id}",
+            headers=self.auth_headers(username),
+        )
+
 
 @pytest.fixture()
 def env():
@@ -713,3 +735,196 @@ def test_team_membership_add_then_remove_propagates_to_retrieval(env: _Env):
     # 5. After remove: DENY again.
     after_remove = env.retrieve_chunk_uuids("other_member")
     assert not after_remove, "removed member must lose retrieval"
+
+
+# --------------------------------------------------------------------------- #
+# RBAC-10B
+# --------------------------------------------------------------------------- #
+# Workflow 6: ORGANISATION upload -> retrieval ALLOW/DENY (incl. a real
+# second organisation) -> deletion -> SQL + Qdrant cleanup.
+# --------------------------------------------------------------------------- #
+
+
+def test_organisation_document_upload_retrieve_cross_org_and_delete(env: _Env):
+    """
+    ORGANISATION: same-org ADMIN can retrieve; same-org MEMBER and
+    same-org MANAGER (non-ADMIN) cannot; a *different organisation's*
+    real ADMIN cannot either. The original ADMIN can then delete it,
+    which removes both the SQL row and the Qdrant vector.
+
+    Organisation B and its ADMIN exist only in the isolated in-memory
+    SQLite database (``env.db_sessionmaker``), via the same module-level
+    factories every other fixture actor in this file uses -- never the
+    real dev database.
+    """
+
+    setup_db = env.db_sessionmaker()
+    try:
+        organisation_b = make_organisation(setup_db, slug=f"rbac10b-orgb-{uuid4().hex[:8]}")
+        admin_b = make_user(
+            setup_db, organisation_b, username=f"adminb_{uuid4().hex[:6]}", role=OrgRole.ADMIN,
+        )
+    finally:
+        setup_db.close()
+
+    env.users["admin_b"] = admin_b
+
+    document_id = env.upload(
+        "admin",
+        filename="organisation.pdf",
+        access_scope="organisation",
+    )
+
+    assert document_id is not None
+
+    same_org_admin_results = env.retrieve_chunk_uuids("admin")
+    same_org_member_results = env.retrieve_chunk_uuids("other_member")
+    same_org_manager_results = env.retrieve_chunk_uuids("org_manager")
+    other_org_admin_results = env.retrieve_chunk_uuids("admin_b")
+
+    assert same_org_admin_results, "the same-org ADMIN must retrieve the ORGANISATION document"
+    assert not same_org_member_results, "a same-org MEMBER must not retrieve the ORGANISATION document"
+    assert not same_org_manager_results, "a same-org MANAGER (non-ADMIN) must not retrieve the ORGANISATION document"
+    assert not other_org_admin_results, "a different organisation's ADMIN must not retrieve the ORGANISATION document"
+
+    before_delete_count = env.dense_repository.count()
+    assert before_delete_count > 0
+
+    delete_response = env.delete_document("admin", document_id)
+    assert delete_response.status_code == 204, delete_response.text
+
+    db = env.db_sessionmaker()
+    try:
+        assert DocumentRepository(db).get_by_id(document_id) is None
+    finally:
+        db.close()
+
+    assert env.dense_repository.count() == 0
+
+
+# --------------------------------------------------------------------------- #
+# Workflow 7: TEAM document deletion authorization (TeamRole.MANAGER vs
+# MEMBER) -> SQL + Qdrant cleanup.
+# --------------------------------------------------------------------------- #
+
+
+def test_team_document_delete_authorization_and_cleanup(env: _Env):
+    """
+    A plain ``TeamRole.MEMBER`` (non-owner) cannot delete a TEAM
+    document -- the real endpoint returns 404 (``DocumentNotFoundError``,
+    enumeration-safe -- never 403). That team's own ``TeamRole.MANAGER``
+    can, and doing so removes both the SQL row and the Qdrant vector.
+    """
+
+    document_id = env.upload(
+        "team_manager",
+        filename="team-delete.pdf",
+        access_scope="team",
+        team_id=env.team.id,
+    )
+
+    before_delete_count = env.dense_repository.count()
+    assert before_delete_count > 0
+
+    denied_response = env.delete_document("team_member", document_id)
+    assert denied_response.status_code == 404, denied_response.text
+
+    allowed_response = env.delete_document("team_manager", document_id)
+    assert allowed_response.status_code == 204, allowed_response.text
+
+    db = env.db_sessionmaker()
+    try:
+        assert DocumentRepository(db).get_by_id(document_id) is None
+    finally:
+        db.close()
+
+    assert env.dense_repository.count() == 0
+
+
+# --------------------------------------------------------------------------- #
+# Workflow 8: INDIVIDUAL document deletion -> SQL + Qdrant cleanup ->
+# retrieval removed.
+# --------------------------------------------------------------------------- #
+
+
+def test_individual_document_delete_removes_sql_and_qdrant(env: _Env):
+    """
+    The owner of an INDIVIDUAL document can delete it via the real
+    ``DELETE`` endpoint; afterward the SQL row is gone, the Qdrant
+    vector is gone, and the former owner's retrieval returns empty.
+    """
+
+    document_id = env.upload(
+        "other_member",
+        filename="individual-delete.pdf",
+        access_scope="individual",
+    )
+
+    baseline_results = env.retrieve_chunk_uuids("other_member")
+    assert baseline_results, "owner must retrieve their own document before deletion"
+
+    delete_response = env.delete_document("other_member", document_id)
+    assert delete_response.status_code == 204, delete_response.text
+
+    db = env.db_sessionmaker()
+    try:
+        assert DocumentRepository(db).get_by_id(document_id) is None
+    finally:
+        db.close()
+
+    assert env.dense_repository.count() == 0
+
+    after_delete_results = env.retrieve_chunk_uuids("other_member")
+    assert not after_delete_results, "retrieval must return empty after deletion"
+
+
+# --------------------------------------------------------------------------- #
+# Workflow 9: TEAM document uploader-leaves-team asymmetry -- retrieval
+# is lost, delete authority is retained -> SQL + Qdrant cleanup.
+# --------------------------------------------------------------------------- #
+
+
+def test_team_document_uploader_retains_delete_after_leaving_team(env: _Env):
+    """
+    READ requires current team membership; DELETE does not, because the
+    uploader remains the document's owner regardless of membership.
+
+    This test proves the implemented asymmetry exactly as it exists --
+    it is not "fixed" here, and production authorization logic is not
+    touched.
+    """
+
+    document_id = env.upload(
+        "team_member",
+        filename="team-leave.pdf",
+        access_scope="team",
+        team_id=env.team.id,
+    )
+
+    # 1. Before leaving: READ allowed.
+    before_leave_results = env.retrieve_chunk_uuids("team_member")
+    assert before_leave_results, "uploader must retrieve their TEAM document while still a member"
+
+    # 2. Real membership removal, performed by the team's own
+    #    TeamRole.MANAGER (there is no self-service "leave" endpoint).
+    team_member_id = env.users["team_member"].id
+    remove_response = env.remove_member(
+        manager="team_manager", team_id=env.team.id, user_id=team_member_id,
+    )
+    assert remove_response.status_code == 204, remove_response.text
+
+    # 3. After leaving: READ denied.
+    after_leave_results = env.retrieve_chunk_uuids("team_member")
+    assert not after_leave_results, "ex-member must lose retrieval after leaving the team"
+
+    # 4. After leaving: DELETE still allowed (owner authority retained).
+    delete_response = env.delete_document("team_member", document_id)
+    assert delete_response.status_code == 204, delete_response.text
+
+    db = env.db_sessionmaker()
+    try:
+        assert DocumentRepository(db).get_by_id(document_id) is None
+    finally:
+        db.close()
+
+    assert env.dense_repository.count() == 0
