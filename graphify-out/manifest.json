@@ -162,10 +162,10 @@
     "semantic_hash": "a511956c8c95e62e08a70363393b8647"
   },
   "app/api/v1/user.py": {
-    "mtime": 1790424893.2058911,
-    "seen": 1790455322.486788,
-    "ast_hash": "24f23fc319e52e551b1c7fa51e44aaed",
-    "semantic_hash": "24f23fc319e52e551b1c7fa51e44aaed"
+    "mtime": 1790529194.373624,
+    "seen": 1790588189.323005,
+    "ast_hash": "a4b2ecd0519f81be4ed555d804cc2f6a",
+    "semantic_hash": "a4b2ecd0519f81be4ed555d804cc2f6a"
   },
   "app/chunking/__init__.py": {
     "mtime": 1783434807.0438864,
@@ -696,10 +696,10 @@
     "semantic_hash": "87c64fe56358d5728c5295bcdc9a1d9a"
   },
   "app/repositories/user.py": {
-    "mtime": 1782831011.6669464,
-    "seen": 1788881950.3320029,
-    "ast_hash": "a0078e9e21b88a294e8959e1235dc029",
-    "semantic_hash": "a0078e9e21b88a294e8959e1235dc029"
+    "mtime": 1790529194.3776252,
+    "seen": 1790588189.323199,
+    "ast_hash": "806ecb3161dcadd8df418da68d42a62e",
+    "semantic_hash": "806ecb3161dcadd8df418da68d42a62e"
   },
   "app/reranking/__init__.py": {
     "mtime": 1784567900.1061199,
@@ -966,10 +966,10 @@
     "semantic_hash": "453b26edc921d53d6bb5e021eba8982f"
   },
   "app/services/user.py": {
-    "mtime": 1790500933.6020913,
-    "seen": 1790503444.7852888,
-    "ast_hash": "0887133e402dde4b59f9e94da5a9707d",
-    "semantic_hash": "0887133e402dde4b59f9e94da5a9707d"
+    "mtime": 1790529194.3827877,
+    "seen": 1790588189.3232841,
+    "ast_hash": "27745f7932698d5f3227a51162bc6b0e",
+    "semantic_hash": "27745f7932698d5f3227a51162bc6b0e"
   },
   "app/storage/__init__.py": {
     "mtime": 1783263738.3571424,
@@ -1338,10 +1338,10 @@
     "semantic_hash": "c48b5ffe11bfcdac6ca20461200fc44c"
   },
   "frontend/models/user.py": {
-    "mtime": 1790522521.6373367,
-    "seen": 1790523080.3501208,
-    "ast_hash": "3cd1e23a2806ca7626a421e14618e805",
-    "semantic_hash": "3cd1e23a2806ca7626a421e14618e805"
+    "mtime": 1790587574.9312172,
+    "seen": 1790588189.3233984,
+    "ast_hash": "8d5e27eac8ef049dd7e8d261552d0783",
+    "semantic_hash": "8d5e27eac8ef049dd7e8d261552d0783"
   },
   "frontend/ui/__init__.py": {
     "mtime": 1785429708.0318954,
@@ -1356,10 +1356,10 @@
     "semantic_hash": "3ab62695b1234ded024b214d63af71ac"
   },
   "frontend/ui/sidebar.py": {
-    "mtime": 1790522521.6388788,
-    "seen": 1790523080.3501258,
-    "ast_hash": "11b62ff6675a20f1703258a9a1966f91",
-    "semantic_hash": "11b62ff6675a20f1703258a9a1966f91"
+    "mtime": 1790587574.93322,
+    "seen": 1790588189.3234048,
+    "ast_hash": "f0fd915bbda0639f6e2e9470f3587239",
+    "semantic_hash": "f0fd915bbda0639f6e2e9470f3587239"
   },
   "frontend/ui/sources.py": {
     "mtime": 1788368343.057456,
@@ -1368,10 +1368,10 @@
     "semantic_hash": "a2675da2afab19900a0f908d0dd66532"
   },
   "frontend/ui/state.py": {
-    "mtime": 1785427835.6217568,
-    "seen": 1788881950.332288,
-    "ast_hash": "67ffceb1768b09190627ce7b86af936e",
-    "semantic_hash": "67ffceb1768b09190627ce7b86af936e"
+    "mtime": 1790587574.9352171,
+    "seen": 1790588189.3234081,
+    "ast_hash": "42c5dbd12d182b476ae17f70b545714c",
+    "semantic_hash": "42c5dbd12d182b476ae17f70b545714c"
   },
   "frontend/ui/styles.py": {
     "mtime": 1785514794.827234,
@@ -1524,10 +1524,10 @@
     "semantic_hash": "11b17d5ca0e8417ce298a8c208a295c1"
   },
   "CLAUDE.md": {
-    "mtime": 1790503817.860611,
-    "seen": 1790523080.3502219,
-    "ast_hash": "160775647e9da6baf2fc27c1fadbf00e",
-    "semantic_hash": "160775647e9da6baf2fc27c1fadbf00e"
+    "mtime": 1790587574.9252064,
+    "seen": 1790588189.3235075,
+    "ast_hash": "8108bf73a137ac07e06751d389b0715c",
+    "semantic_hash": "8108bf73a137ac07e06751d389b0715c"
   },
   "README.md": {
     "mtime": 1782744009.204418,
@@ -1776,10 +1776,10 @@
     "semantic_hash": "be99465d7d6b9c5e6c546f5f8830f1c3"
   },
   "app/repositories/team_membership.py": {
-    "mtime": 1790455979.1629252,
-    "seen": 1790499795.235868,
-    "ast_hash": "52c07baff898838e4e0c146bfd5c216f",
-    "semantic_hash": "52c07baff898838e4e0c146bfd5c216f"
+    "mtime": 1790529194.3756225,
+    "seen": 1790588189.3231976,
+    "ast_hash": "7f6e618c88e4f72a77664cb7269acba7",
+    "semantic_hash": "7f6e618c88e4f72a77664cb7269acba7"
   },
   "app/retrieval/access.py": {
     "mtime": 1790500933.59508,
@@ -1866,10 +1866,10 @@
     "semantic_hash": "34b831f31524c1bdc91ebbbf3ea93314"
   },
   "app/api/v1/team.py": {
-    "mtime": 1790500933.5843284,
-    "seen": 1790503444.785038,
-    "ast_hash": "edb0c62faacc7248c0454e3650ec0625",
-    "semantic_hash": "edb0c62faacc7248c0454e3650ec0625"
+    "mtime": 1790529194.372625,
+    "seen": 1790588189.3230026,
+    "ast_hash": "f8c57082c9f2b18ce278a72809f60f2b",
+    "semantic_hash": "f8c57082c9f2b18ce278a72809f60f2b"
   },
   "app/exceptions/team.py": {
     "mtime": 1790500933.588833,
@@ -1878,10 +1878,10 @@
     "semantic_hash": "d0508b7737e173e6fd1d8f9f84fb46b7"
   },
   "app/schemas/team.py": {
-    "mtime": 1790500933.5970883,
-    "seen": 1790503444.7852404,
-    "ast_hash": "e0e88ed2328f3dc5c2d28d84e9521f87",
-    "semantic_hash": "e0e88ed2328f3dc5c2d28d84e9521f87"
+    "mtime": 1790529194.3796225,
+    "seen": 1790588189.3232353,
+    "ast_hash": "09e069bfb852fb620e673b6a55240a0b",
+    "semantic_hash": "09e069bfb852fb620e673b6a55240a0b"
   },
   "app/services/team.py": {
     "mtime": 1790441258.200511,
@@ -1890,10 +1890,10 @@
     "semantic_hash": "df18f8aa770a9f0bd0ddf6cb639f46e0"
   },
   "app/services/team_membership.py": {
-    "mtime": 1790455979.1649249,
-    "seen": 1790499795.235943,
-    "ast_hash": "2d7e09ad3832fd8b93dc34efacb901d4",
-    "semantic_hash": "2d7e09ad3832fd8b93dc34efacb901d4"
+    "mtime": 1790529194.3816223,
+    "seen": 1790588189.3232827,
+    "ast_hash": "958fe6adab60fa95c3eb478715c53260",
+    "semantic_hash": "958fe6adab60fa95c3eb478715c53260"
   },
   "tests/unit/test_rbac_5h_team_creation_and_listing.py": {
     "mtime": 1790500933.6660879,
@@ -1956,10 +1956,10 @@
     "semantic_hash": "e8a6c18e69431489b355efcc76d05893"
   },
   "frontend/models/team.py": {
-    "mtime": 1790522521.6354153,
-    "seen": 1790523080.3501189,
-    "ast_hash": "230bb72fbff8a09c12364e8b23490173",
-    "semantic_hash": "230bb72fbff8a09c12364e8b23490173"
+    "mtime": 1790587574.9302173,
+    "seen": 1790588189.323397,
+    "ast_hash": "23db10c2a0dd2d591a5a58b2f59e560f",
+    "semantic_hash": "23db10c2a0dd2d591a5a58b2f59e560f"
   },
   "tests/frontend/__init__.py": {
     "mtime": 1790522521.6398773,
@@ -1996,5 +1996,59 @@
     "seen": 1790523080.3501596,
     "ast_hash": "013c3ea79fba5115cd02469fd1d6f200",
     "semantic_hash": "013c3ea79fba5115cd02469fd1d6f200"
+  },
+  "frontend/api/membership_service.py": {
+    "mtime": 1790587574.926208,
+    "seen": 1790588189.3233764,
+    "ast_hash": "693977d2dab71cf1e47731f9be748974",
+    "semantic_hash": "693977d2dab71cf1e47731f9be748974"
+  },
+  "frontend/api/user_service.py": {
+    "mtime": 1790587574.9282193,
+    "seen": 1790588189.323382,
+    "ast_hash": "e1b9028cd4a4228470b97053377c8190",
+    "semantic_hash": "e1b9028cd4a4228470b97053377c8190"
+  },
+  "frontend/team_membership.py": {
+    "mtime": 1790587574.9322555,
+    "seen": 1790588189.3233998,
+    "ast_hash": "4df6ec4bd75bbb5111cbf7e2051d5678",
+    "semantic_hash": "4df6ec4bd75bbb5111cbf7e2051d5678"
+  },
+  "frontend/ui/team_management.py": {
+    "mtime": 1790587574.936218,
+    "seen": 1790588189.323411,
+    "ast_hash": "d49d0cb3edf342c619925aec56eb293c",
+    "semantic_hash": "d49d0cb3edf342c619925aec56eb293c"
+  },
+  "tests/frontend/test_membership_service.py": {
+    "mtime": 1790587574.9372551,
+    "seen": 1790588189.3234363,
+    "ast_hash": "a69cd82a4c607e53c9550635a3744e42",
+    "semantic_hash": "a69cd82a4c607e53c9550635a3744e42"
+  },
+  "tests/frontend/test_team_membership_authorization.py": {
+    "mtime": 1790587574.9382167,
+    "seen": 1790588189.323438,
+    "ast_hash": "4c0b4e2385151799df736bd80f1b85ae",
+    "semantic_hash": "4c0b4e2385151799df736bd80f1b85ae"
+  },
+  "tests/frontend/test_team_roster_model.py": {
+    "mtime": 1790587574.9392214,
+    "seen": 1790588189.3234391,
+    "ast_hash": "cdb24b9c7d6a17d521be74972443a309",
+    "semantic_hash": "cdb24b9c7d6a17d521be74972443a309"
+  },
+  "tests/frontend/test_user_search_service.py": {
+    "mtime": 1790587574.9402192,
+    "seen": 1790588189.323444,
+    "ast_hash": "818600d8c53f8f45bf6c7f221f5f4fb1",
+    "semantic_hash": "818600d8c53f8f45bf6c7f221f5f4fb1"
+  },
+  "tests/unit/test_rbac_phase_b0_user_lookup_and_roster.py": {
+    "mtime": 1790529194.3848217,
+    "seen": 1790588189.3234994,
+    "ast_hash": "62f5ae280ea3c839184ebae7475576c8",
+    "semantic_hash": "62f5ae280ea3c839184ebae7475576c8"
   }
 }

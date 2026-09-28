@@ -1,145 +1,166 @@
-# Graph Report - Astra-Study  (2026-09-27)
+# Graph Report - Astra-Study  (2026-09-28)
 
 ## Corpus Check
-- 15 files · ~261,581 words
+- 21 files · ~266,822 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 3346 nodes · 8400 edges · 246 communities (119 shown, 90 thin omitted)
-- Extraction: 93% EXTRACTED · 7% INFERRED · 0% AMBIGUOUS · INFERRED: 609 edges (avg confidence: 0.94)
-- Token cost: 0 input · 84,696 output
+- 3508 nodes · 8809 edges · 270 communities (136 shown, 97 thin omitted)
+- Extraction: 93% EXTRACTED · 7% INFERRED · 0% AMBIGUOUS · INFERRED: 603 edges (avg confidence: 0.94)
+- Token cost: 0 input · 117,794 output
 
 ## Community Hubs (Navigation)
-- RBAC-5J Test Fixtures
 - Document Repository Visibility
-- Base Document Handler
-- Document Creation Test Fixtures
+- Qdrant Authorization Filter Tests
+- Document Exceptions
 - Chunking Validation Helpers
-- Chat Message & Conversation Tests
-- Merge Stage Section Chunks
-- Base Generation Service
-- Chunking Config & Pipeline
-- Embedded Chunk & Provenance Tests
-- Qdrant Authorization Filter Tests
-- Recursive Stage Heading Logic
-- Document Exceptions
-- Base Ingestion Processor
-- Team Exceptions
-- Retrieval Exceptions
-- Document Scope Exceptions
-- Frontend API Client
-- Reingest Metadata Tests
-- Team Exceptions
-- Chunking Evaluation Baselines
-- Base LLM Provider
-- Access Context Tests
-- Settings & Access Dependencies
-- Query Rewriter
-- Chunk Metadata & Content Segments
-- AI Pipeline Response Building
-- Evaluation Metric Evaluators
 - Qdrant Test Isolation & RBAC-6 Authorization Tests
-- Chat API Routes
-- Conversation Service Message Flow
-- Reranking Pipeline Tests
-- Chunk Metadata & Content Segments
-- Embedding Request Execution
-- Qdrant Authorization Filter Tests
-- Frontend Upload Access-Scope Validation
-- RBAC-5G Whoami Jurisdiction Tests
-- Chat Not Found & Message API
-- Base Reranker
-- Conversation Service Propagation Tests
-- Auth Session Dependency
-- Section Matching & Chunking Tests
-- RBAC Foundation Tests
-- Embedding Batcher
-- Cross-Encoder Reranker
-- Frontend Document Upload Service
-- Evaluation Metric Evaluators
-- Frontend User Profile & RBAC Models
-- Document API Routes
-- OrgRole Enum & Base Model
-- AI Pipeline & Message Repository
-- Sparse Embedding Encoder
-- Dependency Service Wiring
-- Team API Routes
-- Document Exceptions
-- Auth Login Endpoints
-- Embedded Chunk Model
-- Reranking Candidate Validation
-- Reranking Pipeline Tests
-- Retrieval Service Orchestrator
-- Dense Search Exceptions
-- Base Storage Service
-- RBAC Document Authorization Concepts
-- Frontend Chat Service Client
-- Reranker Callable Interface
-- OpenAI Embedder
-- Exception Handlers & Reranker Resource
-- Merge Stage Section Chunks
-- Frontend Layout & Streaming
-- Auth Session Dependency
-- Frontend Team Discovery Service
-- Document Service API
-- AccessContext Jurisdiction Concepts
-- Ingestion & Citation Provenance Flow
-- Qdrant Test Isolation & RBAC-6 Authorization Tests
-- Filter Stage
-- Password Hashing & JWT Security
-- Embedding Batcher
-- Hybrid Payload Mapper
-- Org Manager Jurisdiction Grant/Revoke API
-- Reranking Service Tests
-- Conversation Memory Flow Concepts
-- Document Validator
-- Chat Not Found & Message API
-- Chunking Pipeline Contract Concepts
-- Frontend Sidebar UI
-- Base Repository CRUD
-- Sparse Search Exceptions
 - Document Creation Test Fixtures
+- Chat Message & Conversation Tests
+- AI Pipeline Response Building
+- RBAC Foundation Tests
+- Chunking Config & Pipeline
+- Base Generation Service
+- Embedded Chunk & Provenance Tests
+- Recursive Stage Heading Logic
+- Base Document Handler
+- Retrieval Exceptions
+- Base Ingestion Processor
+- Chunking Evaluation Baselines
+- Team Exceptions
+- Chunk Metadata & Content Segments
+- RBAC-5J Test Fixtures
+- Merge Stage Section Chunks
+- Query Rewriter
+- Chat API Routes
+- Settings & Access Dependencies
+- Team Exceptions
+- Access Context Tests
+- Auth Session Dependency
+- RBAC-5J Test Fixtures
+- Team Exceptions
+- Section Matching & Chunking Tests
+- Frontend Chat Service Client
+- Base LLM Provider
+- Document Service API
+- Frontend API Client
+- Evaluation Metric Evaluators
+- Merge Stage Section Chunks
+- RBAC-5G Whoami Jurisdiction Tests
+- Reranking Pipeline Tests
+- Chat Not Found & Message API
+- RBAC-5J Test Fixtures
+- Frontend Upload Access-Scope Validation
+- Conversation Service Propagation Tests
+- Reranking Service Tests
+- OrgRole Enum & Base Model
+- Auth Session Dependency
+- Embedding Batcher
+- Team Exceptions
+- Evaluation Metric Evaluators
+- Embedded Chunk Model
+- AI Pipeline & Message Repository
+- Frontend Document Upload Service
+- Merge Stage Section Chunks
+- Dependency Service Wiring
+- Sparse Embedding Encoder
+- Frontend User Profile & RBAC Models
+- Team API Routes
+- Cross-Encoder Reranker
+- RBAC-5J Test Fixtures
+- Reranking Pipeline Tests
+- Filter Stage
+- Dense Search Exceptions
+- Reranker Callable Interface
+- Reranking Candidate Validation
+- Base Document Handler
+- Document Exceptions
+- OpenAI Embedder
+- Base Reranker
+- Retrieval Service Orchestrator
+- Frontend User Search Service
+- Reingest Metadata Tests
+- Document API Routes
+- Org Manager Jurisdiction Grant/Revoke API
+- Frontend Sidebar UI
+- Document Scope Exceptions
+- Frontend Team Manager Authorization Gate
+- Password Hashing & JWT Security
+- Hybrid Payload Mapper
+- Ingestion & Citation Provenance Flow
+- Frontend Team Discovery Service
+- Embedding Batcher
+- Frontend Team Management UI
+- Document Validator
+- Reingest Metadata Tests
+- RBAC Document Authorization Concepts
+- Embedding Request Execution
+- Auth Session Dependency
+- Embedded Chunk Model
+- Sparse Search Exceptions
+- Document Scope Exceptions
+- User Profile Endpoint
+- Chunk Metadata & Content Segments
 - Document Access Scope Enum
 - Hybrid Payload Mapper
+- AccessContext Jurisdiction Concepts
+- RBAC Document Authorization Concepts
+- Frontend API Client
+- Base Repository CRUD
 - Reranking Service Public API
-- Qdrant Test Isolation & RBAC-6 Authorization Tests
-- Ingestion & Citation Provenance Flow
-- Import Isolation Regression Test
-- Team API Routes
 - Sparse Embedding Encoder
-- Message API & Schemas
+- Conversation Memory Flow Concepts
+- Import Isolation Regression Test
+- Ingestion & Citation Provenance Flow
+- Chunking Pipeline Contract Concepts
+- Reingest Metadata Tests
 - API Response Schemas
-- Base Document Handler
+- Team API Routes
 - Evaluation AI Response Schemas
-- Message Service Streaming
+- Exception Handlers & Reranker Resource
 - Markdown Parser
 - Embedded Chunk Model
-- Embedded Chunk Model
+- Cross-Encoder Reranker
 - Hybrid Payload Mapper
+- AccessContext Jurisdiction Concepts
+- Ingestion & Citation Provenance Flow
+- AccessContext Jurisdiction Concepts
 - Dense Search Response
 - Hybrid Payload Mapper
-- Document Repository Visibility
-- Document Validator Module
-- AccessContext Jurisdiction Concepts
-- Qdrant Test Isolation & RBAC-6 Authorization Tests
-- Qdrant Test Isolation & RBAC-6 Authorization Tests
-- Alembic Migration Env
-- OpenAI Model Enum
-- User Profile Endpoint
-- Document Not Found & Delete Service
-- Repo Top-Level Areas
-- OrgRole Enum & Base Model
-- Base Document Handler
 - Auth Login Endpoints
+- Document Validator Module
+- Conversation Memory Flow Concepts
+- AccessContext Jurisdiction Concepts
+- Repo Top-Level Areas
+- Alembic Migration Env
+- Base LLM Provider
+- OpenAI Model Enum
+- Base Document Handler
+- OrgRole Enum & Base Model
+- Document Scope Exceptions
+- Document Not Found & Delete Service
+- RBAC-5J Test Fixtures
+- Reingest Metadata Tests
+- Document API Routes
+- Embedding Request Execution
+- Settings & Access Dependencies
+- Chat Not Found & Message API
+- Base Reranker
+- Backend Organisation-Scoped User Search
 - Chunking Stage Comparison Reports
 - Kalam Speech Fixture Doc
 - AI Package Init
 - Document Constants
 - App Constants Init
+- Document Scope Exceptions
+- Document Scope Exceptions
+- Document Scope Exceptions
 - Hybrid Package Init
-- Ingestion & Citation Provenance Flow
+- Frontend API Client Reference
 - RBAC-5J Migration & Repository Concepts
 - Attention Mechanism Concepts
+- Team Exceptions
+- RBAC-5J Test Fixtures
 - Background Tasks Import
 - Delete Route Import
 - Get Route Import
@@ -148,8 +169,8 @@
 - User Model Import
 - Get Route Import
 - Post Route Import
-- AccessContext Reference
-- Get Route Import
+- Document API Routes
+- User Profile Endpoint
 - AI Pipeline Reference
 - Auth Service Reference
 - Chat Service Reference
@@ -161,6 +182,7 @@
 - Org Manager Jurisdiction Exceptions
 - TeamMembership Reference
 - ABC Reference
+- Team Exceptions
 - AccessContext Reference
 - PointStruct Reference
 - Traceable Decorator Reference
@@ -168,11 +190,13 @@
 - User Model Reference
 - Org Manager Jurisdiction Grant/Revoke API
 - Org Manager Jurisdiction Grant/Revoke API
-- AccessContext Reference
-- BaseModel Reference
+- Team API Routes
+- Team API Routes
+- Team API Routes
+- Auth Login Endpoints
+- Auth Login Endpoints
+- Auth Login Endpoints
 - Base Storage Service Reference
-- Ingestion & Citation Provenance Flow
-- Observability Reference
 - Docker Compose Placeholder
 - Document Response Reference
 - Suspected Chunks Metric
@@ -217,20 +241,20 @@
 - RBAC-5J Parity Test Fixtures
 - Path Reference
 - UploadFile Reference
-- UserCreate Schema Reference
+- User Profile Endpoint
 - UserService Reference
 
 ## God Nodes (most connected - your core abstractions)
 1. `DocumentChunk` - 140 edges
 2. `BlockType` - 113 edges
-3. `AccessContext` - 92 edges
+3. `AccessContext` - 76 edges
 4. `DocumentBlock` - 51 edges
 5. `count_tokens()` - 43 edges
-6. `make_document()` - 41 edges
-7. `make_user()` - 41 edges
+6. `make_user()` - 41 edges
+7. `make_document()` - 41 edges
 8. `make_user()` - 41 edges
-9. `OrgManagerTeamRepository` - 40 edges
-10. `make_organisation()` - 40 edges
+9. `make_organisation()` - 40 edges
+10. `build_access()` - 40 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Transformer architecture` --semantically_similar_to--> `LangGraph`  [INFERRED] [semantically similar]
@@ -252,511 +276,575 @@
 - **Offline chunking evaluation harness** — evaluation_artifacts_readme_frozen_blocks, evaluation_artifacts_comparison [EXTRACTED 0.75]
 - **RAG paradigm progression** — tests_test_documents_rag_retrieval_augmented_generation, tests_test_documents_rag_naive_rag, tests_test_documents_rag_advanced_rag, tests_test_documents_rag_modular_rag [EXTRACTED 0.75]
 - **Transformer built from attention components** — tests_test_documents_attention_transformer, tests_test_documents_attention_self_attention, tests_test_documents_attention_scaled_dot_product_attention, tests_test_documents_attention_multi_head_attention, tests_test_documents_attention_positional_encoding [EXTRACTED 0.75]
-- **ChunkPipeline 8-stage ordered flow** — claude_paragraphstage, claude_metadatastage, claude_mergestage, claude_recursivestage, claude_semanticstage, claude_filterstage, claude_qualitystage, claude_finalizestage [EXTRACTED 1.00]
-- **RBAC retrieval/document authorization chain** — claude_accesscontext, claude_denserepository_authorization_filter, claude_documentrepository_get_visible, claude_documentservice_can_create, claude_documentservice_can_delete [EXTRACTED 1.00]
-- **Rolling-summary conversation memory flow** — claude_conversationservice, claude_conversationsummaryservice_update_summary, claude_summarygenerator, claude_messagerepository, claude_aipipeline [EXTRACTED 1.00]
+- **ChunkPipeline's 8 ordered stages** — claude_paragraphstage, claude_metadatastage, claude_mergestage, claude_recursivestage, claude_semanticstage, claude_filterstage, claude_qualitystage, claude_finalizestage [EXTRACTED 1.00]
+- **RBAC AccessContext threading through chat retrieval path** — claude_app_dependencies_access_py_get_access_context, claude_accesscontext, claude_aipipeline, claude_retrievalservice, claude_hybridservice, claude_denserepository_authorization_filter [EXTRACTED 1.00]
+- **Citation scoring formula components** — claude_generationservice_citations_for, claude_query_term_weights, claude_answer_support, claude_citation_model [EXTRACTED 1.00]
 
-## Communities (246 total, 90 thin omitted)
+## Communities (270 total, 97 thin omitted)
 
-### Community 0 - "RBAC-5J Test Fixtures"
-Cohesion: 0.06
-Nodes (99): OrgManagerTeam, SQLAlchemy model representing an ``OrgRole.MANAGER``'s jurisdiction over a…, OrgManagerTeamRepository, Grant ``user_id`` jurisdiction over ``team_id``. Raises…, Repository for OrgManagerTeam (RBAC-5J jurisdiction) database operations.…, Revoke ``user_id``'s jurisdiction over ``team_id``. Raises…, Return the jurisdiction row for one (Org Manager, team) pair, if any -- the…, Return the ids of every team the given user holds jurisdiction over -- the… (+91 more)
-
-### Community 1 - "Document Repository Visibility"
+### Community 0 - "Document Repository Visibility"
 Cohesion: 0.07
-Nodes (90): DocumentRepository, Document, Session, Return one document only if ``access`` is authorized to see it -- same…, Repository for Document database operations., Update the processing status of a document., The SQL-level mirror of ``DenseRepository._authorization_filter``'s branch…, Return every document ``access`` is authorized to see: owned INDIVIDUAL… (+82 more)
+Nodes (94): DocumentRepository, Document, Session, Return one document only if ``access`` is authorized to see it -- same…, Repository for Document database operations., Update the processing status of a document., The SQL-level mirror of ``DenseRepository._authorization_filter``'s branch…, Return every document ``access`` is authorized to see: owned INDIVIDUAL… (+86 more)
 
-### Community 2 - "Base Document Handler"
-Cohesion: 0.09
-Nodes (43): BaseHandler, HandlerResult, ABC, Result returned by every document handler., Base class for all document handlers., Converts one logical markdown block into a DocumentBlock., CaptionHandler, Token (+35 more)
+### Community 1 - "Qdrant Authorization Filter Tests"
+Cohesion: 0.06
+Nodes (80): DenseRepository, Filter, HybridSearchResult, Create the Astra Study collection., Delete the Astra Study collection., Drop and recreate the collection. Useful during development., Delete every point belonging to one schema_version=3 document. Scoped…, Return the number of vectors stored in the collection. (+72 more)
 
-### Community 3 - "Document Creation Test Fixtures"
+### Community 2 - "Document Exceptions"
+Cohesion: 0.11
+Nodes (73): LastTeamManagerError, OrgManagerJurisdictionAlreadyExistsError, OrgManagerJurisdictionForbiddenError, OrgManagerJurisdictionNotFoundError, Raised when a non-``OrgRole.ADMIN`` attempts to grant or revoke Org Manager…, Raised when the target user does not currently hold ``OrgRole.MANAGER``.…, Raised when granting jurisdiction for a ``(user_id, team_id)`` pair that…, Raised when revoking a jurisdiction relationship that does not exist for the… (+65 more)
+
+### Community 3 - "Chunking Validation Helpers"
+Cohesion: 0.07
+Nodes (71): analyze(), _block_from_dict(), _block_range_valid(), _block_to_dict(), _chunk_body(), compare(), _dig(), _expected_prefix() (+63 more)
+
+### Community 4 - "Qdrant Test Isolation & RBAC-6 Authorization Tests"
+Cohesion: 0.05
+Nodes (65): AccessContext, Insert or update points in the collection., ChunkMetadata, DenseRepository.COLLECTION_NAME, Persistence (SQLAlchemy + Qdrant + filesystem), Qdrant collection astra_study (dense+sparse vectors), tests/conftest.py (Qdrant test isolation guard), DenseRepository (+57 more)
+
+### Community 5 - "Document Creation Test Fixtures"
 Cohesion: 0.12
 Nodes (70): build_access(), db(), _ingest_and_capture_metadata(), make_document_service(), make_document_service_with_storage_spy(), make_membership(), make_organisation(), make_team() (+62 more)
 
-### Community 4 - "Chunking Validation Helpers"
-Cohesion: 0.07
-Nodes (68): analyze(), _block_from_dict(), _block_range_valid(), _block_to_dict(), _chunk_body(), compare(), _dig(), _expected_prefix() (+60 more)
-
-### Community 5 - "Chat Message & Conversation Tests"
+### Community 6 - "Chat Message & Conversation Tests"
 Cohesion: 0.07
 Nodes (53): ChatMessage, ChatSession, GenerationResponse, PromptBuilder, add_messages(), db(), _FakeLLM, _FakeRetrieval (+45 more)
 
-### Community 6 - "Merge Stage Section Chunks"
-Cohesion: 0.09
-Nodes (63): count_tokens(), Count the number of tokens in text., _distinct(), _list_blocks(), _long(), _md_table(), _merged_section(), _pipeline_from_blocks() (+55 more)
+### Community 7 - "AI Pipeline Response Building"
+Cohesion: 0.05
+Nodes (46): AIResponse, AIPipeline, ChatMessage, StreamEvent, traceable, Stream an assistant response using Retrieval-Augmented Generation., Generate a short AI title for a new conversation., Generate or update the conversation summary. (+38 more)
 
-### Community 7 - "Base Generation Service"
-Cohesion: 0.06
-Nodes (50): BaseGenerationService, ABC, Abstract interface for the Generation layer. Implementations are responsible…, Generate a complete response., Stream the generated response. Each yielded string represents the next chunk of…, EmptyPromptError, EmptyResponseError, GenerationError (+42 more)
+### Community 8 - "RBAC Foundation Tests"
+Cohesion: 0.05
+Nodes (44): BaseStorageService, ABC, Path, UploadFile, Save a file and return: ( stored_filename, file_size, ), Delete a stored file., Return the absolute path of a stored file., Base interface for all storage providers. (+36 more)
 
-### Community 8 - "Chunking Config & Pipeline"
+### Community 9 - "Chunking Config & Pipeline"
 Cohesion: 0.08
-Nodes (37): ChunkingConfig, Single source of truth for the chunking pipeline's size limits. Every value is…, ContentSegment, One source ``DocumentBlock`` that ``MergeStage`` folded into a chunk. Internal…, True when ``inner`` names the same section as ``outer`` or a subsection nested…, section_contains(), ChunkPipeline, Executes the configured chunking stages. (+29 more)
+Nodes (32): ChunkPipeline, Executes the configured chunking stages., BaseChunkStage, ABC, Process the incoming data and return chunks., Base interface for every chunking stage., # IMPORTANT:, MergeStage (+24 more)
 
-### Community 9 - "Embedded Chunk & Provenance Tests"
+### Community 10 - "Base Generation Service"
+Cohesion: 0.06
+Nodes (49): BaseGenerationService, ABC, Abstract interface for the Generation layer. Implementations are responsible…, Generate a complete response., Stream the generated response. Each yielded string represents the next chunk of…, EmptyPromptError, EmptyResponseError, GenerationError (+41 more)
+
+### Community 11 - "Embedded Chunk & Provenance Tests"
 Cohesion: 0.06
 Nodes (49): _context(), _conversation(), _embedded(), _extract(), FakeBBox, FakeConverter, FakeDocument, _FakeGeneration (+41 more)
 
-### Community 10 - "Qdrant Authorization Filter Tests"
-Cohesion: 0.11
-Nodes (60): MatchAny, _admin_team_branches(), _branch_count(), branch_filter(), call_hybrid_search(), find_matchany(), _jurisdiction_team_branches(), make_access() (+52 more)
-
-### Community 11 - "Recursive Stage Heading Logic"
+### Community 12 - "Recursive Stage Heading Logic"
 Cohesion: 0.06
 Nodes (40): _is_markdown_separator(), _norm(), Compact heading context: the deepest heading normally, or the deepest two…, Recover the source segments (one per contributing block) from the merged chunk…, The text a pass-through chunk would carry with ``prefix`` present exactly once.…, A markdown table separator row, e.g. ``| --- | :--: |``., Text of each child (before the heading prefix), plus -- for the structural…, Pack whole list items into child bodies, never dividing one. A single item… (+32 more)
 
-### Community 12 - "Document Exceptions"
-Cohesion: 0.16
-Nodes (58): Raised when the acting user is not the target team's own ``TeamRole.MANAGER``.…, TeamMembershipOperationForbiddenError, all_memberships(), build_access(), db(), get_membership(), _make_file_backed_session_factory(), make_membership() (+50 more)
-
-### Community 13 - "Base Ingestion Processor"
-Cohesion: 0.07
-Nodes (34): BaseProcessor, ABC, Path, Extract structured information from a document., Base class for every document processor., ProcessorFactory, Path, Returns the correct processor for a document. (+26 more)
-
-### Community 14 - "Team Exceptions"
+### Community 13 - "Base Document Handler"
 Cohesion: 0.11
-Nodes (54): Trim before length constraints are applied (mode="before" runs ahead of Field's…, Schema used when creating a team. Deliberately has no ``organisation_id`` field…, TeamCreate, field_validator, all_memberships(), all_teams(), build_access(), db() (+46 more)
+Nodes (33): BaseHandler, HandlerResult, ABC, Result returned by every document handler., Base class for all document handlers., CaptionHandler, Token, Detects figure/table captions. (+25 more)
 
-### Community 15 - "Retrieval Exceptions"
+### Community 14 - "Retrieval Exceptions"
 Cohesion: 0.07
 Nodes (38): ContextFormattingError, EmptyQueryError, NoRetrievalResultsError, Exception, Raised when no relevant contexts could be retrieved., Base exception for retrieval failures., Raised when the retrieval pipeline is improperly configured., Raised when retrieved contexts cannot be formatted for downstream generation. (+30 more)
 
-### Community 16 - "Document Scope Exceptions"
-Cohesion: 0.07
-Nodes (42): DocumentNotFoundError, DocumentTooLargeError, EmptyDocumentError, InvalidAccessScopeError, InvalidDocumentTypeError, OrganisationScopeForbiddenError, Raised when an empty document is uploaded., Raised when a document exceeds the allowed size. (+34 more)
+### Community 15 - "Base Ingestion Processor"
+Cohesion: 0.08
+Nodes (29): BaseProcessor, ABC, Path, Extract structured information from a document., Base class for every document processor., ProcessorFactory, Path, Returns the correct processor for a document. (+21 more)
 
-### Community 17 - "Frontend API Client"
-Cohesion: 0.09
-Nodes (23): Any, frontend/app.py (3-column layout), Streaming protocol (SSE), Exception, ApiClient, ApiException, Download binary data., Base HTTP client used by all frontend services. (+15 more)
-
-### Community 18 - "Reingest Metadata Tests"
-Cohesion: 0.10
-Nodes (39): DocumentChunk, main(), Document, Stamp every chunk's metadata from the one authoritative Document row.…, _stamp_rbac_fields(), SimpleNamespace, db(), _embedded() (+31 more)
-
-### Community 19 - "Team Exceptions"
-Cohesion: 0.09
-Nodes (27): grant_org_manager_jurisdiction(), Grant an Org Manager jurisdiction over a team. Only ``OrgRole.ADMIN`` may call…, InvalidTeamNameError, Raised when a team name is already taken within the requester's organisation.…, Raised when a team name is blank/whitespace-only after trimming, or exceeds 255…, Raised when a non-ADMIN, non-MANAGER user attempts to create a team., TeamCreationForbiddenError, TeamNameAlreadyExistsError (+19 more)
-
-### Community 20 - "Chunking Evaluation Baselines"
+### Community 16 - "Chunking Evaluation Baselines"
 Cohesion: 0.05
 Nodes (44): baseline_apjspeech.txt (commit 888fc8c report), baseline_Attention.txt (commit 888fc8c report), baseline_LLM.txt (commit 888fc8c report), comparison.txt (baseline vs stage14 deltas), comparison_stage5_to_stage6.txt (Stage 6 primary comparison), apjspeech.pdf (eval corpus doc), Attention.pdf (eval corpus doc), LLM.pdf (eval corpus doc) (+36 more)
 
-### Community 21 - "Base LLM Provider"
-Cohesion: 0.07
-Nodes (23): BaseLLMProvider, ABC, Generate a complete response from the language model., Stream a response from the language model., Base interface for all LLM providers., get_openai_client(), Create and return an OpenAI client. The client is configured using application…, OpenAIProvider (+15 more)
+### Community 17 - "Team Exceptions"
+Cohesion: 0.15
+Nodes (44): all_memberships(), all_teams(), build_access(), make_organisation(), make_team_service(), make_user(), Organisation, OrgRole (+36 more)
 
-### Community 22 - "Access Context Tests"
+### Community 18 - "Chunk Metadata & Content Segments"
+Cohesion: 0.07
+Nodes (37): ContentSegment, DocumentChunk, One source ``DocumentBlock`` that ``MergeStage`` folded into a chunk. Internal…, Represents one chunk that will eventually be embedded and stored in the vector…, One ContentSegment for a source block as it enters MergeStage (each chunk is…, Emit ``builder`` -- unless it only ever held a heading (or nothing), in which…, Start a new section chunk. Every metadata field is preserved by deep-copying…, Decide whether ``incoming`` starts a new section chunk. (+29 more)
+
+### Community 19 - "RBAC-5J Test Fixtures"
+Cohesion: 0.19
+Nodes (43): Organisation, all_jurisdictions(), build_access(), make_organisation(), make_service(), make_team(), make_user(), OrgRole (+35 more)
+
+### Community 20 - "Merge Stage Section Chunks"
 Cohesion: 0.11
-Nodes (39): get_access_context(), Session, User, Build the request-scoped authorization identity. Every field is derived…, db(), make_jurisdiction(), make_membership(), make_organisation() (+31 more)
+Nodes (40): ChunkMetadata, Metadata associated with a document chunk. This metadata flows through the…, QualityStage, Return ``text`` with a leading folded-heading line removed. RecursiveStage…, Assigns retrieval quality metadata to chunks. This stage NEVER removes chunks.…, count_tokens(), Count the number of tokens in text., BlockType (+32 more)
+
+### Community 21 - "Query Rewriter"
+Cohesion: 0.10
+Nodes (25): QueryRewriter, Build the prompt used to rewrite the latest user message into a standalone…, Convert structured conversation messages into a readable prompt format., Responsible for rewriting conversational user queries into standalone search…, AIResponse, Response returned by the AI orchestration layer. This model is intentionally…, Build the prompt used to generate or update the rolling conversation summary., Responsible for building prompts used to generate and maintain a rolling… (+17 more)
+
+### Community 22 - "Chat API Routes"
+Cohesion: 0.08
+Nodes (33): create_chat(), delete_chat(), get_chat(), list_chats(), delete, get, post, Response (+25 more)
 
 ### Community 23 - "Settings & Access Dependencies"
 Cohesion: 0.13
-Nodes (16): ABC, Application settings loaded from environment variables., Settings, OrgRole, Enum, str, A user's organisation-scoped role. Distinct from document access scope -- role…, AccessContext (+8 more)
+Nodes (11): Application settings loaded from environment variables., Settings, get_db(), Session, Creates a new database session for each request and ensures it is closed after…, Domain models for the reranking subsystem. These models represent the output of…, Service layer for document reranking. The service is responsible for: -…, AccessContext (+3 more)
 
-### Community 24 - "Query Rewriter"
-Cohesion: 0.11
-Nodes (24): QueryRewriter, Build the prompt used to rewrite the latest user message into a standalone…, Convert structured conversation messages into a readable prompt format., Responsible for rewriting conversational user queries into standalone search…, AIResponse, Response returned by the AI orchestration layer. This model is intentionally…, Build the prompt used to generate or update the rolling conversation summary., Responsible for building prompts used to generate and maintain a rolling… (+16 more)
-
-### Community 25 - "Chunk Metadata & Content Segments"
-Cohesion: 0.09
-Nodes (31): DocumentChunk, Represents one chunk that will eventually be embedded and stored in the vector…, One ContentSegment for a source block as it enters MergeStage (each chunk is…, Emit ``builder`` -- unless it only ever held a heading (or nothing), in which…, Start a new section chunk. Every metadata field is preserved by deep-copying…, Decide whether ``incoming`` starts a new section chunk., Incrementally builds one heading-anchored section chunk. A heading may *seed* a…, _segment_of() (+23 more)
-
-### Community 26 - "AI Pipeline Response Building"
+### Community 24 - "Team Exceptions"
 Cohesion: 0.10
-Nodes (22): AIResponse, AIPipeline, ChatMessage, StreamEvent, traceable, Stream an assistant response using Retrieval-Augmented Generation., Generate a short AI title for a new conversation., Generate or update the conversation summary. (+14 more)
+Nodes (25): ApiException, One member of a team roster, as returned by ``GET /teams/{team_id}/members``.…, MembershipService, ApiClient, Return every member of ``team_id``, ordered by username ascending (backend…, Add ``user_id`` to ``team_id`` as a plain ``TeamRole.MEMBER``. The backend…, Remove ``user_id``'s membership from ``team_id`` entirely., Service responsible for team membership management: roster retrieval, add,… (+17 more)
 
-### Community 27 - "Evaluation Metric Evaluators"
+### Community 25 - "Access Context Tests"
+Cohesion: 0.11
+Nodes (39): get_access_context(), Session, User, Build the request-scoped authorization identity. Every field is derived…, db(), make_jurisdiction(), make_membership(), make_organisation() (+31 more)
+
+### Community 26 - "Auth Session Dependency"
+Cohesion: 0.11
+Nodes (30): login(), oauth2_login(), post, Authenticate a user using JSON. Used by the frontend., OAuth2-compatible login endpoint. Swagger sends: username password We interpret…, register(), LoginRequest, BaseModel (+22 more)
+
+### Community 27 - "RBAC-5J Test Fixtures"
+Cohesion: 0.19
+Nodes (38): OrgManagerTeam, TeamRole, build_access(), make_jurisdiction(), make_membership(), make_membership_service(), make_organisation(), make_team() (+30 more)
+
+### Community 28 - "Team Exceptions"
+Cohesion: 0.09
+Nodes (33): create_team(), get_team_members(), grant_org_manager_jurisdiction(), list_teams(), AccessContext, get, Remove a user's membership from a team entirely, regardless of its current…, Grant an Org Manager jurisdiction over a team. Only ``OrgRole.ADMIN`` may call… (+25 more)
+
+### Community 29 - "Section Matching & Chunking Tests"
+Cohesion: 0.15
+Nodes (36): True when ``inner`` names the same section as ``outer`` or a subsection nested…, section_contains(), _body(), _chunk(), _heading(), _merge(), _mk(), _prov() (+28 more)
+
+### Community 30 - "Frontend Chat Service Client"
+Cohesion: 0.13
+Nodes (18): ChatService, MessageService, Chat, Citation, Conversation, Message, ApiResponse, Standard API response returned by Astra Study. (+10 more)
+
+### Community 31 - "Base LLM Provider"
+Cohesion: 0.09
+Nodes (20): BaseLLMProvider, ABC, Generate a complete response from the language model., Stream a response from the language model., Base interface for all LLM providers., OpenAIProvider, OpenAI implementation of the LLM provider., Generate a complete response using OpenAI. (+12 more)
+
+### Community 32 - "Document Service API"
+Cohesion: 0.09
+Nodes (29): ChatService, DocumentService, main(), Document, _load_workspace(), login_screen(), ApiClient, Load chats and documents immediately after login. (+21 more)
+
+### Community 33 - "Frontend API Client"
+Cohesion: 0.11
+Nodes (17): Any, Exception, ApiClient, ApiException, Download binary data., Base HTTP client used by all frontend services., Open a Server-Sent Events POST request., Execute an HTTP request. (+9 more)
+
+### Community 34 - "Evaluation Metric Evaluators"
 Cohesion: 0.10
 Nodes (21): answer_length(), citation_count(), exact_match(), Any, Exact answer match. Useful as a fast deterministic baseline., Records answer length. Helpful for spotting prompt regressions., Counts returned citations., FixtureManager (+13 more)
 
-### Community 28 - "Qdrant Test Isolation & RBAC-6 Authorization Tests"
-Cohesion: 0.14
-Nodes (32): AccessContext, OrgRole, _access(), RBAC-6: real Qdrant round-trip validation for the complete RBAC-5C..5J…, Perform a REAL Qdrant hybrid_search call -- the exact production method that…, TeamRole.MANAGER read visibility for Qdrant is identical to plain membership --…, Jurisdiction over TEAM_Y must not grant visibility into TEAM_X., Jurisdiction is intentionally independent of TeamMembership -- team_ids is… (+24 more)
+### Community 35 - "Merge Stage Section Chunks"
+Cohesion: 0.13
+Nodes (34): _distinct(), _list_blocks(), _long(), _merged_section(), A MergeStage-style section chunk: ``blocks`` joined with blank lines…, Q2/Q3: 1 heading + 4 distinct body blocks, 2 pages, forced into several…, A single body block longer than several windows: a middle child holds only its…, Two adjacent blocks that share a verbatim 6-word run at their start. The… (+26 more)
 
-### Community 29 - "Chat API Routes"
-Cohesion: 0.10
-Nodes (26): create_chat(), delete_chat(), get_chat(), list_chats(), delete, get, post, Response (+18 more)
+### Community 36 - "RBAC-5G Whoami Jurisdiction Tests"
+Cohesion: 0.16
+Nodes (32): ``GET /users/me`` response only -- extends ``UserResponse`` with RBAC context…, UserProfileResponse, db(), make_jurisdiction(), make_membership(), make_organisation(), make_team(), make_user() (+24 more)
 
-### Community 30 - "Conversation Service Message Flow"
-Cohesion: 0.10
-Nodes (24): Base, TimestampMixin, SQLAlchemy model representing an application user., User, Retrieve a user by email., Retrieve a user by username., ConversationService, BackgroundTasks (+16 more)
-
-### Community 31 - "Reranking Pipeline Tests"
+### Community 37 - "Reranking Pipeline Tests"
 Cohesion: 0.09
 Nodes (30): AIPipeline, get_ai_pipeline(), get_generation_service(), get_hybrid_service(), get_llm_service(), get_prompt_builder(), get_reranking_service(), get_retrieval_service() (+22 more)
 
-### Community 32 - "Chunk Metadata & Content Segments"
-Cohesion: 0.10
-Nodes (23): ChunkMetadata, Metadata associated with a document chunk. This metadata flows through the…, FinalizeStage, UUID, Generate a deterministic UUID for every chunk. UUIDs must satisfy: • Stable…, Final stage executed before embeddings. Responsibilities ---------------- •…, Normalize page/block ranges. Pages should always be ascending. Block ranges are…, QualityStage (+15 more)
+### Community 38 - "Chat Not Found & Message API"
+Cohesion: 0.13
+Nodes (20): Base, Base class for all SQLAlchemy ORM models., ChatNotFoundError, Raised when the requested chat session does not exist or is inaccessible., ChatSession, Represents a chat session belonging to a user., ChatMessage, Represents a single message within a chat session. (+12 more)
 
-### Community 33 - "Embedding Request Execution"
-Cohesion: 0.10
-Nodes (24): OpenAIEmbedder, traceable, Execute one embedding request. Retries automatically for transient OpenAI…, Embed a single batch of document chunks. Parameters ---------- chunks A batch…, Embed multiple batches. Parameters ---------- batches List of EmbeddingBatch…, Convenience wrapper. Allows embedder(batches) instead of embedder.embed(batches), Generate an embedding for a user query., Generates OpenAI embeddings for DocumentChunks. Responsibilities… (+16 more)
-
-### Community 34 - "Qdrant Authorization Filter Tests"
-Cohesion: 0.08
-Nodes (18): DenseRepository, Filter, HybridSearchResult, Create the Astra Study collection., Delete the Astra Study collection., Drop and recreate the collection. Useful during development., Delete every point belonging to one schema_version=3 document. Scoped…, Return the number of vectors stored in the collection. (+10 more)
-
-### Community 35 - "Frontend Upload Access-Scope Validation"
-Cohesion: 0.16
-Nodes (28): Return every TeamMembership row for a user, with its Team eagerly loaded in the…, can_select_organisation_scope(), Teams the given user may upload a TEAM-scoped document to. Deliberately sourced…, True only for ``OrgRole.ADMIN``. Neither ``OrgRole.MANAGER`` nor Org Manager…, UX-level validation only -- the backend remains the authoritative authorization…, selectable_teams(), validate_upload_scope(), TeamMembership (+20 more)
-
-### Community 36 - "RBAC-5G Whoami Jurisdiction Tests"
-Cohesion: 0.18
-Nodes (30): db(), make_jurisdiction(), make_membership(), make_organisation(), make_team(), make_user(), make_user_service(), fixture (+22 more)
-
-### Community 37 - "Chat Not Found & Message API"
-Cohesion: 0.14
-Nodes (18): Base, Base class for all SQLAlchemy ORM models., ChatNotFoundError, Raised when the requested chat session does not exist or is inaccessible., ChatSession, Represents a chat session belonging to a user., ChatMessage, Represents a single message within a chat session. (+10 more)
-
-### Community 38 - "Base Reranker"
+### Community 39 - "RBAC-5J Test Fixtures"
 Cohesion: 0.12
-Nodes (18): BaseReranker, ABC, Abstract interface for all rerankers. Every reranker implementation…, Abstract base class for reranking implementations., Returns the underlying reranker model name., Returns the execution device. Example ------- cpu cuda cuda:0 mps, Batch size used for inference., Maximum sequence length accepted by the reranker. (+10 more)
+Nodes (31): Document, parametrize, Team, TeamMembership, _document_payload(), get_jurisdiction(), make_document(), make_jurisdiction() (+23 more)
 
-### Community 39 - "Conversation Service Propagation Tests"
+### Community 40 - "Frontend Upload Access-Scope Validation"
+Cohesion: 0.17
+Nodes (28): Frontend RBAC (Phase A), can_select_organisation_scope(), Teams the given user may upload a TEAM-scoped document to. Deliberately sourced…, True only for ``OrgRole.ADMIN``. Neither ``OrgRole.MANAGER`` nor Org Manager…, UX-level validation only -- the backend remains the authoritative authorization…, selectable_teams(), validate_upload_scope(), TeamMembership (+20 more)
+
+### Community 41 - "Conversation Service Propagation Tests"
 Cohesion: 0.10
 Nodes (27): ConversationService, _individual_branch_user_id(), make_conversation_service(), make_dense_repository_with_fake_client(), _persisted(), Filter, parametrize, Executable specification for RBAC-5B: threading the trusted AccessContext… (+19 more)
 
-### Community 40 - "Auth Session Dependency"
-Cohesion: 0.14
-Nodes (23): login(), oauth2_login(), post, Authenticate a user using JSON. Used by the frontend., OAuth2-compatible login endpoint. Swagger sends: username password We interpret…, register(), Session, Repository for User-specific database operations. (+15 more)
+### Community 42 - "Reranking Service Tests"
+Cohesion: 0.13
+Nodes (21): ABC, BaseRetrievalService, RetrievalResult, Base contract for all retrieval implementations., Execute the complete retrieval pipeline. Retrieval is keyword-only and always…, Allow the service to be invoked like a function., RerankingResult, make_hybrid_result() (+13 more)
 
-### Community 41 - "Section Matching & Chunking Tests"
-Cohesion: 0.17
-Nodes (28): _body(), _chunk(), _heading(), _merge(), _mk(), _prov(), Run the first real stages that shape section chunks: Metadata -> Merge. Input…, _run_metadata() (+20 more)
-
-### Community 42 - "RBAC Foundation Tests"
-Cohesion: 0.15
-Nodes (24): db(), make_document(), make_organisation(), make_team(), make_upload_file(), make_user(), Document, fixture (+16 more)
-
-### Community 43 - "Embedding Batcher"
-Cohesion: 0.14
-Nodes (19): Convert raw vectors returned by OpenAI into EmbeddedChunk objects., EmbeddingValidationError, Raised when an embedding fails validation. Examples: - Empty embedding -…, EmbeddedChunk, EmbeddingMetadata, EmbeddingVector, Returns the chunk text., Returns the embedding dimensions. (+11 more)
-
-### Community 44 - "Cross-Encoder Reranker"
-Cohesion: 0.09
-Nodes (15): CrossEncoderReranker, Automatically determine the best available inference device. Priority --------…, Name of the underlying HuggingFace model., Device used for inference., Batch size used during inference., Maximum sequence length accepted by the model., Returns the loaded CrossEncoder instance. This property is primarily useful for…, Validate the user query before inference. (+7 more)
-
-### Community 45 - "Frontend Document Upload Service"
-Cohesion: 0.12
-Nodes (17): BinaryIO, DocumentService, Service responsible for all document-related operations., Download the original uploaded document., Retrieve all uploaded documents., Retrieve metadata for a single document., Upload one or more documents. ``access_scope``/``team_id`` apply to the entire…, _FakeApiClient (+9 more)
-
-### Community 46 - "Evaluation Metric Evaluators"
-Cohesion: 0.16
-Nodes (23): EvaluationService, Build the real, database-backed AccessContext for the configured evaluation…, db(), make_membership(), make_organisation(), make_team(), make_user(), _patched_session_local() (+15 more)
-
-### Community 47 - "Frontend User Profile & RBAC Models"
-Cohesion: 0.16
-Nodes (16): Fetch the richer RBAC profile (organisation_id, role, team memberships) for the…, TokenResponse, ApiResponse, Standard API response returned by Astra Study., ManagedTeam, One team the user holds Org Manager jurisdiction over. Deliberately carries no…, User, _profile() (+8 more)
-
-### Community 48 - "Document API Routes"
-Cohesion: 0.09
-Nodes (26): delete_document(), download_document(), get_document(), get_documents(), AccessContext, DocumentResponse, IngestionService, UploadFile (+18 more)
-
-### Community 49 - "OrgRole Enum & Base Model"
+### Community 43 - "OrgRole Enum & Base Model"
 Cohesion: 0.16
 Nodes (17): Document, Base, TimestampMixin, Represents an uploaded document., SQLAlchemy ORM Models, Organisation, Base, TimestampMixin (+9 more)
 
-### Community 50 - "AI Pipeline & Message Repository"
+### Community 44 - "Auth Session Dependency"
+Cohesion: 0.11
+Nodes (21): get_reranking_resource(), Return the shared reranking service. The underlying CrossEncoder model is…, AuthenticationError, InactiveUserError, InvalidCredentialsError, Raised when an inactive user attempts to log in., Raised when authentication fails because the access token is invalid, expired,…, Raised when the provided email or password is incorrect. (+13 more)
+
+### Community 45 - "Embedding Batcher"
+Cohesion: 0.12
+Nodes (21): EmbeddingBatcher, Splits document chunks into batches suitable for the embedding provider. The…, Split chunks into embedding batches., Convenience wrapper allowing the batcher to be called directly., EmbeddingBatchError, EmbeddingCacheError, EmbeddingError, EmbeddingRateLimitError (+13 more)
+
+### Community 46 - "Team Exceptions"
+Cohesion: 0.12
+Nodes (18): InvalidTeamNameError, Raised when a team name is already taken within the requester's organisation.…, Raised when a team name is blank/whitespace-only after trimming, or exceeds 255…, Raised when a non-ADMIN, non-MANAGER user attempts to create a team., TeamCreationForbiddenError, TeamNameAlreadyExistsError, Session, Team (+10 more)
+
+### Community 47 - "Evaluation Metric Evaluators"
+Cohesion: 0.16
+Nodes (23): EvaluationService, Build the real, database-backed AccessContext for the configured evaluation…, db(), make_membership(), make_organisation(), make_team(), make_user(), _patched_session_local() (+15 more)
+
+### Community 48 - "Embedded Chunk Model"
+Cohesion: 0.13
+Nodes (15): EmbeddedChunk, Returns the chunk text., Returns the embedding dimensions., Represents a chunk together with its embedding. This object is produced by the…, DenseMapper, PointStruct, ScoredPoint, Convert multiple EmbeddedChunks into PointStructs. (+7 more)
+
+### Community 49 - "AI Pipeline & Message Repository"
 Cohesion: 0.09
 Nodes (17): MessageRepository, datetime, Session, Count the user + assistant messages created at or before ``timestamp``.…, Retrieve the most recent messages from a chat session. Returned in…, Repository for ChatMessage database operations., Retrieve all messages belonging to a chat session. Messages are returned in…, Retrieve the user + assistant messages of a chat session in order. This is the… (+9 more)
 
-### Community 51 - "Sparse Embedding Encoder"
-Cohesion: 0.11
-Nodes (12): traceable, Generate sparse embedding for a user query., Generates sparse embeddings for document chunks using FastEmbed.…, Generate sparse embeddings for document chunks., SparseEncoder, Represents a sparse vector generated by the sparse encoder. Unlike dense…, Number of non-zero dimensions., Represents a document chunk together with its sparse vector. (+4 more)
+### Community 50 - "Frontend Document Upload Service"
+Cohesion: 0.13
+Nodes (17): BinaryIO, DocumentService, Service responsible for all document-related operations., Download the original uploaded document., Retrieve all uploaded documents., Retrieve metadata for a single document., Upload one or more documents. ``access_scope``/``team_id`` apply to the entire…, _FakeApiClient (+9 more)
+
+### Community 51 - "Merge Stage Section Chunks"
+Cohesion: 0.14
+Nodes (19): ChunkingConfig, Single source of truth for the chunking pipeline's size limits. Every value is…, Narrow post-split cleanup. Responsibilities ---------------- - concatenate a…, SemanticStage, BlockProvenance, A compact, parser-neutral reference to the source of one block., _sc(), _sem_chunk() (+11 more)
 
 ### Community 52 - "Dependency Service Wiring"
-Cohesion: 0.21
-Nodes (22): build_conversation_summary_service(), get_auth_service(), get_chat_service(), get_conversation_service(), get_conversation_summary_service(), get_document_service(), get_ingestion_service(), get_message_service() (+14 more)
+Cohesion: 0.20
+Nodes (24): build_conversation_summary_service(), get_auth_service(), get_chat_service(), get_conversation_service(), get_conversation_summary_service(), get_document_service(), get_ingestion_service(), get_message_service() (+16 more)
 
-### Community 53 - "Team API Routes"
-Cohesion: 0.13
-Nodes (18): add_team_member(), promote_team_member(), Promote an existing ``TeamRole.MEMBER`` to ``TeamRole.MANAGER``. Only that…, Add an existing user to a team as a plain ``TeamRole.MEMBER``. Only that team's…, Schema returned for one team membership after a direct membership-management…, TeamMemberResponse, TeamMembershipRepository, TeamRepository (+10 more)
+### Community 53 - "Sparse Embedding Encoder"
+Cohesion: 0.12
+Nodes (12): traceable, Generate sparse embedding for a user query., Generates sparse embeddings for document chunks using FastEmbed.…, Generate sparse embeddings for document chunks., SparseEncoder, Represents a sparse vector generated by the sparse encoder. Unlike dense…, Number of non-zero dimensions., Represents a document chunk together with its sparse vector. (+4 more)
 
-### Community 54 - "Document Exceptions"
-Cohesion: 0.10
-Nodes (18): Remove a user's membership from a team entirely, regardless of its current…, Revoke an Org Manager's jurisdiction over a team. Only ``OrgRole.ADMIN`` may…, remove_team_member(), revoke_org_manager_jurisdiction(), Raised when the target user has no ``TeamMembership`` row for the given team --…, Raised when adding a user who is already a member of the team, or promoting a…, TeamMemberNotFoundError, TeamMembershipAlreadyExistsError (+10 more)
+### Community 54 - "Frontend User Profile & RBAC Models"
+Cohesion: 0.17
+Nodes (16): UserProfileResponse, Build the ``GET /users/me`` response for an already-authenticated user.…, Fetch the richer RBAC profile (organisation_id, role, team memberships) for the…, TokenResponse, ManagedTeam, One team the user holds Org Manager jurisdiction over. Deliberately carries no…, User, _profile() (+8 more)
 
-### Community 55 - "Auth Login Endpoints"
-Cohesion: 0.14
-Nodes (18): ManagedTeamResponse, BaseModel, One of the requester's team memberships, as returned by ``GET /users/me``., One team the requester holds Org Manager jurisdiction over (RBAC-5J), as…, Schema used when a new user registers., ``GET /users/me`` response only -- extends ``UserResponse`` with RBAC context…, TeamMembershipResponse, UserCreate (+10 more)
+### Community 55 - "Team API Routes"
+Cohesion: 0.16
+Nodes (17): add_team_member(), promote_team_member(), Add an existing user to a team as a plain ``TeamRole.MEMBER``. Only that team's…, Promote an existing ``TeamRole.MEMBER`` to ``TeamRole.MANAGER``. Only that…, Schema returned for one team membership after a direct membership-management…, TeamMemberResponse, AccessContext, Promote ``user_id``'s existing ``TeamRole.MEMBER`` membership on ``team_id`` to… (+9 more)
 
-### Community 56 - "Embedded Chunk Model"
-Cohesion: 0.13
-Nodes (10): DenseMapper, ScoredPoint, Converts between Astra Study domain models and Qdrant models. Responsibilities…, Convert a Qdrant ScoredPoint into a DenseSearchResult., Convert multiple ScoredPoints into DenseSearchResults., DenseSearchResult, Represents one result returned from the dense vector search., DensePipeline (+2 more)
+### Community 56 - "Cross-Encoder Reranker"
+Cohesion: 0.12
+Nodes (14): CrossEncoderReranker, Name of the underlying HuggingFace model., Device used for inference., Batch size used during inference., Maximum sequence length accepted by the model., Validate the user query before inference., Validate the requested top_k value., Validate retrieval candidates before reranking. (+6 more)
 
-### Community 57 - "Reranking Candidate Validation"
-Cohesion: 0.13
-Nodes (15): Validate retrieval candidates before reranking., CandidateFormatError, EmptyCandidateError, InvalidQueryError, InvalidTopKError, ModelLoadError, PredictionError, Exception (+7 more)
+### Community 57 - "RBAC-5J Test Fixtures"
+Cohesion: 0.11
+Nodes (15): OrgManagerTeam, SQLAlchemy model representing an ``OrgRole.MANAGER``'s jurisdiction over a…, OrgManagerTeamRepository, Grant ``user_id`` jurisdiction over ``team_id``. Raises…, Repository for OrgManagerTeam (RBAC-5J jurisdiction) database operations.…, Revoke ``user_id``'s jurisdiction over ``team_id``. Raises…, Return the jurisdiction row for one (Org Manager, team) pair, if any -- the…, Return the ids of every team the given user holds jurisdiction over -- the… (+7 more)
 
 ### Community 58 - "Reranking Pipeline Tests"
 Cohesion: 0.16
 Nodes (22): preview_text(), print_header(), print_hybrid_results(), print_performance(), print_quality_benchmark(), print_rank_movements(), print_reranked_results(), print_reranking_statistics() (+14 more)
 
-### Community 59 - "Retrieval Service Orchestrator"
-Cohesion: 0.12
-Nodes (15): RetrievalResult, traceable, Execute the complete retrieval pipeline. Steps ----- 1. Validate query 2.…, Production Retrieval Orchestrator. Pipeline -------- User Query │ ▼ Hybrid…, Callable wrapper. Allows RetrievalService to be invoked like a function while…, Convert reranked search results into RetrievedContext objects consumed by…, RetrievalService, HybridService (+7 more)
+### Community 59 - "Filter Stage"
+Cohesion: 0.17
+Nodes (19): FilterStage, Removes only truly useless chunks. Philosophy ---------- Never remove…, is_copyright(), is_doi(), is_empty(), is_isbn(), is_numeric_only(), is_page_number() (+11 more)
 
 ### Community 60 - "Dense Search Exceptions"
 Cohesion: 0.13
 Nodes (21): CollectionAlreadyExistsError, CollectionCreationError, CollectionDeletionError, CollectionNotFoundError, DenseSearchConfigurationError, DenseSearchError, InvalidPayloadError, InvalidSearchQueryError (+13 more)
 
-### Community 61 - "Base Storage Service"
-Cohesion: 0.12
-Nodes (13): BaseStorageService, ABC, Path, UploadFile, Save a file and return: ( stored_filename, file_size, ), Delete a stored file., Return the absolute path of a stored file., Base interface for all storage providers. (+5 more)
-
-### Community 62 - "RBAC Document Authorization Concepts"
-Cohesion: 0.10
-Nodes (22): Authorization (RBAC), DocumentService, DocumentService._can_create, DocumentService._can_delete, InvalidAccessScopeError, Last-manager invariant (DELETE-embedded correlated subquery), OrganisationScopeForbiddenError, OrgManagerTeam (app/models/org_manager_team.py) (+14 more)
-
-### Community 63 - "Frontend Chat Service Client"
-Cohesion: 0.18
-Nodes (13): ChatService, Chat, Citation, _active_chat(), _client(), Refresh the sidebar chat list., Return the selected chat., Render workspace heading. (+5 more)
-
-### Community 64 - "Reranker Callable Interface"
+### Community 61 - "Reranker Callable Interface"
 Cohesion: 0.11
 Nodes (12): Allows the reranker instance to be invoked like a function. Example -------…, Rerank retrieved candidates. Parameters ---------- query: User query.…, slice, SupportsIndex, Returns the top-k reranked chunks. Parameters ---------- k: Number of chunks to…, Represents a single reranked retrieval result. Attributes ---------- result:…, Represents the complete output of the reranking stage. Attributes ----------…, Returns the highest ranked chunk. (+4 more)
 
+### Community 62 - "Reranking Candidate Validation"
+Cohesion: 0.15
+Nodes (14): CandidateFormatError, EmptyCandidateError, InvalidQueryError, InvalidTopKError, ModelLoadError, PredictionError, Exception, Raised when the reranker model cannot be loaded. Possible causes… (+6 more)
+
+### Community 63 - "Base Document Handler"
+Cohesion: 0.14
+Nodes (12): DocumentConverter, Token, Converts Markdown-It tokens into semantic DocumentBlocks. The converter itself…, Convert Markdown tokens into semantic DocumentBlocks., CodeHandler, Token, Handles fenced code blocks., FormulaHandler (+4 more)
+
+### Community 64 - "Document Exceptions"
+Cohesion: 0.11
+Nodes (11): Session, Return every ``TeamMembership`` row for one team, with its ``User`` eagerly…, Count a team's current ``TeamRole.MANAGER`` memberships. ``exclude_user_id``…, Add ``user_id`` to ``team_id`` as a plain ``TeamRole.MEMBER``. Raises…, Repository for TeamMembership database operations., Promote an existing ``TeamRole.MEMBER`` to ``TeamRole.MANAGER`` in place --…, Return the ids of every team the given user is a member of. Selects only the…, Return the membership row for one (user, team) pair, if any. Used to resolve… (+3 more)
+
 ### Community 65 - "OpenAI Embedder"
-Cohesion: 0.15
-Nodes (11): EmbeddingPipeline, Production embedding pipeline. Pipeline DocumentChunks │ ▼ EmbeddingBatcher │ ▼…, Execute the complete embedding pipeline., Convenience wrapper. Allows pipeline(chunks) instead of pipeline.run(chunks), PDFProcessor, Backward-compatible PDF processor. PDF ingestion is now handled by…, EmbeddingPipelineTester, main() (+3 more)
-
-### Community 66 - "Exception Handlers & Reranker Resource"
-Cohesion: 0.14
-Nodes (14): health_check(), get, get_reranking_resource(), Return the shared reranking service. The underlying CrossEncoder model is…, FastAPI, Register all application exception handlers., register_exception_handlers(), lifespan() (+6 more)
-
-### Community 67 - "Merge Stage Section Chunks"
-Cohesion: 0.20
-Nodes (16): Narrow post-split cleanup. Responsibilities ---------------- - concatenate a…, SemanticStage, BlockProvenance, A compact, parser-neutral reference to the source of one block., _sc(), _sem_chunk(), test_semantic_caption_owns_following_text_still_works(), test_semantic_merge_deduplicates_shared_provenance() (+8 more)
-
-### Community 68 - "Frontend Layout & Streaming"
-Cohesion: 0.15
-Nodes (16): ChatService, DocumentService, main(), _load_workspace(), login_screen(), ApiClient, Load chats and documents immediately after login., Render the login / registration page. (+8 more)
-
-### Community 69 - "Auth Session Dependency"
-Cohesion: 0.14
-Nodes (15): get_current_user(), Session, Return the currently authenticated user., AuthenticationError, InactiveUserError, InvalidCredentialsError, Raised when an inactive user attempts to log in., Raised when authentication fails because the access token is invalid, expired,… (+7 more)
-
-### Community 70 - "Frontend Team Discovery Service"
-Cohesion: 0.20
-Nodes (10): Service responsible for team-discovery operations. Read-only in this milestone:…, TeamService, Team, Return every team in the requester's own organisation (visibility only -- does…, _FakeApiClient, Executable specification for the frontend ``TeamService`` -- confirms it calls…, Duck-typed stand-in for ``ApiClient`` -- records the endpoint it was asked for…, test_list_teams_calls_the_teams_endpoint() (+2 more)
-
-### Community 71 - "Document Service API"
-Cohesion: 0.17
-Nodes (15): Document, _client(), _document_service(), _normalize_heading_path(), DocumentService, Presentation-only cleanup: collapse consecutive duplicate heading entries (e.g.…, Display retrieved citations., Create the document service. (+7 more)
-
-### Community 72 - "AccessContext Jurisdiction Concepts"
 Cohesion: 0.18
-Nodes (17): AccessContext, app/dependencies/access.py::get_access_context, app/dependencies/auth.py::get_current_user, AuthService.get_current_user_profile, Request/DI layering (backend), frontend/models/user.py::User, get_access_context, ManagedTeamResponse (RBAC-5J) (+9 more)
+Nodes (12): OpenAIEmbedder, Generates OpenAI embeddings for DocumentChunks. Responsibilities…, EmbeddingConfigurationError, Raised when the embedding configuration is invalid. Examples: - Missing API key…, EmbeddingMetadata, Metadata describing how an embedding was generated. Document metadata is…, EmbeddingPipeline, Production embedding pipeline. Pipeline DocumentChunks │ ▼ EmbeddingBatcher │ ▼… (+4 more)
 
-### Community 73 - "Ingestion & Citation Provenance Flow"
+### Community 66 - "Base Reranker"
+Cohesion: 0.13
+Nodes (11): BaseReranker, ABC, Abstract interface for all rerankers. Every reranker implementation…, Abstract base class for reranking implementations., Returns the underlying reranker model name., Returns the execution device. Example ------- cpu cuda cuda:0 mps, Batch size used for inference., Maximum sequence length accepted by the reranker. (+3 more)
+
+### Community 67 - "Retrieval Service Orchestrator"
 Cohesion: 0.15
-Nodes (16): app/api/v1 routers, app/ingestion/factory.py::ProcessorFactory, app/ingestion/processors/docling.py (DoclingProcessor), app/repositories (DB access), app/services (orchestration), DenseMapper, DenseRepository.delete_by_document_id, DoclingProcessor (+8 more)
+Nodes (13): RetrievalResult, traceable, Execute the complete retrieval pipeline. Steps ----- 1. Validate query 2.…, Production Retrieval Orchestrator. Pipeline -------- User Query │ ▼ Hybrid…, Callable wrapper. Allows RetrievalService to be invoked like a function while…, Convert reranked search results into RetrievedContext objects consumed by…, RetrievalService, HybridService (+5 more)
 
-### Community 74 - "Qdrant Test Isolation & RBAC-6 Authorization Tests"
+### Community 68 - "Frontend User Search Service"
+Cohesion: 0.18
+Nodes (12): ApiClient, Service responsible for organisation-scoped user lookup, used to resolve a…, UserService, One user returned by ``GET /users?q=`` (organisation-scoped lookup, used to…, UserSearchResult, test_user_search_result_parses_all_fields(), _FakeApiClient, Executable specification for the frontend ``UserService`` (organisation user… (+4 more)
+
+### Community 69 - "Reingest Metadata Tests"
+Cohesion: 0.26
+Nodes (18): main(), db(), make_document(), make_organisation(), make_user(), _one_chunk(), _patch_storage(), _patched_session_local() (+10 more)
+
+### Community 70 - "Document API Routes"
 Cohesion: 0.16
-Nodes (13): _isolate_qdrant_collection(), pytest_collection_modifyitems(), pytest_sessionfinish(), Test-wide Qdrant collection isolation. The integration tests drive…, Record whether this session collected any ``tests/integration`` test., Best-effort drop the dedicated test collection -- and only that collection --…, Pin every test to the dedicated Qdrant collection and return its name. Executed…, Offline safety regression for Qdrant test isolation. Guarantees the test… (+5 more)
+Nodes (17): delete_document(), download_document(), get_document(), get_documents(), AccessContext, DocumentResponse, IngestionService, UploadFile (+9 more)
 
-### Community 75 - "Filter Stage"
-Cohesion: 0.25
-Nodes (13): is_copyright(), is_doi(), is_empty(), is_isbn(), is_numeric_only(), is_page_number(), is_punctuation_only(), is_short_noise() (+5 more)
+### Community 71 - "Org Manager Jurisdiction Grant/Revoke API"
+Cohesion: 0.19
+Nodes (11): OrgManagerTeamService, AccessContext, Confirm the acting user is ``OrgRole.ADMIN``. Runs first, before any database…, Confirm ``team_id`` exists in the ADMIN's own organisation. Nonexistent team…, Confirm the target user exists in the ADMIN's own organisation, and return it.…, Confirm the target user currently holds ``OrgRole.MANAGER``. Jurisdiction is…, Handles Org Manager jurisdiction grant/revoke (RBAC-5J): the many-to-many…, Grant ``user_id`` jurisdiction over ``team_id``. Only ``access.role ==… (+3 more)
 
-### Community 76 - "Password Hashing & JWT Security"
+### Community 72 - "Frontend Sidebar UI"
+Cohesion: 0.20
+Nodes (17): _client(), _create_chat(), _list_teams(), _load_chat(), ApiClient, Upload selected documents., Left navigation panel., Create an authenticated API client. (+9 more)
+
+### Community 73 - "Document Scope Exceptions"
+Cohesion: 0.22
+Nodes (14): DocumentNotFoundError, InvalidAccessScopeError, OrganisationScopeForbiddenError, Raised when a requested document does not exist or does not belong to the…, Raised for a malformed or self-contradictory scope/team_id combination on…, Raised when the requested ``team_id`` does not exist, or exists in a different…, Raised when the requester is authenticated and the team exists in their own…, Raised when a non-ADMIN requests ORGANISATION-scoped document creation. (+6 more)
+
+### Community 74 - "Frontend Team Manager Authorization Gate"
+Cohesion: 0.24
+Nodes (15): is_team_manager(), True only if ``user`` holds ``TeamRole.MANAGER`` on this *specific* team, via…, Executable specification for ``frontend.team_membership.is_team_manager`` --…, OrgRole.ADMIN grants no team-membership-management authority -- mirrors the…, OrgRole.MANAGER (org-wide) alone grants no team-membership-management authority…, Org Manager jurisdiction (``managed_teams``) governs Qdrant/SQL document read-…, test_manager_of_a_different_team_is_not_authorized(), test_no_user_is_not_authorized() (+7 more)
+
+### Community 75 - "Password Hashing & JWT Security"
 Cohesion: 0.16
 Nodes (9): Any, Handles password hashing, password verification, and JWT token generation., Decode and validate a JWT., Hash a plain-text password., Verify a password against its hash., Create an access token., Create a refresh token., SecurityManager (+1 more)
 
-### Community 77 - "Embedding Batcher"
-Cohesion: 0.21
-Nodes (11): EmbeddingBatcher, Splits document chunks into batches suitable for the embedding provider. The…, Split chunks into embedding batches., Convenience wrapper allowing the batcher to be called directly., EmbeddingBatchError, Raised when an embedding batch is invalid. Examples: - Empty batch - Batch…, EmbeddingBatch, Represents a batch of chunks sent in a single embedding request. (+3 more)
-
-### Community 78 - "Hybrid Payload Mapper"
+### Community 76 - "Hybrid Payload Mapper"
 Cohesion: 0.31
 Nodes (14): HybridMapper, Converts Astra Study domain models into hybrid Qdrant PointStruct objects.…, Build the payload stored alongside every vector inside Qdrant. Payload…, _embedded(), EmbeddedChunk, Executable specification for RBAC-5C: RBAC-aware Qdrant payloads for newly…, DenseMapper is not part of the production indexing path (only…, _rbac_metadata() (+6 more)
 
-### Community 79 - "Org Manager Jurisdiction Grant/Revoke API"
+### Community 77 - "Ingestion & Citation Provenance Flow"
+Cohesion: 0.18
+Nodes (15): app/ingestion/factory.py::ProcessorFactory, app/ingestion/processors/docling.py (DoclingProcessor), Chunking pipeline contract, app/chunking/config.py::ChunkingConfig, app/chunking/pipeline.py::ChunkPipeline, evaluation/chunking_report.py (offline structural evaluator), ExtractionResult, app/search/hybrid/pipeline.py::HybridPipeline.index (+7 more)
+
+### Community 78 - "Frontend Team Discovery Service"
 Cohesion: 0.23
-Nodes (10): OrgManagerTeamService, AccessContext, Confirm the acting user is ``OrgRole.ADMIN``. Runs first, before any database…, Confirm ``team_id`` exists in the ADMIN's own organisation. Nonexistent team…, Confirm the target user exists in the ADMIN's own organisation, and return it.…, Confirm the target user currently holds ``OrgRole.MANAGER``. Jurisdiction is…, Handles Org Manager jurisdiction grant/revoke (RBAC-5J): the many-to-many…, Grant ``user_id`` jurisdiction over ``team_id``. Only ``access.role ==… (+2 more)
+Nodes (9): Service responsible for team-discovery operations. Read-only in this milestone:…, TeamService, Team, _FakeApiClient, Executable specification for the frontend ``TeamService`` -- confirms it calls…, Duck-typed stand-in for ``ApiClient`` -- records the endpoint it was asked for…, test_list_teams_calls_the_teams_endpoint(), test_list_teams_parses_team_response_shape() (+1 more)
 
-### Community 80 - "Reranking Service Tests"
-Cohesion: 0.23
-Nodes (15): RerankingResult, make_hybrid_result(), make_reranking_result(), make_service(), HybridSearchResult, RetrievalService, Graceful empty retrieval (commit b5d8d4b): when every candidate is filtered out…, The other half of graceful empty retrieval: no hybrid candidates at all short-… (+7 more)
+### Community 79 - "Embedding Batcher"
+Cohesion: 0.20
+Nodes (12): Convert raw vectors returned by OpenAI into EmbeddedChunk objects., EmbeddingValidationError, Raised when an embedding fails validation. Examples: - Empty embedding -…, EmbeddingVector, Represents a dense embedding vector generated by an embedding model. The vector…, Returns the embedding dimension., Validate an entire collection of embedded chunks., Validate an embedding vector. (+4 more)
 
-### Community 81 - "Conversation Memory Flow Concepts"
-Cohesion: 0.19
-Nodes (15): AIPipeline, Astra Study, Conversation memory (rolling summary + recent window), conversation_summary.run_summary_refresh, ConversationService, ConversationSummaryService.update_summary, DenseRepository.hybrid_search, HybridService (+7 more)
+### Community 80 - "Frontend Team Management UI"
+Cohesion: 0.27
+Nodes (14): _add(), _client(), _ensure_roster_loaded(), _invalidate_roster(), _load_roster(), _promote(), ApiClient, Fetch the roster for ``team_id`` and cache it, tagged with the team_id it… (+6 more)
 
-### Community 82 - "Document Validator"
+### Community 81 - "Document Validator"
 Cohesion: 0.20
 Nodes (9): DocumentValidator, Validates document-level metadata., Any, One metric produced by a validator., Output returned by every validator. Every validator returns exactly one…, Represents a non-fatal validation issue., ValidationMetric, ValidationResult (+1 more)
 
-### Community 83 - "Chat Not Found & Message API"
-Cohesion: 0.23
-Nodes (6): get_db(), Session, Creates a new database session for each request and ensures it is closed after…, ConversationResponse, BaseModel, Response returned after sending a message. Contains both the persisted user…
+### Community 82 - "Reingest Metadata Tests"
+Cohesion: 0.31
+Nodes (14): DocumentChunk, Document, Stamp every chunk's metadata from the one authoritative Document row.…, _stamp_rbac_fields(), _embedded(), make_document_like(), ChunkMetadata, DocumentAccessScope (+6 more)
 
-### Community 84 - "Chunking Pipeline Contract Concepts"
-Cohesion: 0.21
-Nodes (13): Chunking pipeline contract, ChunkingConfig, ChunkPipeline, evaluation/chunking_report.py (offline structural evaluator), FilterStage, FinalizeStage, MergeStage, MetadataStage (+5 more)
+### Community 83 - "RBAC Document Authorization Concepts"
+Cohesion: 0.17
+Nodes (13): Authorization (RBAC), Migration d18a69b8ede3 (Org Manager team jurisdiction), Migration 116ced32c143 (RBAC org/team foundation), Organisation model (app/models/organisation.py), OrgManagerTeam (app/models/org_manager_team.py), OrgManagerTeamService, OrgRole (MEMBER/MANAGER/ADMIN), alembic d18a69b8ede3_rbac_org_manager_team_jurisdiction (+5 more)
 
-### Community 85 - "Frontend Sidebar UI"
-Cohesion: 0.29
-Nodes (12): _client(), _create_chat(), _list_teams(), _load_chat(), Upload selected documents., Left navigation panel., Create an authenticated API client., Refresh chats and documents. (+4 more)
+### Community 84 - "Embedding Request Execution"
+Cohesion: 0.20
+Nodes (8): traceable, Execute one embedding request. Retries automatically for transient OpenAI…, Embed a single batch of document chunks. Parameters ---------- chunks A batch…, Generate an embedding for a user query., Estimate embedding cost in USD. Cost is calculated using the official OpenAI…, EmbeddingGenerationError, Raised when the embedding provider fails to generate embeddings., retry
 
-### Community 86 - "Base Repository CRUD"
-Cohesion: 0.23
-Nodes (7): BaseRepository, Session, Base repository providing common CRUD operations., Persist a new entity., Retrieve an entity by its primary key., Persist changes made to an existing entity., ModelType
+### Community 85 - "Auth Session Dependency"
+Cohesion: 0.17
+Nodes (7): Session, Retrieve a user by email., Search for users within one organisation by a case-insensitive partial match on…, Retrieve a user by username., Repository for User-specific database operations., UserRepository, TeamRepository
+
+### Community 86 - "Embedded Chunk Model"
+Cohesion: 0.17
+Nodes (3): DensePipeline, Production dense search pipeline. Responsibilities ----------------…, Execute dense vector similarity search.
 
 ### Community 87 - "Sparse Search Exceptions"
 Cohesion: 0.23
 Nodes (11): Exception, Raised when the sparse encoder configuration is invalid., Base exception for all sparse search errors., Raised when a sparse vector collection operation fails., Raised when sparse retrieval fails., Raised when sparse embeddings cannot be generated., SparseCollectionError, SparseConfigurationError (+3 more)
 
-### Community 88 - "Document Creation Test Fixtures"
-Cohesion: 0.18
-Nodes (6): Path, FakeStorageService, BaseStorageService, FakeStorageService, BaseStorageService, In-memory stand-in for LocalStorageService -- no filesystem access, so this…
+### Community 88 - "Document Scope Exceptions"
+Cohesion: 0.20
+Nodes (8): AccessContext, Document, Path, UploadFile, Delete a document, its Qdrant vectors, and its stored file -- only if…, Return the file path and original filename, if ``access`` is authorized to see…, Delete authorization -- stricter than read visibility. - The uploader/owner may…, Upload one or more documents under one, single authorized scope. Scope/team…
 
-### Community 89 - "Document Access Scope Enum"
+### Community 89 - "User Profile Endpoint"
+Cohesion: 0.18
+Nodes (10): get_current_user_profile(), AccessContext, get, UserProfileResponse, UserResponse, Return the currently authenticated user's profile, including their organisation…, Search for users within the requester's own organisation by a partial, case-…, search_users() (+2 more)
+
+### Community 90 - "Chunk Metadata & Content Segments"
+Cohesion: 0.31
+Nodes (5): FinalizeStage, UUID, Generate a deterministic UUID for every chunk. UUIDs must satisfy: • Stable…, Final stage executed before embeddings. Responsibilities ---------------- •…, Normalize page/block ranges. Pages should always be ascending. Block ranges are…
+
+### Community 91 - "Document Access Scope Enum"
 Cohesion: 0.27
 Nodes (9): DocumentAccessScope, DocumentStatus, Enum, str, Who can retrieve/query a document. Separate from ``OrgRole`` / ``TeamRole`` --…, Processing state of a document., DocumentResponse, BaseModel (+1 more)
 
-### Community 90 - "Hybrid Payload Mapper"
+### Community 92 - "Hybrid Payload Mapper"
 Cohesion: 0.18
 Nodes (3): HybridPipeline, Production Hybrid Indexing Pipeline. Responsibilities ----------------…, Index document chunks using hybrid dense+sparse vectors.
 
-### Community 91 - "Reranking Service Public API"
+### Community 93 - "AccessContext Jurisdiction Concepts"
+Cohesion: 0.27
+Nodes (11): AccessContext (app/retrieval/access.py), AccessContext.jurisdiction_team_ids, DenseRepository._authorization_filter, DenseRepository.hybrid_search, DocumentRepository.get_visible / get_by_id_visible, evaluation/service.py::EvaluationService._resolve_access, HybridService, RetrievalService (+3 more)
+
+### Community 94 - "RBAC Document Authorization Concepts"
+Cohesion: 0.18
+Nodes (11): DocumentAccessScope enum (app/enums/document.py), DocumentService._can_create, Frontend RBAC Phase B.1 (team membership management), frontend/team_membership.py::is_team_manager, InvalidAccessScopeError, Last-manager invariant (DELETE-embedded correlated subquery), OrganisationScopeForbiddenError, TeamMembershipRepository.remove_membership (+3 more)
+
+### Community 95 - "Frontend API Client"
+Cohesion: 0.29
+Nodes (3): AuthService, ApiClient, TokenResponse
+
+### Community 96 - "Base Repository CRUD"
+Cohesion: 0.20
+Nodes (5): Session, Persist a new entity., Retrieve an entity by its primary key., Persist changes made to an existing entity., ModelType
+
+### Community 97 - "Reranking Service Public API"
 Cohesion: 0.22
 Nodes (6): traceable, Callable wrapper. Example ------- >>> result = service( ... query=query, ...…, Public service for document reranking. The service hides the concrete reranker…, Initialize the reranking service. Parameters ---------- reranker: Optional…, Returns the active reranker. The default CrossEncoderReranker is created only…, RerankingService
 
-### Community 92 - "Qdrant Test Isolation & RBAC-6 Authorization Tests"
+### Community 98 - "Sparse Embedding Encoder"
 Cohesion: 0.22
-Nodes (9): Insert or update points in the collection., ChunkMetadata, DocumentAccessScope, EmbeddedChunk, PointStruct, _embedded(), _make_point(), Minimal real EmbeddedChunk -- same construction pattern already established in… (+1 more)
+Nodes (5): Generate sparse vectors for multiple chunks., Generate a sparse vector for a search query., Convenience wrapper around encode()., Generates sparse embeddings for document chunks. Responsibilities…, SparsePipeline
 
-### Community 93 - "Ingestion & Citation Provenance Flow"
-Cohesion: 0.20
-Nodes (10): answer_support scoring term, BlockProvenance, Citation (frozen dataclass), Citations (single source of truth), DocumentBlock, GenerationService, GenerationService.citations_for, prompt_builder (+2 more)
+### Community 99 - "Conversation Memory Flow Concepts"
+Cohesion: 0.27
+Nodes (10): app/ai/pipeline.py::AIPipeline, Conversation memory (rolling summary + recent window), conversation_summary.run_summary_refresh, app/services/conversation.py::ConversationService, ConversationSummaryService.update_summary, app/generation/service.py::GenerationService, MessageRepository (get_conversational_messages / count_conversational_messages), Observability (LangSmith/Langfuse) (+2 more)
 
-### Community 94 - "Import Isolation Regression Test"
+### Community 100 - "Import Isolation Regression Test"
 Cohesion: 0.24
 Nodes (9): CompletedProcess, parametrize, Regression test for a circular import discovered during the RBAC-5B independent…, Reproduces the exact import order used by ``scripts/reingest_document.py``…, Run ``code`` in a brand-new Python process with no inherited ``sys.modules``…, Each of these must be importable as the very first thing a fresh process does…, _run_in_fresh_process(), test_reingest_document_script_import_sequence_succeeds_in_fresh_process() (+1 more)
 
-### Community 95 - "Team API Routes"
-Cohesion: 0.28
-Nodes (7): EmailAlreadyExistsError, AppException, Raised when a username is already taken., Raised when a target user id does not exist, or belongs to a different…, Raised when an email is already registered., UsernameAlreadyExistsError, UserNotFoundError
-
-### Community 96 - "Sparse Embedding Encoder"
+### Community 101 - "Ingestion & Citation Provenance Flow"
 Cohesion: 0.25
-Nodes (5): Generate sparse vectors for multiple chunks., Generate a sparse vector for a search query., Convenience wrapper around encode()., Generates sparse embeddings for document chunks. Responsibilities…, SparsePipeline
+Nodes (9): answer_support scoring term, BlockProvenance (app/document/models.py), Citation model (app/generation/models.py), Citations (single source of truth), DocumentBlock, frontend/app.py (3-column layout), GenerationService.citations_for, _query_term_weights (+1 more)
 
-### Community 97 - "Message API & Schemas"
-Cohesion: 0.29
-Nodes (8): create_message(), BackgroundTasks, ConversationResponse, MessageCreate, Send a message and receive the assistant response., Stream an assistant response using Server-Sent Events (SSE)., stream_message(), StreamingResponse
+### Community 102 - "Chunking Pipeline Contract Concepts"
+Cohesion: 0.28
+Nodes (9): ChunkMetadata, ContentSegment, FilterStage, FinalizeStage, MergeStage, MetadataStage, QualityStage, RecursiveStage (+1 more)
 
-### Community 98 - "API Response Schemas"
+### Community 103 - "Reingest Metadata Tests"
+Cohesion: 0.25
+Nodes (5): SimpleNamespace, _FakeChunkPipeline, _FakeProcessor, _patch_extraction_and_chunking(), Stand-in for the real (frozen) ChunkPipeline -- these tests exercise RBAC-field…
+
+### Community 104 - "API Response Schemas"
 Cohesion: 0.36
 Nodes (6): success_response(), ApiResponse, ErrorResponse, BaseModel, Standard error API response., Standard success API response.
 
-### Community 99 - "Base Document Handler"
-Cohesion: 0.29
-Nodes (6): DocumentConverter, Token, Converts Markdown-It tokens into semantic DocumentBlocks. The converter itself…, Convert Markdown tokens into semantic DocumentBlocks., MarkdownPage, Represents one Markdown page produced by a parser. This is the canonical…
+### Community 105 - "Team API Routes"
+Cohesion: 0.32
+Nodes (7): EmailAlreadyExistsError, AppException, Raised when a username is already taken., Raised when a target user id does not exist, or belongs to a different…, Raised when an email is already registered., UsernameAlreadyExistsError, UserNotFoundError
 
-### Community 100 - "Evaluation AI Response Schemas"
+### Community 106 - "Evaluation AI Response Schemas"
 Cohesion: 0.25
 Nodes (6): EvaluationPredictor, AccessContext, AIPipeline, Executes Astra Study's production AI pipeline for LangSmith evaluation. This…, ``access`` is resolved once from the real database-backed User/TeamMembership…, Executes the production AI pipeline for a single evaluation example.
 
-### Community 102 - "Markdown Parser"
+### Community 107 - "Exception Handlers & Reranker Resource"
+Cohesion: 0.38
+Nodes (5): health_check(), get, HealthResponse, BaseModel, Response model for the health check endpoint.
+
+### Community 108 - "Markdown Parser"
 Cohesion: 0.29
 Nodes (4): DocumentParser, Token, Parse Markdown into tokens., Parses Markdown into Markdown-It tokens. This class is intentionally…
 
-### Community 103 - "Embedded Chunk Model"
+### Community 109 - "Embedded Chunk Model"
 Cohesion: 0.29
 Nodes (4): UUID, Returns the UUIDs of all chunks contained in the batch., Returns the chunk UUID., Returns the document UUID.
 
-### Community 104 - "Embedded Chunk Model"
-Cohesion: 0.33
-Nodes (4): PointStruct, Convert multiple EmbeddedChunks into PointStructs., Convert one EmbeddedChunk into a Qdrant PointStruct., Index embedded chunks into Qdrant.
+### Community 110 - "Cross-Encoder Reranker"
+Cohesion: 0.29
+Nodes (4): Automatically determine the best available inference device. Priority --------…, Returns the loaded CrossEncoder instance. This property is primarily useful for…, Initialize the reranker. Parameters ---------- model_name: HuggingFace model…, CrossEncoder
 
-### Community 105 - "Hybrid Payload Mapper"
+### Community 111 - "Hybrid Payload Mapper"
 Cohesion: 0.43
 Nodes (5): EmbeddedChunk, PointStruct, Combine dense and sparse representations into a single hybrid Qdrant point., Convert dense and sparse chunk collections into hybrid PointStructs. Both lists…, SparseEmbeddedChunk
 
-### Community 106 - "Dense Search Response"
+### Community 112 - "AccessContext Jurisdiction Concepts"
+Cohesion: 0.33
+Nodes (7): app/dependencies/access.py::get_access_context, app/dependencies/auth.py::get_current_user, app/main.py lifespan, app/dependencies/resources.py (lru_cache singletons), Request/DI layering (backend), LLMService (OpenAI-backed), RerankingService (CrossEncoder)
+
+### Community 113 - "Ingestion & Citation Provenance Flow"
+Cohesion: 0.29
+Nodes (7): DenseRepository.delete_by_document_id, DocumentService._can_delete, frontend/api/membership_service.py::MembershipService, frontend/models/team.py::TeamRosterMember, HybridMapper.build_payload, TeamMembershipRepository, TeamMembershipService.list_members
+
+### Community 114 - "AccessContext Jurisdiction Concepts"
+Cohesion: 0.33
+Nodes (7): frontend/models/user.py::ManagedTeam, frontend/models/user.py::User, ManagedTeamResponse (RBAC-5J), OrgManagerTeamRepository, OrgManagerTeamRepository.revoke, UserProfileResponse (app/schemas/user.py), UserService.get_profile
+
+### Community 115 - "Dense Search Response"
 Cohesion: 0.33
 Nodes (4): DenseSearchResponse, Represents the complete response returned from the dense search pipeline., Number of retrieved results., Highest similarity score.
 
-### Community 107 - "Hybrid Payload Mapper"
+### Community 116 - "Hybrid Payload Mapper"
 Cohesion: 0.47
 Nodes (4): HybridSearchResult, Convert a Qdrant ScoredPoint into a HybridSearchResult., Convert multiple ScoredPoints into HybridSearchResult objects., ScoredPoint
 
-### Community 108 - "Document Repository Visibility"
+### Community 117 - "Auth Login Endpoints"
 Cohesion: 0.33
-Nodes (4): IngestionService, BaseStorageService, Coordinates the complete ingestion workflow. Responsibilities ----------------…, HybridPipeline
+Nodes (4): Organisation, Register a new user. Every new user is attached to the seeded default…, Resolve the seeded default organisation by its stable slug. Looked up by slug…, UserCreate
 
-### Community 109 - "Document Validator Module"
+### Community 118 - "Document Validator Module"
 Cohesion: 0.33
 Nodes (4): DocumentValidator, UploadFile, Validates uploaded documents before they are stored on disk., Validate an uploaded document. Raises ------ HTTPException If validation fails.
 
-### Community 110 - "AccessContext Jurisdiction Concepts"
-Cohesion: 0.47
-Nodes (6): AccessContext.jurisdiction_team_ids, DenseRepository._authorization_filter, DocumentRepository, DocumentRepository.get_visible / get_by_id_visible, TEAM-ADMIN authorization branch (RBAC-5J), TEAM-jurisdiction authorization branch (RBAC-5J)
-
-### Community 111 - "Qdrant Test Isolation & RBAC-6 Authorization Tests"
-Cohesion: 0.33
-Nodes (6): DenseRepository.COLLECTION_NAME, Persistence (SQLAlchemy + Qdrant + filesystem), Qdrant collection (dense+sparse vectors), Qdrant integration-test destructive-recreate hazard, tests/conftest.py (Qdrant isolation guard), tests/conftest.py (Qdrant test isolation guard)
-
-### Community 112 - "Qdrant Test Isolation & RBAC-6 Authorization Tests"
+### Community 119 - "Conversation Memory Flow Concepts"
 Cohesion: 0.40
-Nodes (6): DenseRepository, fixture, qdrant_repo(), Create the isolated test collection fresh, yield a real ``DenseRepository``,…, Seed every fixture document needed by the full RBAC-6 matrix into the isolated…, seeded_points()
+Nodes (6): alembic/ database migrations, app/ (FastAPI backend), Astra Study, evaluation/ harness, frontend/ (Streamlit UI), scripts/ operational one-offs
 
-### Community 113 - "Alembic Migration Env"
+### Community 120 - "AccessContext Jurisdiction Concepts"
+Cohesion: 0.33
+Nodes (6): frontend/models/team.py::Team, frontend/api/team_service.py::TeamService, OrgManagerTeamRepository.grant, TeamMembershipRepository.add_membership, TeamRepository.create_with_initial_manager, TeamService.create_team
+
+### Community 121 - "Repo Top-Level Areas"
+Cohesion: 0.40
+Nodes (5): OrgRole enum (app/enums/organisation.py), grant_admin(), main(), Promote an existing user to OrgRole.ADMIN, by email. uv run python -m…, Promote the user with ``email`` to ADMIN. Returns a process exit code.
+
+### Community 122 - "Alembic Migration Env"
 Cohesion: 0.40
 Nodes (4): Run migrations in 'offline' mode. This configures the context with just a URL…, Run migrations in 'online' mode. In this scenario we need to create an Engine…, run_migrations_offline(), run_migrations_online()
 
-### Community 114 - "OpenAI Model Enum"
+### Community 123 - "Base LLM Provider"
+Cohesion: 0.50
+Nodes (3): get_openai_client(), Create and return an OpenAI client. The client is configured using application…, OpenAI
+
+### Community 124 - "OpenAI Model Enum"
 Cohesion: 0.50
 Nodes (4): OpenAIModel, Enum, str, Supported OpenAI chat models.
 
-### Community 115 - "User Profile Endpoint"
+### Community 125 - "Base Document Handler"
 Cohesion: 0.40
-Nodes (5): get_current_user_profile(), get, UserService, Return the currently authenticated user's profile, including their organisation…, UserProfileResponse
+Nodes (3): Token, Returns True if this handler can process the current token., Converts one logical markdown block into a DocumentBlock.
 
-### Community 116 - "Document Not Found & Delete Service"
-Cohesion: 0.40
-Nodes (4): BaseStorageService, DenseRepository, DocumentRepository, TeamMembershipRepository
-
-### Community 117 - "Repo Top-Level Areas"
-Cohesion: 0.50
-Nodes (4): grant_admin(), main(), Promote an existing user to OrgRole.ADMIN, by email. uv run python -m…, Promote the user with ``email`` to ADMIN. Returns a process exit code.
-
-### Community 118 - "OrgRole Enum & Base Model"
+### Community 126 - "OrgRole Enum & Base Model"
 Cohesion: 0.50
 Nodes (4): Enum, str, A user's role within a single team membership. Independent of ``OrgRole``: a…, TeamRole
 
-### Community 129 - "Kalam Speech Fixture Doc"
+### Community 127 - "Document Scope Exceptions"
+Cohesion: 0.40
+Nodes (3): DocumentResponse, Retrieve every document ``access`` is authorized to see: owned INDIVIDUAL…, Retrieve a single document, if ``access`` is authorized to see it. Unauthorized…
+
+### Community 128 - "Document Not Found & Delete Service"
+Cohesion: 0.40
+Nodes (4): BaseStorageService, DenseRepository, DocumentRepository, TeamMembershipRepository
+
+### Community 129 - "RBAC-5J Test Fixtures"
+Cohesion: 0.40
+Nodes (5): Filter, _evaluate_qdrant_condition(), _evaluate_qdrant_filter(), Evaluate one condition node (a nested Filter, a FieldCondition, or an…, Evaluate a real qdrant_client ``Filter`` object against a payload dict,…
+
+### Community 131 - "Document API Routes"
+Cohesion: 0.50
+Nodes (4): get_messages(), MessageService, Retrieve all messages for a chat session., MessageResponse
+
+### Community 133 - "Settings & Access Dependencies"
+Cohesion: 0.50
+Nodes (4): OrgRole, Enum, str, A user's organisation-scoped role. Distinct from document access scope -- role…
+
+### Community 141 - "Chat Not Found & Message API"
+Cohesion: 0.67
+Nodes (3): ConversationResponse, BaseModel, Response returned after sending a message. Contains both the persisted user…
+
+### Community 142 - "Base Reranker"
+Cohesion: 0.67
+Nodes (3): HybridSearchResponse, BaseModel, Collection of hybrid search results.
+
+### Community 143 - "Backend Organisation-Scoped User Search"
+Cohesion: 0.67
+Nodes (3): frontend/api/user_service.py::UserService.search_users, UserRepository.search_by_organisation, UserService.search_organisation_users
+
+### Community 145 - "Kalam Speech Fixture Doc"
 Cohesion: 1.00
 Nodes (3): A P J Abdul Kalam Departing Speech (upload 510fce33), A P J Abdul Kalam Departing Speech, Developed India 2020
 
-## Ambiguous Edges - Review These
-- `OrgManagerTeamRepository` → `TeamMembershipRepository`  [AMBIGUOUS]
-  CLAUDE.md · relation: conceptually_related_to
-
 ## Knowledge Gaps
-- **61 isolated node(s):** `Observability (LangSmith/Langfuse)`, `InvalidAccessScopeError`, `OrganisationScopeForbiddenError`, `OrgManagerTeam (app/models/org_manager_team.py)`, `OrgRole (MEMBER/MANAGER/ADMIN)` (+56 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1224 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **90 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **66 isolated node(s):** `Persistence (SQLAlchemy + Qdrant + filesystem)`, `alembic 116ced32c143_rbac_organisation_team_foundation`, `UserService._get_default_organisation`, `Observability (LangSmith/Langfuse)`, `InvalidAccessScopeError` (+61 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1263 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **97 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **What is the exact relationship between `OrgManagerTeamRepository` and `TeamMembershipRepository`?**
-  _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
-- **Why does `AccessContext` connect `Settings & Access Dependencies` to `Document Repository Visibility`, `Document Creation Test Fixtures`, `Chat Message & Conversation Tests`, `Embedded Chunk & Provenance Tests`, `Qdrant Authorization Filter Tests`, `Document Exceptions`, `Team Exceptions`, `Team Exceptions`, `Access Context Tests`, `Query Rewriter`, `AI Pipeline Response Building`, `Conversation Service Message Flow`, `Qdrant Authorization Filter Tests`, `Conversation Service Propagation Tests`, `RBAC Foundation Tests`, `Evaluation Metric Evaluators`, `Document API Routes`, `Team API Routes`, `Document Exceptions`, `Reranking Pipeline Tests`, `Retrieval Service Orchestrator`, `Reranking Service Tests`, `Chat Not Found & Message API`, `Message API & Schemas`?**
-  _High betweenness centrality (0.136) - this node is a cross-community bridge._
-- **Why does `DocumentChunk` connect `Chunk Metadata & Content Segments` to `Chunk Metadata & Content Segments`, `Embedding Request Execution`, `OpenAI Embedder`, `Merge Stage Section Chunks`, `Sparse Embedding Encoder`, `Chunking Validation Helpers`, `Merge Stage Section Chunks`, `Chunking Config & Pipeline`, `Section Matching & Chunking Tests`, `Recursive Stage Heading Logic`, `Filter Stage`, `Embedding Batcher`, `Embedding Batcher`, `Hybrid Payload Mapper`, `Document Validator`, `Sparse Embedding Encoder`, `Settings & Access Dependencies`, `Hybrid Payload Mapper`?**
-  _High betweenness centrality (0.083) - this node is a cross-community bridge._
-- **Why does `get_current_user_profile()` connect `User Profile Endpoint` to `Frontend User Profile & RBAC Models`, `Auth Login Endpoints`?**
-  _High betweenness centrality (0.039) - this node is a cross-community bridge._
+- **Why does `AccessContext` connect `Settings & Access Dependencies` to `Document Repository Visibility`, `Qdrant Authorization Filter Tests`, `Document Exceptions`, `Retrieval Service Orchestrator`, `Document Creation Test Fixtures`, `Chat Message & Conversation Tests`, `AI Pipeline Response Building`, `RBAC Foundation Tests`, `Conversation Service Propagation Tests`, `Reranking Service Tests`, `Embedded Chunk & Provenance Tests`, `Evaluation Metric Evaluators`, `Team Exceptions`, `Query Rewriter`, `Access Context Tests`, `Reranking Pipeline Tests`?**
+  _High betweenness centrality (0.105) - this node is a cross-community bridge._
+- **Why does `User` connect `Frontend User Profile & RBAC Models` to `Frontend Upload Access-Scope Validation`, `Frontend Team Manager Authorization Gate`, `Auth Login Endpoints`, `Auth Session Dependency`, `User Profile Endpoint`, `RBAC-5J Test Fixtures`, `Frontend Chat Service Client`, `Frontend API Client`?**
+  _High betweenness centrality (0.077) - this node is a cross-community bridge._
+- **Why does `DocumentChunk` connect `Chunk Metadata & Content Segments` to `Chunking Validation Helpers`, `Chunking Config & Pipeline`, `Recursive Stage Heading Logic`, `Merge Stage Section Chunks`, `Settings & Access Dependencies`, `Section Matching & Chunking Tests`, `Merge Stage Section Chunks`, `Embedding Batcher`, `Embedded Chunk Model`, `Merge Stage Section Chunks`, `Sparse Embedding Encoder`, `Filter Stage`, `OpenAI Embedder`, `Hybrid Payload Mapper`, `Embedding Batcher`, `Document Validator`, `Embedding Request Execution`, `Chunk Metadata & Content Segments`, `Hybrid Payload Mapper`, `Sparse Embedding Encoder`?**
+  _High betweenness centrality (0.067) - this node is a cross-community bridge._
 - **Are the 57 inferred relationships involving `DocumentChunk` (e.g. with `ChunkPipeline` and `BaseChunkStage`) actually correct?**
   _`DocumentChunk` has 57 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 88 inferred relationships involving `BlockType` (e.g. with `FilterStage` and `MergeStage`) actually correct?**
   _`BlockType` has 88 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 22 inferred relationships involving `AccessContext` (e.g. with `AIPipeline` and `create_message()`) actually correct?**
-  _`AccessContext` has 22 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 14 inferred relationships involving `AccessContext` (e.g. with `AIPipeline` and `create_message()`) actually correct?**
+  _`AccessContext` has 14 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 16 inferred relationships involving `DocumentBlock` (e.g. with `DocumentConverter` and `HandlerResult`) actually correct?**
+  _`DocumentBlock` has 16 INFERRED edges - model-reasoned connections that need verification._
