@@ -47,6 +47,7 @@ uv run pytest tests/unit/test_rbac_5h_team_creation_and_listing.py -q   # team c
 uv run pytest tests/unit/test_rbac_5i_team_membership_management.py -q   # direct team membership management (add/remove/promote, last-manager invariant) spec
 uv run pytest tests/unit/test_rbac_5j_org_manager_jurisdiction.py -q   # Org Manager <-> Team jurisdiction (grant/revoke, SQL/Qdrant parity) spec
 uv run pytest tests/unit/test_rbac_phase_b0_user_lookup_and_roster.py -q   # GET /users (org-scoped lookup) + GET /teams/{id}/members (roster) spec
+uv run pytest tests/unit/test_document_response.py -q   # DocumentResponse RBAC metadata (access_scope/team_id/organisation_id) contract spec
 
 uv run pytest tests/integration/test_hybrid_pipeline.py -q   # one integration file: live Qdrant+OpenAI+Docling, minutes per file, isolated to astra_study_test
 uv run pytest tests/integration/test_rbac_qdrant_authorization.py -q   # real Qdrant round-trip: full RBAC authorization matrix via DenseRepository.hybrid_search, isolated to astra_study_test, no OpenAI/Docling
@@ -408,6 +409,25 @@ and the document-management API's create/read/delete authorization are all in pl
   `schema_version=2` point — no separate schema-version heuristic needed.
   `scripts/reingest_document.py` (see its bullet above) uses the same `document_id`-sourcing
   discipline for manual re-indexing, so a reingested document remains deletable the same way.
+- **Document RBAC metadata exposure (RBAC-8, read-only visibility — no rescoping)**: `DocumentResponse`
+  (`app/schemas/document.py`) additionally returns `access_scope` (`DocumentAccessScope`), `team_id`
+  (`int | None`), and `organisation_id` (`int`) — the document's existing RBAC metadata, already
+  present on every `Document` row, now serialized in the response. Purely additive: all three
+  `DocumentResponse.model_validate(document)` call sites (`upload_documents`, `get_documents`,
+  `get_document`) already pass real, fully-loaded `Document` ORM objects, so no service/router
+  conversion code changed. `team_id` is genuinely `None` for INDIVIDUAL/ORGANISATION documents (never
+  fabricated); the SQL `documents` table has no legacy-NULL `access_scope`/`organisation_id` rows
+  (both NOT NULL at the schema level since the RBAC foundation migration). The frontend
+  `frontend/models/document.py::Document` mirrors this with `access_scope: str | None`/`team_id: int |
+  None`/`organisation_id: int | None` (plain strings, matching this project's established
+  no-frontend-enum convention — see `frontend/access_scope.py`), parsed via `.get(...)` for
+  compatibility with any older response shape. `frontend/ui/sources.py::_format_access_scope` (a pure
+  helper, no Streamlit calls) renders the document preview's "Access:" line — "Individual", "Team —
+  Team ID `<id>`" (team *name* resolution was deliberately deferred — the frontend has no existing
+  session-state cache of the organisation's team list to resolve it from without an extra request),
+  or "Organisation"; omitted entirely (never fabricated) if `access_scope` is absent. This milestone
+  does not add scope editing/rescoping, a `PATCH` endpoint, or any authorization change — `_can_create`/
+  `_can_delete`/`_visibility_conditions`/`_authorization_filter` are all untouched.
 - `evaluation/service.py::EvaluationService._resolve_access` builds a real, database-backed
   `AccessContext` for `settings.EVALUATION_USER_ID` (actual `organisation_id`/`role`/team
   memberships, via a short-lived `SessionLocal()` session) — distinct from `tests/integration/*`'s

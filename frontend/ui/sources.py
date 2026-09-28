@@ -4,9 +4,32 @@ import base64
 
 import streamlit as st
 
+from frontend.access_scope import INDIVIDUAL, ORGANISATION, TEAM
 from frontend.api.api_client import ApiClient, ApiException
 from frontend.api.document_service import DocumentService
 from frontend.models.document import Document
+
+
+def _format_access_scope(
+    document: Document,
+) -> str | None:
+    """
+    Format ``document``'s RBAC access scope for display.
+
+    Returns ``None`` (never a fabricated scope) if ``access_scope`` is
+    absent -- e.g. an older cached response shape that predates RBAC-8.
+    """
+
+    if document.access_scope == INDIVIDUAL:
+        return "Individual"
+
+    if document.access_scope == TEAM:
+        return f"Team — Team ID {document.team_id}"
+
+    if document.access_scope == ORGANISATION:
+        return "Organisation"
+
+    return None
 
 
 def _client() -> ApiClient:
@@ -44,6 +67,15 @@ def _render_document_preview(
     st.caption(
         f"Status: {document.status}"
     )
+
+    access_label = _format_access_scope(
+        document,
+    )
+
+    if access_label is not None:
+        st.caption(
+            f"Access: {access_label}"
+        )
 
     if not st.button(
         "Open Document",
