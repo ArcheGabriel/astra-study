@@ -1356,10 +1356,10 @@
     "semantic_hash": "3ab62695b1234ded024b214d63af71ac"
   },
   "frontend/ui/sidebar.py": {
-    "mtime": 1790587574.93322,
-    "seen": 1790588189.3234048,
-    "ast_hash": "f0fd915bbda0639f6e2e9470f3587239",
-    "semantic_hash": "f0fd915bbda0639f6e2e9470f3587239"
+    "mtime": 1790607288.5341458,
+    "seen": 1790607630.40713,
+    "ast_hash": "ec93069cf4a90b24c5c0a20c9534cfa0",
+    "semantic_hash": "ec93069cf4a90b24c5c0a20c9534cfa0"
   },
   "frontend/ui/sources.py": {
     "mtime": 1790593332.2460628,
@@ -1368,10 +1368,10 @@
     "semantic_hash": "419ffd9d223f46f6d9cd80d0c66c103f"
   },
   "frontend/ui/state.py": {
-    "mtime": 1790587574.9352171,
-    "seen": 1790588189.3234081,
-    "ast_hash": "42c5dbd12d182b476ae17f70b545714c",
-    "semantic_hash": "42c5dbd12d182b476ae17f70b545714c"
+    "mtime": 1790607288.5351467,
+    "seen": 1790607630.4071333,
+    "ast_hash": "db6dc5e7def0fcab21c3e6f6966d4ec7",
+    "semantic_hash": "db6dc5e7def0fcab21c3e6f6966d4ec7"
   },
   "frontend/ui/styles.py": {
     "mtime": 1785514794.827234,
@@ -1524,10 +1524,10 @@
     "semantic_hash": "11b17d5ca0e8417ce298a8c208a295c1"
   },
   "CLAUDE.md": {
-    "mtime": 1790593747.5146692,
-    "seen": 1790593806.5178342,
-    "ast_hash": "5c00cbfae2c049526ff76c049e84fa71",
-    "semantic_hash": "5c00cbfae2c049526ff76c049e84fa71"
+    "mtime": 1790607288.517826,
+    "seen": 1790607630.4072485,
+    "ast_hash": "aa3f4bd56ae89316f6dd84b267766b2c",
+    "semantic_hash": "aa3f4bd56ae89316f6dd84b267766b2c"
   },
   "README.md": {
     "mtime": 1782744009.204418,
@@ -1866,10 +1866,10 @@
     "semantic_hash": "34b831f31524c1bdc91ebbbf3ea93314"
   },
   "app/api/v1/team.py": {
-    "mtime": 1790529194.372625,
-    "seen": 1790588189.3230026,
-    "ast_hash": "f8c57082c9f2b18ce278a72809f60f2b",
-    "semantic_hash": "f8c57082c9f2b18ce278a72809f60f2b"
+    "mtime": 1790607288.519826,
+    "seen": 1790607630.40666,
+    "ast_hash": "dc1fdc541fe66dc92f394ad2a628dd1d",
+    "semantic_hash": "dc1fdc541fe66dc92f394ad2a628dd1d"
   },
   "app/exceptions/team.py": {
     "mtime": 1790500933.588833,
@@ -1920,16 +1920,16 @@
     "semantic_hash": "625a9f65b1755f419c417405e1530b57"
   },
   "app/repositories/org_manager_team.py": {
-    "mtime": 1790500933.5933847,
-    "seen": 1790503444.7851996,
-    "ast_hash": "10bd7841f8283fc253ff6022b2b36165",
-    "semantic_hash": "10bd7841f8283fc253ff6022b2b36165"
+    "mtime": 1790607288.521832,
+    "seen": 1790607630.4068596,
+    "ast_hash": "1a70284d38d48934f7560013cb861d81",
+    "semantic_hash": "1a70284d38d48934f7560013cb861d81"
   },
   "app/services/org_manager_team.py": {
-    "mtime": 1790500933.6000872,
-    "seen": 1790503444.7852836,
-    "ast_hash": "b6c7df7bab1b8fff07b7ea5a41436f58",
-    "semantic_hash": "b6c7df7bab1b8fff07b7ea5a41436f58"
+    "mtime": 1790607288.5248277,
+    "seen": 1790607630.406973,
+    "ast_hash": "9fde5fad21824d12ffb35309eb65ec37",
+    "semantic_hash": "9fde5fad21824d12ffb35309eb65ec37"
   },
   "tests/unit/test_rbac_5j_org_manager_jurisdiction.py": {
     "mtime": 1790500933.6690867,
@@ -1956,10 +1956,10 @@
     "semantic_hash": "e8a6c18e69431489b355efcc76d05893"
   },
   "frontend/models/team.py": {
-    "mtime": 1790587574.9302173,
-    "seen": 1790588189.323397,
-    "ast_hash": "23db10c2a0dd2d591a5a58b2f59e560f",
-    "semantic_hash": "23db10c2a0dd2d591a5a58b2f59e560f"
+    "mtime": 1790607288.5281382,
+    "seen": 1790607630.4071202,
+    "ast_hash": "46755a7272428208231ace3b283c625b",
+    "semantic_hash": "46755a7272428208231ace3b283c625b"
   },
   "tests/frontend/__init__.py": {
     "mtime": 1790522521.6398773,
@@ -2010,10 +2010,10 @@
     "semantic_hash": "e1b9028cd4a4228470b97053377c8190"
   },
   "frontend/team_membership.py": {
-    "mtime": 1790587574.9322555,
-    "seen": 1790588189.3233998,
-    "ast_hash": "4df6ec4bd75bbb5111cbf7e2051d5678",
-    "semantic_hash": "4df6ec4bd75bbb5111cbf7e2051d5678"
+    "mtime": 1790607288.5301387,
+    "seen": 1790607630.4071236,
+    "ast_hash": "fd87faf549dac2068d5bf667b74f0fff",
+    "semantic_hash": "fd87faf549dac2068d5bf667b74f0fff"
   },
   "frontend/ui/team_management.py": {
     "mtime": 1790587574.936218,
@@ -2068,5 +2068,35 @@
     "seen": 1790593806.5178077,
     "ast_hash": "146051d7868ff8c70b7a4382ee42dca6",
     "semantic_hash": "146051d7868ff8c70b7a4382ee42dca6"
+  },
+  "frontend/api/org_manager_service.py": {
+    "mtime": 1790607288.5258281,
+    "seen": 1790607630.4070997,
+    "ast_hash": "412d407d9e52a042dcf34ae1ac645819",
+    "semantic_hash": "412d407d9e52a042dcf34ae1ac645819"
+  },
+  "frontend/ui/org_manager_management.py": {
+    "mtime": 1790607288.5321376,
+    "seen": 1790607630.4071286,
+    "ast_hash": "ee204d821937cfef61a6d60a828a4787",
+    "semantic_hash": "ee204d821937cfef61a6d60a828a4787"
+  },
+  "tests/frontend/test_org_manager_authorization.py": {
+    "mtime": 1790607288.5359194,
+    "seen": 1790607630.4071717,
+    "ast_hash": "52aad70d8abd2d5f17480c9b509e8ea2",
+    "semantic_hash": "52aad70d8abd2d5f17480c9b509e8ea2"
+  },
+  "tests/frontend/test_org_manager_service.py": {
+    "mtime": 1790607288.536927,
+    "seen": 1790607630.4071734,
+    "ast_hash": "fd2083e315d6e74d362beff9a9b9a7dc",
+    "semantic_hash": "fd2083e315d6e74d362beff9a9b9a7dc"
+  },
+  "tests/unit/test_rbac_9_jurisdiction_listing.py": {
+    "mtime": 1790607288.5379307,
+    "seen": 1790607630.4072409,
+    "ast_hash": "6028362bb767044b4b5cfe0af9a38736",
+    "semantic_hash": "6028362bb767044b4b5cfe0af9a38736"
   }
 }
