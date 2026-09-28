@@ -35,6 +35,12 @@ def initialize_session_state() -> None:
         # member-search box). See frontend/ui/team_management.py.
         "team_roster": [],
         "team_roster_team_id": None,
+        # Cached Org Manager jurisdiction for the team currently selected
+        # in the jurisdiction-management panel, plus which team_id it was
+        # fetched for -- same invalidation shape as team_roster/
+        # team_roster_team_id. See frontend/ui/org_manager_management.py.
+        "org_manager_jurisdiction": [],
+        "org_manager_jurisdiction_team_id": None,
     }
 
     for key, value in defaults.items():
@@ -58,6 +64,8 @@ def clear_workspace() -> None:
     st.session_state.active_team = None
     st.session_state.team_roster = []
     st.session_state.team_roster_team_id = None
+    st.session_state.org_manager_jurisdiction = []
+    st.session_state.org_manager_jurisdiction_team_id = None
 
 
 def logout() -> None:

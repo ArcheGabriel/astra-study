@@ -73,6 +73,27 @@ class OrgManagerTeamRepository(BaseRepository[OrgManagerTeam]):
 
         return [team_id for (team_id,) in result.all()]
 
+    def get_by_team_id(
+        self,
+        team_id: int,
+    ) -> list[OrgManagerTeam]:
+        """
+        Return every jurisdiction row for the given team, ordered by
+        ``user_id`` ascending for a deterministic response -- consumed
+        by ``GET /teams/{team_id}/managers``. Reads only
+        ``org_manager_teams``; never touches ``TeamMembership``.
+        """
+
+        statement = (
+            select(OrgManagerTeam)
+            .where(OrgManagerTeam.team_id == team_id)
+            .order_by(OrgManagerTeam.user_id)
+        )
+
+        result = self.db.execute(statement)
+
+        return list(result.scalars().all())
+
     def get_jurisdictions_with_team_by_user_id(
         self,
         user_id: int,

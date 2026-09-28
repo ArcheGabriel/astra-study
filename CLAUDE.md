@@ -48,6 +48,7 @@ uv run pytest tests/unit/test_rbac_5i_team_membership_management.py -q   # direc
 uv run pytest tests/unit/test_rbac_5j_org_manager_jurisdiction.py -q   # Org Manager <-> Team jurisdiction (grant/revoke, SQL/Qdrant parity) spec
 uv run pytest tests/unit/test_rbac_phase_b0_user_lookup_and_roster.py -q   # GET /users (org-scoped lookup) + GET /teams/{id}/members (roster) spec
 uv run pytest tests/unit/test_document_response.py -q   # DocumentResponse RBAC metadata (access_scope/team_id/organisation_id) contract spec
+uv run pytest tests/unit/test_rbac_9_jurisdiction_listing.py -q   # GET /teams/{team_id}/managers jurisdiction-listing spec
 
 uv run pytest tests/integration/test_hybrid_pipeline.py -q   # one integration file: live Qdrant+OpenAI+Docling, minutes per file, isolated to astra_study_test
 uv run pytest tests/integration/test_rbac_qdrant_authorization.py -q   # real Qdrant round-trip: full RBAC authorization matrix via DenseRepository.hybrid_search, isolated to astra_study_test, no OpenAI/Docling
@@ -572,7 +573,35 @@ and the document-management API's create/read/delete authorization are all in pl
   generic Qdrant boolean-semantics walker, never a second reimplementation of the authorization
   logic) against a real document's payload, so a future regression in either authorization path is
   caught by direct comparison, not by two independently-written expectations. Membership-request
-  workflows and any Org-Manager-management UI remain out of scope for this stage.
+  workflows remain out of scope; Org-Manager-management UI was out of scope for this stage and is
+  added in RBAC-9 below.
+- **Org Manager jurisdiction listing + management UI (RBAC-9)**: adds one read endpoint,
+  `GET /teams/{team_id}/managers` → `list[OrgManagerTeamResponse]` (reuses the existing schema
+  unchanged -- `user_id`/`team_id` only), served by `OrgManagerTeamService.list_jurisdiction`
+  (`app/services/org_manager_team.py`) via a new `OrgManagerTeamRepository.get_by_team_id`
+  (ordered by `user_id` ascending). Any authenticated user in the team's own organisation may call
+  it -- it is a read of `org_manager_teams` only, requires no `TeamMembership`, and grants no new
+  permission; it reuses the exact same `_resolve_team` enumeration-safe (404) check
+  `grant_jurisdiction`/`revoke_jurisdiction` already use, and neither of those two endpoints' own
+  authorization (`OrgRole.ADMIN`-only grant/revoke, target-must-be-`OrgRole.MANAGER`) changed. The
+  frontend adds `frontend/api/org_manager_service.py::OrgManagerService`
+  (`list_managers`/`grant`/`revoke`, mirroring `MembershipService`'s structure) and an ADMIN-only
+  panel (`frontend/ui/org_manager_management.py::render_org_manager_management`, rendered from
+  `sidebar.py`'s Account expander) gated by a new `frontend/team_membership.py::is_org_admin(user)`
+  (sourced from `user.role` only -- the same `OrgRole.ADMIN` check
+  `access_scope.can_select_organisation_scope` already uses, extracted as a small testable
+  function since a management panel now gates on it; still a UX-only gate the backend
+  independently re-enforces). The panel always displays jurisdiction state fetched fresh from
+  `GET /teams/{team_id}/managers` (cached/invalidated with the same
+  `team_roster`/`team_roster_team_id` pattern, as `org_manager_jurisdiction`/
+  `org_manager_jurisdiction_team_id` in `frontend/ui/state.py`) -- never inferred from a
+  grant/revoke's success or failure. Grant reuses the existing `GET /users?q=` search
+  (`UserService.search_users`); the backend remains authoritative on whether a searched user
+  actually holds `OrgRole.MANAGER` (a `TargetNotOrgManagerError` surfaces as plain error text, the
+  existing `ApiException` convention). Team selection reuses `TeamService.list_teams()`. Because
+  `OrgManagerTeamResponse` carries no username, the panel displays existing managers by user id
+  only (`"User ID <id>"`) -- the same minimal-exposure precedent RBAC-8's Option A established for
+  team-id display, deliberately avoiding an extra per-user lookup API.
 
 ### Streaming protocol
 
@@ -599,8 +628,9 @@ cross-render state (JWT token, active chat, messages, citations, documents) live
 from `/api/v1/auth` and attached to every request.
 
 **Frontend RBAC (Phase A)** surfaces the backend RBAC context and lets a user pick a document's
-access scope on upload; it does not implement team/jurisdiction management UI (create/add
-member/promote/remove/grant jurisdiction all remain API-only).
+access scope on upload; it does not implement team-creation UI (team creation remains API-only).
+Membership management (Phase B.1) and Org Manager jurisdiction management (RBAC-9) are added
+below.
 
 - `frontend/access_scope.py` is a small, Streamlit-free module holding the upload-scope UX logic
   so it's directly unit-testable: `selectable_teams(user)` returns only `user.teams` (actual
@@ -641,8 +671,9 @@ member/promote/remove/grant jurisdiction all remain API-only).
 
 **Frontend RBAC Phase B.1** adds team membership management (roster view + add/remove/promote),
 consuming the RBAC Phase B.0 backend endpoints (`GET /users?q=`, `GET /teams/{team_id}/members`)
-alongside the pre-existing mutation endpoints. It does not implement jurisdiction management UI or
-document-scope display/editing (both remain deferred, as above).
+alongside the pre-existing mutation endpoints. It does not implement document-scope
+display/editing (deferred until RBAC-8, above) or Org Manager jurisdiction management (deferred
+until RBAC-9, below).
 
 - `frontend/team_membership.py::is_team_manager(user, team_id)` is the sole authorization gate for
   showing the management panel: `True` only if `user.teams` contains a `TeamMembership` for that
@@ -694,6 +725,13 @@ document-scope display/editing (both remain deferred, as above).
   `test_user_search_service.py`, and `test_team_membership_authorization.py` extend the existing
   hand-rolled-fake-client test convention; the authorization test file explicitly proves
   `OrgRole.ADMIN`, `OrgRole.MANAGER` alone, and jurisdiction each fail `is_team_manager`.
+
+**Frontend RBAC-9** adds the Org Manager jurisdiction-management panel -- see its bullet under
+"Authorization (RBAC)" above for the full architecture (`OrgManagerService`, `is_org_admin`,
+`org_manager_management.py`, the `org_manager_jurisdiction`/`org_manager_jurisdiction_team_id`
+cache pair). `tests/frontend/test_org_manager_service.py` and
+`test_org_manager_authorization.py` follow the identical hand-rolled-fake-client convention as
+Phase B.1's tests above.
 
 ### Persistence
 

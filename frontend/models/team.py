@@ -42,3 +42,25 @@ class TeamRosterMember:
             email=data["email"],
             role=data["role"],
         )
+
+
+@dataclass(slots=True)
+class OrgManagerAssignment:
+    """
+    One Org Manager jurisdiction assignment for a team, as returned by
+    ``GET /teams/{team_id}/managers`` (RBAC-9).
+
+    Mirrors ``OrgManagerTeamResponse`` exactly (``user_id``/``team_id``
+    only, no ``role`` -- jurisdiction is a single binary state,
+    structurally independent of ``TeamMembership``/``TeamRole``).
+    """
+
+    user_id: int
+    team_id: int
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "OrgManagerAssignment":
+        return cls(
+            user_id=data["user_id"],
+            team_id=data["team_id"],
+        )

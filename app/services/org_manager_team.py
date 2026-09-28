@@ -68,6 +68,35 @@ class OrgManagerTeamService:
 
         return OrgManagerTeamResponse.model_validate(jurisdiction)
 
+    def list_jurisdiction(
+        self,
+        *,
+        access: AccessContext,
+        team_id: int,
+    ) -> list[OrgManagerTeamResponse]:
+        """
+        Return every Org Manager jurisdiction assignment for ``team_id``.
+
+        Any authenticated user may call this -- it is a read of
+        ``org_manager_teams`` only (no ``TeamMembership`` requirement,
+        and no new permission granted by exposing it), scoped to the
+        requester's own organisation via the same ``_resolve_team``
+        enumeration-safety check ``grant_jurisdiction``/
+        ``revoke_jurisdiction`` use. Returns an empty list, never an
+        error, when the team has no jurisdiction assignments.
+        """
+
+        self._resolve_team(team_id=team_id, access=access)
+
+        jurisdictions = self.org_manager_team_repository.get_by_team_id(
+            team_id,
+        )
+
+        return [
+            OrgManagerTeamResponse.model_validate(jurisdiction)
+            for jurisdiction in jurisdictions
+        ]
+
     def revoke_jurisdiction(
         self,
         *,

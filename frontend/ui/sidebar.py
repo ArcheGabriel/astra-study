@@ -15,7 +15,8 @@ from frontend.api.chat_service import ChatService
 from frontend.api.document_service import DocumentService
 from frontend.api.message_service import MessageService
 from frontend.api.team_service import TeamService
-from frontend.team_membership import is_team_manager
+from frontend.team_membership import is_org_admin, is_team_manager
+from frontend.ui.org_manager_management import render_org_manager_management
 from frontend.ui.state import logout
 from frontend.ui.team_management import render_team_management
 
@@ -210,6 +211,11 @@ Astra <span>Study</span>
 
                 else:
                     st.caption("No managed teams.")
+
+            if is_org_admin(current_user):
+
+                with st.expander("Org Manager Jurisdiction"):
+                    render_org_manager_management()
 
             st.markdown(
                 "<div class='eyebrow'>Teams</div>",

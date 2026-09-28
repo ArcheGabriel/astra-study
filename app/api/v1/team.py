@@ -176,6 +176,33 @@ def promote_team_member(
     )
 
 
+@router.get(
+    "/{team_id}/managers",
+    response_model=list[OrgManagerTeamResponse],
+)
+def get_team_managers(
+    team_id: int,
+    access: AccessContext = Depends(get_access_context),
+    org_manager_team_service: OrgManagerTeamService = Depends(
+        get_org_manager_team_service,
+    ),
+) -> list[OrgManagerTeamResponse]:
+    """
+    Return every Org Manager jurisdiction assignment for a team.
+
+    Any authenticated user in the team's own organisation may call this
+    -- a read of ``org_manager_teams`` only, requiring no
+    ``TeamMembership`` and granting no new permission. A
+    cross-organisation or nonexistent ``team_id`` raises the same
+    enumeration-safe ``TeamNotFoundError`` (404) as grant/revoke below.
+    """
+
+    return org_manager_team_service.list_jurisdiction(
+        access=access,
+        team_id=team_id,
+    )
+
+
 @router.post(
     "/{team_id}/managers/{user_id}",
     response_model=OrgManagerTeamResponse,

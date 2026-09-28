@@ -4,6 +4,37 @@ from frontend.models.user import User
 
 MANAGER_ROLE = "manager"
 
+# Mirrors app/enums/organisation.py::OrgRole.ADMIN's exact string value --
+# same constant value as frontend.access_scope.ADMIN_ROLE, duplicated
+# here (rather than imported) so this module stays free of any
+# upload-scope-specific dependency; both mirror the one backend enum
+# value, not two independent policies.
+_ADMIN_ROLE = "admin"
+
+
+def is_org_admin(
+    user: User | None,
+) -> bool:
+    """
+    True only if ``user`` holds ``OrgRole.ADMIN`` at the organisation
+    level.
+
+    UX gate only -- the backend independently and authoritatively
+    re-enforces ``OrgRole.ADMIN`` on every Org Manager jurisdiction
+    grant/revoke request (``OrgManagerTeamService._authorize_admin``),
+    regardless of what this function returns. Sourced from
+    ``user.role`` only -- the same representation
+    ``frontend.access_scope.can_select_organisation_scope`` already
+    uses for the identical ``OrgRole.ADMIN`` check, extracted here as a
+    small, directly testable function rather than an inline condition,
+    since the jurisdiction-management panel is gated on it.
+    """
+
+    if user is None:
+        return False
+
+    return user.role == _ADMIN_ROLE
+
 
 def is_team_manager(
     user: User | None,
