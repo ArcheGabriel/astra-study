@@ -42,6 +42,26 @@ class ManagedTeam:
 
 
 @dataclass(slots=True)
+class UserSearchResult:
+    """
+    One user returned by ``GET /users?q=`` (organisation-scoped lookup,
+    used to resolve a ``user_id`` for team membership management).
+    """
+
+    id: int
+    username: str
+    email: str
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "UserSearchResult":
+        return cls(
+            id=data["id"],
+            username=data["username"],
+            email=data["email"],
+        )
+
+
+@dataclass(slots=True)
 class User:
     id: int
     username: str

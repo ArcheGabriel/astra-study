@@ -27,6 +27,14 @@ def initialize_session_state() -> None:
         "chats": [],
         "documents": [],
         "citations": [],
+        "active_team": None,
+        # The roster for `active_team`, plus which team_id it was fetched
+        # for. Only refetched when they disagree (a different team was
+        # selected, or the roster was explicitly invalidated after a
+        # mutation) -- never on an unrelated rerun (e.g. typing in the
+        # member-search box). See frontend/ui/team_management.py.
+        "team_roster": [],
+        "team_roster_team_id": None,
     }
 
     for key, value in defaults.items():
@@ -47,6 +55,9 @@ def clear_workspace() -> None:
     st.session_state.citations = []
     st.session_state.chats = []
     st.session_state.documents = []
+    st.session_state.active_team = None
+    st.session_state.team_roster = []
+    st.session_state.team_roster_team_id = None
 
 
 def logout() -> None:

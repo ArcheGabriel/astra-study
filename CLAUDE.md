@@ -51,7 +51,7 @@ uv run pytest tests/unit/test_rbac_phase_b0_user_lookup_and_roster.py -q   # GET
 uv run pytest tests/integration/test_hybrid_pipeline.py -q   # one integration file: live Qdrant+OpenAI+Docling, minutes per file, isolated to astra_study_test
 uv run pytest tests/integration/test_rbac_qdrant_authorization.py -q   # real Qdrant round-trip: full RBAC authorization matrix via DenseRepository.hybrid_search, isolated to astra_study_test, no OpenAI/Docling
 
-uv run pytest tests/frontend -v   # frontend RBAC logic: User/Team models, TeamService, access-scope validation, upload form-field wiring -- no Streamlit runtime, no backend/network
+uv run pytest tests/frontend -v   # frontend RBAC logic: User/Team models, TeamService, access-scope validation, upload form-field wiring, team membership management (roster/search/add/remove/promote) -- no Streamlit runtime, no backend/network
 
 uv run python -m evaluation.runner                  # run LangSmith evaluation experiment
 uv run python -m evaluation.chunking_report analyze --blocks <blocks.json> --out <report.json>   # offline chunk structural report
@@ -618,6 +618,62 @@ member/promote/remove/grant jurisdiction all remain API-only).
 - The backend `DocumentResponse` still does not expose `access_scope`/`team_id`/`organisation_id`
   (see "Authorization (RBAC)" above), so document-scope display (e.g. a "shared with Team X"
   badge) remains out of scope until that schema changes.
+
+**Frontend RBAC Phase B.1** adds team membership management (roster view + add/remove/promote),
+consuming the RBAC Phase B.0 backend endpoints (`GET /users?q=`, `GET /teams/{team_id}/members`)
+alongside the pre-existing mutation endpoints. It does not implement jurisdiction management UI or
+document-scope display/editing (both remain deferred, as above).
+
+- `frontend/team_membership.py::is_team_manager(user, team_id)` is the sole authorization gate for
+  showing the management panel: `True` only if `user.teams` contains a `TeamMembership` for that
+  *exact* `team_id` with `role == "manager"`. It deliberately never reads `user.role` (`OrgRole`)
+  or `user.managed_teams` (jurisdiction) -- mirrors `access_scope.py::selectable_teams`'s identical
+  exclusions and the backend's own `TeamMembershipService._authorize_team_manager`, which neither
+  role nor jurisdiction ever bypasses. Needs no extra API call: `current_user.teams` (fetched once
+  at login via `GET /users/me`) already carries the requester's own per-team `TeamRole`. This is a
+  UX gate only -- the backend independently re-enforces the identical rule on every request
+  regardless of what this function returns.
+- `frontend/api/membership_service.py::MembershipService` — `list_roster(team_id)` (`GET
+  /teams/{team_id}/members`, parsed into `TeamRosterMember`), `add_member(team_id, user_id)`
+  (`POST /teams/{team_id}/members`, JSON `{"user_id": ...}`, matching `AddTeamMemberRequest`'s
+  exact shape), `remove_member(team_id, user_id)` (`DELETE .../members/{user_id}`),
+  `promote_member(team_id, user_id)` (bodyless `POST .../members/{user_id}/promote`, `json={}`
+  matching `ChatService.create_chat`'s existing bodyless-POST precedent). Deliberately separate
+  from `TeamService` (organisation-wide discovery only), mirroring the backend's own
+  `TeamService`/`TeamMembershipService` split.
+- `frontend/api/user_service.py::UserService.search_users(query)` calls `GET /users` with
+  `params={"q": query}`, parsed into `UserSearchResult` (`id`/`username`/`email` — mirrors
+  `UserResponse`). Organisation scoping is enforced entirely server-side; this service never
+  accepts or sends an organisation id.
+- `frontend/models/team.py::TeamRosterMember` mirrors `TeamRosterMemberResponse`
+  (`user_id`/`username`/`email`/`role`); `frontend/models/user.py::UserSearchResult` mirrors
+  `UserResponse` (`id`/`username`/`email`).
+- **Roster caching/invalidation** (`frontend/ui/state.py`'s `team_roster`/`team_roster_team_id`,
+  managed by `frontend/ui/team_management.py`): the roster is fetched only when
+  `team_roster_team_id != team_id` — i.e. on first selecting a team, or after
+  `_invalidate_roster()` sets `team_roster_team_id = None` following a successful add/remove/
+  promote. Search-box interactions never touch either key, so they never trigger a refetch. No
+  optimistic in-place edits are ever made to `team_roster` — every mutation invalidates and lets
+  the next render re-fetch from the backend, so the UI can never drift from server state. This is
+  deliberately the simplest invalidation scheme that satisfies "don't refetch on every rerun"
+  without introducing a cache layer (no TTL, no per-team dict — only ever the one currently active
+  team's roster is held).
+- `sidebar.py`'s "Teams" section rows became `st.button`s (previously `st.caption`, read-only) that
+  set `st.session_state.active_team` and rerun, mirroring the existing chat-list button pattern
+  exactly; `frontend.ui.team_management.render_team_management(active_team)` is only invoked when
+  `is_team_manager(current_user, active_team)` is true.
+- Search is explicit-button-triggered only (`st.button("Search")`, never on every text-input
+  rerun); a blank query is rejected client-side before any request is sent. Add is one click per
+  search result (no separate select-then-confirm step). Promote/remove are per-roster-row buttons;
+  `TeamRole.MANAGER` rows get Remove only (no promote — already the top role, no demotion
+  operation exists anywhere in this system). Every mutation follows the existing `try: ... except
+  ApiException as exc: st.error(str(exc))` pattern verbatim — no new error-handling architecture;
+  `LastTeamManagerError`/`TeamMembershipAlreadyExistsError`/etc. surface as plain error text with
+  no special-cased handling, since the backend detail message is already human-readable.
+- `tests/frontend/test_team_roster_model.py`, `test_membership_service.py`,
+  `test_user_search_service.py`, and `test_team_membership_authorization.py` extend the existing
+  hand-rolled-fake-client test convention; the authorization test file explicitly proves
+  `OrgRole.ADMIN`, `OrgRole.MANAGER` alone, and jurisdiction each fail `is_team_manager`.
 
 ### Persistence
 

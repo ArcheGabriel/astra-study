@@ -15,7 +15,9 @@ from frontend.api.chat_service import ChatService
 from frontend.api.document_service import DocumentService
 from frontend.api.message_service import MessageService
 from frontend.api.team_service import TeamService
+from frontend.team_membership import is_team_manager
 from frontend.ui.state import logout
+from frontend.ui.team_management import render_team_management
 
 _SCOPE_LABELS = {
     "Individual": INDIVIDUAL,
@@ -236,10 +238,39 @@ Astra <span>Study</span>
 
                     role = membership_by_team_id.get(team.id)
 
-                    st.caption(
+                    label = (
                         f"{team.name} — {role}"
                         if role
                         else team.name
+                    )
+
+                    is_active_team = (
+                        team.id
+                        == st.session_state.active_team
+                    )
+
+                    if st.button(
+                        label,
+                        key=f"team_{team.id}",
+                        type=(
+                            "primary"
+                            if is_active_team
+                            else "secondary"
+                        ),
+                        use_container_width=True,
+                    ):
+                        st.session_state.active_team = team.id
+                        st.rerun()
+
+                if (
+                    st.session_state.active_team is not None
+                    and is_team_manager(
+                        current_user,
+                        st.session_state.active_team,
+                    )
+                ):
+                    render_team_management(
+                        st.session_state.active_team,
                     )
 
             else:
