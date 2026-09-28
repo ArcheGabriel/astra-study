@@ -635,9 +635,9 @@ member/promote/remove/grant jurisdiction all remain API-only).
   form-field wiring (`test_document_service_upload.py`), and the `ApiClient` `data`/`files`
   behavior (`test_api_client_data_field.py`) -- all via hand-rolled fakes, matching this project's
   existing `tests/unit` convention rather than a mocking framework.
-- The backend `DocumentResponse` still does not expose `access_scope`/`team_id`/`organisation_id`
-  (see "Authorization (RBAC)" above), so document-scope display (e.g. a "shared with Team X"
-  badge) remains out of scope until that schema changes.
+- As of RBAC-8 (see "Authorization (RBAC)" above and "Frontend RBAC Phase B.1" below), the backend
+  `DocumentResponse` now exposes `access_scope`/`team_id`/`organisation_id`, and the document preview
+  panel displays them read-only; document scope *editing*/rescoping remains out of scope.
 
 **Frontend RBAC Phase B.1** adds team membership management (roster view + add/remove/promote),
 consuming the RBAC Phase B.0 backend endpoints (`GET /users?q=`, `GET /teams/{team_id}/members`)
