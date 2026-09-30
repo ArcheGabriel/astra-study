@@ -666,9 +666,8 @@ cross-render state (JWT token, active chat, messages, citations, documents) live
 from `/api/v1/auth` and attached to every request.
 
 **Frontend RBAC (Phase A)** surfaces the backend RBAC context and lets a user pick a document's
-access scope on upload; it does not implement team-creation UI (team creation remains API-only).
-Membership management (Phase B.1) and Org Manager jurisdiction management (RBAC-9) are added
-below.
+access scope on upload. Team-creation UI was added later, in Phase C.1 below. Membership
+management (Phase B.1) and Org Manager jurisdiction management (RBAC-9) are added below.
 
 - `frontend/access_scope.py` is a small, Streamlit-free module holding the upload-scope UX logic
   so it's directly unit-testable: `selectable_teams(user)` returns only `user.teams` (actual
@@ -770,6 +769,36 @@ until RBAC-9, below).
 cache pair). `tests/frontend/test_org_manager_service.py` and
 `test_org_manager_authorization.py` follow the identical hand-rolled-fake-client convention as
 Phase B.1's tests above.
+
+**Frontend RBAC Phase C.1** closes the team-creation gap noted above: the backend `POST /teams`
+(see the "Team creation & organisation-scoped listing" bullet under "Authorization (RBAC)") had
+no frontend caller at all until this milestone.
+
+- `frontend/api/team_service.py::TeamService.create_team(name)` — `POST /teams` with
+  `json={"name": name}` only (never `organisation_id`, matching `TeamCreate`'s schema), parses
+  the response into the existing `Team` model. Lets `ApiException` propagate on a 403/400/409 —
+  no new error handling.
+- `frontend/team_membership.py::can_create_team(user)` — `True` for `OrgRole.ADMIN` or
+  `OrgRole.MANAGER`, sourced from `user.role` only (never `user.teams`/`managed_teams`, since
+  team creation is an org-wide capability, not a per-team one). Mirrors `is_org_admin`'s existing
+  pattern; a UX-only gate, since `TeamService.create_team` re-enforces the identical rule.
+- `sidebar.py`'s "Teams" section gained a `can_create_team`-gated `st.expander("Create Team")`
+  (name input + button) above the team-listing buttons. On success it also re-fetches
+  `st.session_state.current_user` via the same `AuthService.get_current_user_profile()`
+  (`GET /users/me`) call `login.py` already uses, **before** `st.rerun()` — this is required, not
+  cosmetic: the creator becomes that team's `TeamRole.MANAGER` server-side in the same
+  transaction (`TeamRepository.create_with_initial_manager`), but `current_user` is otherwise only
+  populated once, at login (see the `GET /users/me` bullet above). Without this refresh,
+  `current_user.teams` stays stale and `is_team_manager` (Phase B.1, above) incorrectly reports
+  the creator as not yet a manager of the team they just created, so the team-membership-
+  management panel silently fails to appear for the team's own creator until their next login.
+- `tests/frontend/test_team_service.py` (extended) and `test_team_creation_authorization.py`
+  (new) cover `create_team`'s endpoint/payload/parsing/error-propagation and
+  `can_create_team`'s ADMIN/MANAGER/MEMBER/no-user/per-team-TeamRole-alone/jurisdiction-alone
+  matrix, following the existing hand-rolled-fake-client convention. The `current_user` refresh
+  itself is Streamlit-`session_state`-coupled glue code with no existing test harness in this
+  project (`sidebar.py` has no test coverage anywhere) and is deliberately not force-tested with a
+  new Streamlit-mocking pattern.
 
 ### Persistence
 
