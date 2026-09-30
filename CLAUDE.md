@@ -49,6 +49,7 @@ uv run pytest tests/unit/test_rbac_5j_org_manager_jurisdiction.py -q   # Org Man
 uv run pytest tests/unit/test_rbac_phase_b0_user_lookup_and_roster.py -q   # GET /users (org-scoped lookup) + GET /teams/{id}/members (roster) spec
 uv run pytest tests/unit/test_document_response.py -q   # DocumentResponse RBAC metadata (access_scope/team_id/organisation_id) contract spec
 uv run pytest tests/unit/test_rbac_9_jurisdiction_listing.py -q   # GET /teams/{team_id}/managers jurisdiction-listing spec
+uv run pytest tests/unit/test_rbac_c2_role_administration.py -q   # POST /users/{user_id}/role OrgRole transition spec (MEMBER->MANAGER, MANAGER->ADMIN only)
 
 uv run pytest tests/integration/test_hybrid_pipeline.py -q   # one integration file: live Qdrant+OpenAI+Docling, minutes per file, isolated to astra_study_test
 uv run pytest tests/integration/test_rbac_qdrant_authorization.py -q   # real Qdrant round-trip: full RBAC authorization matrix via DenseRepository.hybrid_search, isolated to astra_study_test, no OpenAI/Docling
@@ -122,8 +123,12 @@ since no non-LLM retrieval-only HTTP endpoint exists, then the real `DenseReposi
 Covers upload→retrieve for INDIVIDUAL/TEAM/ORGANISATION scope (incl. a real second organisation for
 cross-org denial), jurisdiction grant→retrieve→revoke→retrieve, membership add→retrieve→remove→retrieve,
 document deletion authorization (owner/TEAM-MANAGER/ADMIN, SQL+Qdrant cleanup verified via
-`DenseRepository.count()`), and the TEAM-document uploader-leaves-team asymmetry (read requires
-current membership; delete does not, since ownership alone authorizes it).
+`DenseRepository.count()`), the TEAM-document uploader-leaves-team asymmetry (read requires
+current membership; delete does not, since ownership alone authorizes it), and (RBAC Phase C.2)
+OrgRole promotion via the real `POST /users/{user_id}/role` endpoint proven through a real,
+subsequent authorization decision rather than a database read -- MEMBER promoted to MANAGER can
+then really create a team (`POST /teams`, previously 403), then promoted to ADMIN can then really
+create an ORGANISATION-scoped document (`POST /documents/upload`, previously 403).
 
 Each integration test is **self-contained**: it extracts + chunks a fixture PDF (tracked ones
 live in `tests/test_documents/`; `storage/uploads/*` is gitignored), `recreate_collection()`s the
@@ -640,6 +645,44 @@ and the document-management API's create/read/delete authorization are all in pl
   `OrgManagerTeamResponse` carries no username, the panel displays existing managers by user id
   only (`"User ID <id>"`) -- the same minimal-exposure precedent RBAC-8's Option A established for
   team-id display, deliberately avoiding an extra per-user lookup API.
+- **Organisation role administration (`POST /users/{user_id}/role`, RBAC Phase C.2, backend-only --
+  no frontend consumer yet)**: the first and only HTTP-reachable way a user's `OrgRole` can ever
+  change after registration (the only other path is `scripts/grant_admin.py`, unchanged). Only
+  `OrgRole.MANAGER → OrgRole.ADMIN` and `OrgRole.MEMBER → OrgRole.MANAGER` are permitted --
+  `MEMBER → ADMIN`, every same-role "transition", and every downward transition are all rejected.
+  The allowed pairs live in exactly one place, `app/services/user.py::_ALLOWED_ROLE_TRANSITIONS`
+  (a two-element `set`, not scattered conditionals); `UserService.update_role` checks
+  `(target.role, requested_role) in _ALLOWED_ROLE_TRANSITIONS` and raises
+  `InvalidRoleTransitionError` (400) for anything else. Because `(OrgRole.ADMIN, *)` never appears
+  as a source in that set, an existing ADMIN can never be demoted through this endpoint -- this is
+  what structurally guarantees an organisation can never be left with zero ADMINs, so no separate
+  `COUNT(*)`/`LastAdminError` invariant check exists or is needed (a deliberate, documented
+  absence, not an oversight). Authorization order, mirroring `OrgManagerTeamService`'s established
+  shape exactly: `access.role != OrgRole.ADMIN` rejected first (`RoleAdministrationForbiddenError`,
+  403, before any DB read) -- then `target_user_id == access.user_id` rejected
+  (`SelfRoleModificationForbiddenError`, 403, still before any DB read -- a caller, including an
+  ADMIN, can never change their own role) -- then the target is resolved via
+  `UserRepository.get_by_id`, with a nonexistent id and a cross-organisation id collapsing into the
+  same `UserNotFoundError` (404, existing, reused as-is -- enumeration-safe, identical precedent to
+  `OrgManagerTeamService._resolve_target_user`) -- only then is the transition validated and, if
+  allowed, `target.role` is mutated, committed, and refreshed. `RoleUpdateRequest`
+  (`app/schemas/user.py`) is `role: OrgRole` with `extra="forbid"` -- structurally cannot carry an
+  `organisation_id` or any other field. The response, `RoleManagementUserResponse`
+  (`id`/`username`/`role`), is a deliberately new, minimal, purpose-built shape -- **not** an
+  addition to `UserResponse` (which stays exactly as used by registration and `GET /users?q=`,
+  unchanged) -- because broadening that shared response would have silently exposed `OrgRole` to
+  every `TeamRole.MANAGER` who calls `GET /users?q=` for ordinary team-membership search, a caller
+  with no business seeing another user's organisation-level role. Since `get_access_context`
+  rebuilds `AccessContext.role` fresh from the `User` row on every request (see the `AccessContext`
+  bullet above), a promoted user's new role governs authorization starting on their very next
+  request, with no cache to invalidate anywhere in the backend. `tests/unit/test_rbac_c2_role_administration.py`
+  is the executable spec (valid/invalid transitions, authorization, self-modification,
+  cross-organisation/missing-target enumeration safety, the ADMIN-can-never-be-demoted invariant,
+  and that a fresh `AccessContext` reflects the new role); `tests/integration/test_rbac_e2e_acceptance.py`'s
+  `test_org_role_promotion_governs_subsequent_authorization` proves both permitted transitions'
+  real-world effect end to end (see its bullet above). No frontend, schema/model, enum, or
+  migration changes were needed or made for this milestone -- `users.role` and the `orgrole` DB
+  enum already supported all three values.
 
 ### Streaming protocol
 
