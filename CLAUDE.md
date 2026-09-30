@@ -52,6 +52,9 @@ uv run pytest tests/unit/test_rbac_9_jurisdiction_listing.py -q   # GET /teams/{
 
 uv run pytest tests/integration/test_hybrid_pipeline.py -q   # one integration file: live Qdrant+OpenAI+Docling, minutes per file, isolated to astra_study_test
 uv run pytest tests/integration/test_rbac_qdrant_authorization.py -q   # real Qdrant round-trip: full RBAC authorization matrix via DenseRepository.hybrid_search, isolated to astra_study_test, no OpenAI/Docling
+uv run pytest tests/integration/test_rbac_e2e_acceptance.py -q   # RBAC-10A/10B real end-to-end acceptance: FastAPI TestClient + isolated in-memory SQLite + astra_study_test, real HTTP auth/upload/grant/revoke/membership/delete workflows
+
+uv run pytest tests/unit/test_generation_grounding.py -q   # generation grounding-contract spec: SYSTEM_PROMPT forbids general-knowledge fallback; zero-context short-circuits before any LLM call
 
 uv run pytest tests/frontend -v   # frontend RBAC logic: User/Team models, TeamService, access-scope validation, upload form-field wiring, team membership management (roster/search/add/remove/promote) -- no Streamlit runtime, no backend/network
 
@@ -102,6 +105,25 @@ payload fields participate in authorization filtering), so it is far cheaper tha
 `test_hybrid_pipeline.py` despite also being a live-Qdrant integration test. Its fixture creates and
 drops `astra_study_test` itself, independently re-asserting the collection name at every step on top of
 `tests/conftest.py`'s guard.
+
+`tests/integration/test_rbac_e2e_acceptance.py` (RBAC-10A/10B) is the only test file that drives the
+**real FastAPI app** via `fastapi.testclient.TestClient` — real routers, real JWT auth
+(`POST /auth/login`), real `get_current_user`/`get_access_context`, real mutation endpoints
+(`POST /documents/upload`, jurisdiction grant/revoke, membership add/remove, `DELETE
+/documents/{id}`) — against a function-scoped isolated in-memory `sqlite://` engine
+(`app.dependency_overrides[get_db]`, never `astra_study.db`) and the isolated `astra_study_test`
+Qdrant collection. Two deliberate substitutions, documented in the file's own module docstring:
+(1) `app.dependency_overrides[get_ingestion_service]` swaps in a `_FakeIngestionService` that
+stamps one deterministic chunk from the real `Document` row and indexes it via the real
+`HybridMapper.build_payload`/`DenseRepository.upsert` — skipping real Docling extraction and
+OpenAI embeddings, never RBAC stamping itself; (2) "retrieval" is performed by calling the real
+`get_current_user`/`get_access_context` functions directly (never a hand-built `AccessContext`)
+since no non-LLM retrieval-only HTTP endpoint exists, then the real `DenseRepository.hybrid_search`.
+Covers upload→retrieve for INDIVIDUAL/TEAM/ORGANISATION scope (incl. a real second organisation for
+cross-org denial), jurisdiction grant→retrieve→revoke→retrieve, membership add→retrieve→remove→retrieve,
+document deletion authorization (owner/TEAM-MANAGER/ADMIN, SQL+Qdrant cleanup verified via
+`DenseRepository.count()`), and the TEAM-document uploader-leaves-team asymmetry (read requires
+current membership; delete does not, since ownership alone authorizes it).
 
 Each integration test is **self-contained**: it extracts + chunks a fixture PDF (tracked ones
 live in `tests/test_documents/`; `storage/uploads/*` is gitignored), `recreate_collection()`s the
@@ -232,6 +254,22 @@ conversation `AIPipeline`); `app/generation/` is the narrower "build prompt → 
 produce `GenerationResponse` + citations" step that `AIPipeline` calls into. `ConversationService`
 (`app/services/conversation.py`) sits above `AIPipeline` and owns message persistence + the SSE
 event loop.
+
+**Grounding contract (`app/generation/prompts.py::SYSTEM_PROMPT`)**: Astra Study is strictly
+document-grounded. When Qdrant returns zero contexts, `GenerationService.generate`/`.stream`
+short-circuit to a hardcoded "I couldn't find any relevant information..." message *before* any
+LLM call. When retrieval returns at least one context — even one that turns out not to actually
+answer the question (there is deliberately **no** relevance/confidence score threshold anywhere in
+retrieval or reranking, only a `RETRIEVAL_TOP_K` cutoff) — the LLM *is* called, and `SYSTEM_PROMPT`
+alone is what must constrain it: rule 3 requires stating the documents don't contain enough
+information and stopping there; rules 4–5 explicitly forbid answering from general/pretrained/
+outside knowledge or offering/suggesting anything beyond the retrieved context, even if asked. This
+closes a real gap found during manual testing (the model volunteering "I can give a general
+explanation... beyond the provided materials") — `tests/unit/test_generation_grounding.py` is the
+executable spec, verified through the real `GenerationService` → `PromptBuilder` flow with a
+deterministic fake LLM provider (no OpenAI call), including a test that the same `SYSTEM_PROMPT` is
+sent regardless of whether the retrieved context happens to be relevant, since the code has no way
+to know that at build time.
 
 ### Conversation memory (rolling summary + recent window)
 
@@ -749,8 +787,15 @@ Phase B.1's tests above.
 
 ### Observability
 
-LangSmith tracing is pervasive via `@traceable` decorators on service/pipeline methods;
-`app/main.py`'s lifespan exports the `LANGSMITH_*` env vars. Langfuse is also configured.
+LangSmith tracing is pervasive via `@traceable` decorators on service/pipeline methods, plus
+`langsmith.wrappers.wrap_openai` wrapping the OpenAI client in `app/ai/openai_provider.py` (so
+every raw completion call, e.g. inside query rewriting, is auto-traced with no extra decorator);
+`app/main.py`'s lifespan exports the `LANGSMITH_*` env vars. `langfuse`/`langchain`/`langgraph` are
+declared dependencies (`pyproject.toml`) with `LANGFUSE_*` settings fields, but have **zero actual
+imports anywhere in `app/`** — nothing in this codebase calls into the Langfuse SDK, and query
+rewriting/retrieval/generation are custom code, not LangChain's `create_history_aware_retriever` or
+a LangGraph graph. Don't assume Langfuse tracing or a LangChain/LangGraph abstraction is in play
+without checking for an actual import first.
 
 ## Environment / platform notes
 
