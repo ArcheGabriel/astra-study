@@ -11,11 +11,12 @@ from frontend.access_scope import (
     validate_upload_scope,
 )
 from frontend.api.api_client import ApiClient, ApiException
+from frontend.api.auth_service import AuthService
 from frontend.api.chat_service import ChatService
 from frontend.api.document_service import DocumentService
 from frontend.api.message_service import MessageService
 from frontend.api.team_service import TeamService
-from frontend.team_membership import is_org_admin, is_team_manager
+from frontend.team_membership import can_create_team, is_org_admin, is_team_manager
 from frontend.ui.org_manager_management import render_org_manager_management
 from frontend.ui.state import logout
 from frontend.ui.team_management import render_team_management
@@ -97,6 +98,27 @@ def _list_teams(client: ApiClient):
     """
 
     return TeamService(client).list_teams()
+
+
+def _create_team(name: str) -> None:
+    """
+    Create a new team in the requester's own organisation.
+    """
+
+    client = _client()
+
+    TeamService(client).create_team(name)
+
+    # The creator becomes that team's TeamRole.MANAGER server-side in the
+    # same transaction (TeamRepository.create_with_initial_manager), but
+    # st.session_state.current_user is otherwise only populated once, at
+    # login. Without this refresh, current_user.teams stays stale and
+    # is_team_manager() incorrectly reports the creator as not a manager
+    # of the team they just created -- refetch the same profile shape
+    # login.py already uses, rather than duplicating GET /users/me here.
+    st.session_state.current_user = (
+        AuthService(client).get_current_user_profile()
+    )
 
 
 def _upload_documents(
@@ -221,6 +243,32 @@ Astra <span>Study</span>
                 "<div class='eyebrow'>Teams</div>",
                 unsafe_allow_html=True,
             )
+
+            if can_create_team(current_user):
+
+                with st.expander("Create Team"):
+
+                    new_team_name = st.text_input(
+                        "Team name",
+                        key="new_team_name",
+                        label_visibility="collapsed",
+                        placeholder="Team name",
+                    )
+
+                    if st.button(
+                        "Create Team",
+                        key="create_team_button",
+                        use_container_width=True,
+                    ):
+                        try:
+
+                            _create_team(new_team_name)
+
+                            st.success("Team created.")
+                            st.rerun()
+
+                        except ApiException as exc:
+                            st.error(str(exc))
 
             try:
 

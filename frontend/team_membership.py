@@ -11,6 +11,9 @@ MANAGER_ROLE = "manager"
 # value, not two independent policies.
 _ADMIN_ROLE = "admin"
 
+# Mirrors app/enums/organisation.py::OrgRole.MANAGER's exact string value.
+_ORG_MANAGER_ROLE = "manager"
+
 
 def is_org_admin(
     user: User | None,
@@ -34,6 +37,28 @@ def is_org_admin(
         return False
 
     return user.role == _ADMIN_ROLE
+
+
+def can_create_team(
+    user: User | None,
+) -> bool:
+    """
+    True only if ``user`` holds ``OrgRole.ADMIN`` or ``OrgRole.MANAGER``
+    at the organisation level.
+
+    UX gate only -- the backend independently and authoritatively
+    re-enforces the identical rule (``TeamService.create_team``,
+    ``OrgRole.MEMBER`` rejected before any database read) on every
+    ``POST /teams`` request, regardless of what this function returns.
+    Sourced from ``user.role`` only -- never ``user.teams`` or
+    ``user.managed_teams``, since team creation is an org-wide capability,
+    not a per-team one.
+    """
+
+    if user is None:
+        return False
+
+    return user.role in (_ADMIN_ROLE, _ORG_MANAGER_ROLE)
 
 
 def is_team_manager(
