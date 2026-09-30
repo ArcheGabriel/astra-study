@@ -77,6 +77,46 @@ class ManagedTeamResponse(BaseModel):
     )
 
 
+class RoleUpdateRequest(BaseModel):
+    """
+    Request body for ``POST /users/{user_id}/role`` (RBAC Phase C.2).
+
+    ``role`` is the requested target ``OrgRole`` -- Pydantic's enum
+    validation rejects any value outside ``member``/``manager``/``admin``
+    before the handler ever runs. ``extra="forbid"`` means
+    ``organisation_id`` (or any other field) can never be supplied by the
+    client -- the target's organisation is always resolved server-side
+    from the authenticated caller's own ``AccessContext``.
+    """
+
+    role: OrgRole
+
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+
+
+class RoleManagementUserResponse(BaseModel):
+    """
+    Response for ``POST /users/{user_id}/role`` (RBAC Phase C.2).
+
+    Deliberately minimal -- ``id``/``username``/``role`` only, no
+    ``email``. A separate, purpose-built shape from ``UserResponse``
+    (used by registration and ``GET /users?q=``) so that endpoint's
+    response never needs to expose ``role`` to team-membership-management
+    callers who have no need to see it.
+    """
+
+    id: int
+    username: str
+    role: OrgRole
+
+    model_config = ConfigDict(
+        from_attributes=True,
+        extra="forbid",
+    )
+
+
 class UserProfileResponse(UserResponse):
     """
     ``GET /users/me`` response only -- extends ``UserResponse`` with RBAC

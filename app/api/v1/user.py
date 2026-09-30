@@ -5,7 +5,12 @@ from app.dependencies.auth import get_current_user
 from app.dependencies.services import get_user_service
 from app.models.user import User
 from app.retrieval.access import AccessContext
-from app.schemas.user import UserProfileResponse, UserResponse
+from app.schemas.user import (
+    RoleManagementUserResponse,
+    RoleUpdateRequest,
+    UserProfileResponse,
+    UserResponse,
+)
 from app.services.user import UserService
 
 router = APIRouter(
@@ -59,4 +64,30 @@ def search_users(
     return user_service.search_organisation_users(
         access=access,
         query=q,
+    )
+
+
+@router.post(
+    "/{user_id}/role",
+    response_model=RoleManagementUserResponse,
+)
+def update_user_role(
+    user_id: int,
+    payload: RoleUpdateRequest,
+    access: AccessContext = Depends(get_access_context),
+    user_service: UserService = Depends(get_user_service),
+) -> RoleManagementUserResponse:
+    """
+    Change ``user_id``'s organisation role (RBAC Phase C.2).
+
+    Only ``OrgRole.ADMIN`` may call this. The caller cannot target
+    themselves. ``user_id`` must belong to the caller's own
+    organisation. Only ``MEMBER -> MANAGER`` and ``MANAGER -> ADMIN``
+    are permitted -- every other requested transition is rejected.
+    """
+
+    return user_service.update_role(
+        access=access,
+        target_user_id=user_id,
+        requested_role=payload.role,
     )

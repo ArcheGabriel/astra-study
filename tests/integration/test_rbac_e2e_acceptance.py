@@ -440,6 +440,19 @@ class _Env:
             headers=self.auth_headers(manager),
         )
 
+    def update_role(self, *, admin: str, user_id: int, role: str):
+        """
+        Real ``POST /users/{user_id}/role`` call, authenticated as
+        ``admin`` (RBAC Phase C.2). Returns the raw response so the test
+        body can assert both the HTTP status and the returned role.
+        """
+
+        return self.client.post(
+            f"/api/v1/users/{user_id}/role",
+            headers=self.auth_headers(admin),
+            json={"role": role},
+        )
+
     def delete_document(self, username: str, document_id: int):
         """
         Real ``DELETE /documents/{document_id}`` call, authenticated as
@@ -928,3 +941,76 @@ def test_team_document_uploader_retains_delete_after_leaving_team(env: _Env):
         db.close()
 
     assert env.dense_repository.count() == 0
+
+
+# --------------------------------------------------------------------------- #
+# Workflow 10 (RBAC Phase C.2): OrgRole promotion via the real
+# POST /users/{user_id}/role endpoint -> the new role governs a real,
+# subsequent authorization decision, for both permitted transitions.
+# --------------------------------------------------------------------------- #
+
+
+def test_org_role_promotion_governs_subsequent_authorization(env: _Env):
+    """
+    ``other_member`` starts as a plain ``OrgRole.MEMBER``. The real
+    ADMIN promotes them, via the real endpoint, first to MANAGER (which
+    grants team-creation authority -- ``TeamService.create_team``
+    accepts ADMIN or MANAGER, rejects MEMBER) and then to ADMIN (which
+    grants ORGANISATION-scoped document upload authority --
+    ``DocumentService._can_create`` accepts ADMIN only). Each promotion's
+    effect is proven by a real, subsequent HTTP call as that same user --
+    never by inspecting the database directly -- mirroring how this
+    file's existing jurisdiction/membership tests prove effect through a
+    real follow-up request rather than the mutation call alone.
+    """
+
+    target_user_id = env.users["other_member"].id
+
+    # Before promotion: a plain MEMBER cannot create a team.
+    forbidden_response = env.client.post(
+        "/api/v1/teams",
+        headers=env.auth_headers("other_member"),
+        json={"name": f"Pre-promotion Team {uuid4().hex[:6]}"},
+    )
+    assert forbidden_response.status_code == 403, forbidden_response.text
+
+    # 1. MEMBER -> MANAGER, via the real role-administration endpoint.
+    promote_to_manager_response = env.update_role(
+        admin="admin", user_id=target_user_id, role="manager",
+    )
+    assert promote_to_manager_response.status_code == 200, promote_to_manager_response.text
+    assert promote_to_manager_response.json()["role"] == "manager"
+
+    # Effect: the newly-promoted MANAGER can now create a team.
+    create_team_response = env.client.post(
+        "/api/v1/teams",
+        headers=env.auth_headers("other_member"),
+        json={"name": f"Post-promotion Team {uuid4().hex[:6]}"},
+    )
+    assert create_team_response.status_code == 201, create_team_response.text
+
+    # Before the second promotion: a MANAGER (non-ADMIN) cannot create an
+    # ORGANISATION-scoped document.
+    forbidden_upload = env.client.post(
+        "/api/v1/documents/upload",
+        headers=env.auth_headers("other_member"),
+        files=[("files", ("pre-admin.pdf", _MINIMAL_PDF_BYTES, "application/pdf"))],
+        data={"access_scope": "organisation"},
+    )
+    assert forbidden_upload.status_code == 403, forbidden_upload.text
+
+    # 2. MANAGER -> ADMIN, via the real role-administration endpoint.
+    promote_to_admin_response = env.update_role(
+        admin="admin", user_id=target_user_id, role="admin",
+    )
+    assert promote_to_admin_response.status_code == 200, promote_to_admin_response.text
+    assert promote_to_admin_response.json()["role"] == "admin"
+
+    # Effect: the newly-promoted ADMIN can now create an
+    # ORGANISATION-scoped document.
+    document_id = env.upload(
+        "other_member",
+        filename="post-admin.pdf",
+        access_scope="organisation",
+    )
+    assert document_id is not None

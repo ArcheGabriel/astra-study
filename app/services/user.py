@@ -1,7 +1,14 @@
 from sqlalchemy import select
 
+from app.enums.organisation import OrgRole
 from app.exceptions.user import UsernameAlreadyExistsError
 from app.exceptions.user import EmailAlreadyExistsError
+from app.exceptions.user import (
+    InvalidRoleTransitionError,
+    RoleAdministrationForbiddenError,
+    SelfRoleModificationForbiddenError,
+    UserNotFoundError,
+)
 
 from app.models.organisation import Organisation
 from app.models.user import User
@@ -11,12 +18,25 @@ from app.repositories.user import UserRepository
 from app.retrieval.access import AccessContext
 from app.schemas.user import (
     ManagedTeamResponse,
+    RoleManagementUserResponse,
     TeamMembershipResponse,
     UserCreate,
     UserProfileResponse,
     UserResponse,
 )
 from app.core.security import security
+
+# The only OrgRole transitions RBAC Phase C.2 permits. Any (current,
+# requested) pair not in this set -- including both same-role pairs and
+# every downward pair -- is rejected. Because (OrgRole.ADMIN, *) never
+# appears as a source here, an existing ADMIN can never be demoted
+# through this endpoint -- this is what structurally enforces the
+# minimum-one-ADMIN-per-organisation invariant, with no separate
+# COUNT(*) query needed.
+_ALLOWED_ROLE_TRANSITIONS = {
+    (OrgRole.MEMBER, OrgRole.MANAGER),
+    (OrgRole.MANAGER, OrgRole.ADMIN),
+}
 
 # Every newly registered user is attached to the single organisation seeded
 # by the RBAC foundation migration (see
@@ -208,3 +228,48 @@ class UserService:
             UserResponse.model_validate(user)
             for user in users
         ]
+
+    def update_role(
+        self,
+        *,
+        access: AccessContext,
+        target_user_id: int,
+        requested_role: OrgRole,
+    ) -> RoleManagementUserResponse:
+        """
+        Change ``target_user_id``'s ``OrgRole`` (RBAC Phase C.2).
+
+        Only ``access.role == OrgRole.ADMIN`` may call this. The caller
+        may not target themselves. The target must belong to the
+        caller's own organisation (nonexistent and cross-organisation
+        both raise the same ``UserNotFoundError`` -- enumeration-safe,
+        mirroring ``OrgManagerTeamService._resolve_target_user``). Only
+        ``MEMBER -> MANAGER`` and ``MANAGER -> ADMIN`` are permitted;
+        every other requested transition -- including both same-role
+        transitions and every downward transition -- raises
+        ``InvalidRoleTransitionError``. This ordering (authorize -> self
+        check -> resolve target -> validate transition -> mutate) never
+        performs a database read on the target before authorization and
+        self-modification are both cleared.
+        """
+
+        if access.role != OrgRole.ADMIN:
+            raise RoleAdministrationForbiddenError()
+
+        if target_user_id == access.user_id:
+            raise SelfRoleModificationForbiddenError()
+
+        target = self.user_repository.get_by_id(target_user_id)
+
+        if target is None or target.organisation_id != access.organisation_id:
+            raise UserNotFoundError()
+
+        if (target.role, requested_role) not in _ALLOWED_ROLE_TRANSITIONS:
+            raise InvalidRoleTransitionError()
+
+        target.role = requested_role
+
+        self.user_repository.db.commit()
+        self.user_repository.db.refresh(target)
+
+        return RoleManagementUserResponse.model_validate(target)
