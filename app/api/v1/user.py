@@ -7,6 +7,7 @@ from app.models.user import User
 from app.retrieval.access import AccessContext
 from app.schemas.user import (
     RoleManagementUserResponse,
+    RoleManagementUserSearchResult,
     RoleUpdateRequest,
     UserProfileResponse,
     UserResponse,
@@ -62,6 +63,37 @@ def search_users(
     """
 
     return user_service.search_organisation_users(
+        access=access,
+        query=q,
+    )
+
+
+@router.get(
+    "/role-management",
+    response_model=list[RoleManagementUserSearchResult],
+)
+def search_users_for_role_management(
+    q: str = Query(
+        ...,
+        min_length=1,
+        max_length=100,
+    ),
+    access: AccessContext = Depends(get_access_context),
+    user_service: UserService = Depends(get_user_service),
+) -> list[RoleManagementUserSearchResult]:
+    """
+    Search for users within the requester's own organisation, including
+    their current ``OrgRole`` (RBAC Phase C.2).
+
+    Only ``OrgRole.ADMIN`` may call this -- a 403 for any other caller.
+    A separate route and response contract from ``GET /users`` (which
+    stays exactly as-is, used by team-membership search and reachable by
+    any ``TeamRole.MANAGER``): that endpoint's response deliberately
+    never carries ``role``, so a dedicated, ADMIN-only route is used
+    here instead of broadening it.
+    """
+
+    return user_service.search_organisation_users_with_role(
         access=access,
         query=q,
     )

@@ -117,6 +117,36 @@ class RoleManagementUserResponse(BaseModel):
     )
 
 
+class RoleManagementUserSearchResult(BaseModel):
+    """
+    One user returned by ``GET /users/role-management?q=`` (RBAC Phase
+    C.2, ADMIN-only organisation role-administration search).
+
+    A separate, purpose-built contract from both ``UserResponse`` (used
+    by ``GET /users?q=`` for team-membership search -- deliberately never
+    given a ``role`` field, since that endpoint is reachable by any
+    ``TeamRole.MANAGER``, not only an ``OrgRole.ADMIN``) and
+    ``RoleManagementUserResponse`` (the ``POST /users/{user_id}/role``
+    mutation response, which intentionally has no ``email``). This
+    search response carries ``email`` (useful for disambiguating search
+    results, matching ``UserResponse``'s existing precedent) and
+    ``role`` (the whole reason this endpoint exists -- the
+    role-administration UI needs to know a candidate's current
+    ``OrgRole`` before it can decide which single promotion action, if
+    any, to offer).
+    """
+
+    id: int
+    username: str
+    email: EmailStr
+    role: OrgRole
+
+    model_config = ConfigDict(
+        from_attributes=True,
+        extra="forbid",
+    )
+
+
 class UserProfileResponse(UserResponse):
     """
     ``GET /users/me`` response only -- extends ``UserResponse`` with RBAC

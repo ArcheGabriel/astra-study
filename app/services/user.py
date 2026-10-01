@@ -19,6 +19,7 @@ from app.retrieval.access import AccessContext
 from app.schemas.user import (
     ManagedTeamResponse,
     RoleManagementUserResponse,
+    RoleManagementUserSearchResult,
     TeamMembershipResponse,
     UserCreate,
     UserProfileResponse,
@@ -226,6 +227,44 @@ class UserService:
 
         return [
             UserResponse.model_validate(user)
+            for user in users
+        ]
+
+    def search_organisation_users_with_role(
+        self,
+        *,
+        access: AccessContext,
+        query: str,
+    ) -> list[RoleManagementUserSearchResult]:
+        """
+        Search for users within the requester's own organisation,
+        including their current ``OrgRole`` (RBAC Phase C.2).
+
+        Only ``access.role == OrgRole.ADMIN`` may call this -- checked
+        first, before the search query even runs, since ``AccessContext``
+        already carries everything needed to authorize (no extra
+        database read required to reach that decision).
+
+        Reuses ``UserRepository.search_by_organisation`` unchanged --
+        identical query matching, ordering, limit, and organisation
+        scoping as ``search_organisation_users``; the only difference is
+        that the response here additionally carries ``role``. Never
+        accepts ``organisation_id`` from the caller -- always
+        ``access.organisation_id``, the same trusted, request-derived
+        identity ``search_organisation_users`` already uses.
+        """
+
+        if access.role != OrgRole.ADMIN:
+            raise RoleAdministrationForbiddenError()
+
+        users = self.user_repository.search_by_organisation(
+            organisation_id=access.organisation_id,
+            query=query,
+            limit=USER_SEARCH_RESULT_LIMIT,
+        )
+
+        return [
+            RoleManagementUserSearchResult.model_validate(user)
             for user in users
         ]
 

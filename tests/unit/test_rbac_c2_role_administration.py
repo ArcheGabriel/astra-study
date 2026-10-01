@@ -18,7 +18,13 @@ database (never the real dev ``astra_study.db``):
   with no extra wiring (``get_access_context`` rebuilds ``role`` fresh
   from the ``User`` row on every call);
 - ``RoleUpdateRequest``'s Pydantic-level validation (rejects unknown
-  role strings, rejects unexpected fields via ``extra="forbid"``).
+  role strings, rejects unexpected fields via ``extra="forbid"``);
+- ``UserService.search_organisation_users_with_role`` (the
+  ``GET /users/role-management`` search backing the role-administration
+  UI): ADMIN-only, organisation-scoped, returns the persisted ``role``
+  alongside ``id``/``username``/``email`` -- and that the existing,
+  unrelated ``search_organisation_users`` (``GET /users?q=``, used by
+  team-membership search) is untouched and still returns no ``role``.
 """
 
 from __future__ import annotations
@@ -387,3 +393,156 @@ def test_role_update_request_accepts_valid_role():
     request = RoleUpdateRequest(role="manager")
 
     assert request.role == OrgRole.MANAGER
+
+
+# --------------------------------------------------------------------------- #
+# G. Role-management search (GET /users/role-management) --
+# UserService.search_organisation_users_with_role
+# --------------------------------------------------------------------------- #
+
+
+def test_admin_can_search_organisation_users_with_role(db):
+    org = make_organisation(db)
+    admin = make_user(db, org, username="admin", role=OrgRole.ADMIN)
+    make_user(db, org, username="bob", role=OrgRole.MANAGER)
+    service = make_service(db)
+
+    results = service.search_organisation_users_with_role(
+        access=build_access(db, admin),
+        query="bob",
+    )
+
+    assert len(results) == 1
+    assert results[0].username == "bob"
+    assert results[0].role == OrgRole.MANAGER
+
+
+def test_admin_search_result_includes_id_username_email_and_role(db):
+    org = make_organisation(db)
+    admin = make_user(db, org, username="admin", role=OrgRole.ADMIN)
+    target = make_user(db, org, username="carol", role=OrgRole.MEMBER)
+    service = make_service(db)
+
+    results = service.search_organisation_users_with_role(
+        access=build_access(db, admin),
+        query="carol",
+    )
+
+    assert len(results) == 1
+    result = results[0]
+    assert result.id == target.id
+    assert result.username == "carol"
+    assert result.email == "carol@example.com"
+    assert result.role == OrgRole.MEMBER
+
+
+def test_role_management_search_is_organisation_scoped(db):
+    org_a = make_organisation(db, slug="acme")
+    org_b = make_organisation(db, slug="globex")
+    admin = make_user(db, org_a, username="admin", role=OrgRole.ADMIN)
+    make_user(db, org_b, username="outsider", role=OrgRole.MEMBER)
+    service = make_service(db)
+
+    results = service.search_organisation_users_with_role(
+        access=build_access(db, admin),
+        query="outsider",
+    )
+
+    assert results == []
+
+
+def test_role_management_search_cannot_see_users_from_another_organisation(db):
+    """
+    Same check as above, phrased against a query matching by email
+    instead of username, to confirm organisation scoping isn't an
+    artifact of the username match path specifically.
+    """
+
+    org_a = make_organisation(db, slug="acme")
+    org_b = make_organisation(db, slug="globex")
+    admin = make_user(db, org_a, username="admin", role=OrgRole.ADMIN)
+    make_user(db, org_b, username="zeta", role=OrgRole.MANAGER)
+    service = make_service(db)
+
+    results = service.search_organisation_users_with_role(
+        access=build_access(db, admin),
+        query="zeta@example.com",
+    )
+
+    assert results == []
+
+
+def test_member_cannot_search_role_management(db):
+    org = make_organisation(db)
+    member = make_user(db, org, username="member", role=OrgRole.MEMBER)
+    service = make_service(db)
+
+    with pytest.raises(RoleAdministrationForbiddenError):
+        service.search_organisation_users_with_role(
+            access=build_access(db, member),
+            query="a",
+        )
+
+
+def test_manager_cannot_search_role_management(db):
+    org = make_organisation(db)
+    manager = make_user(db, org, username="manager", role=OrgRole.MANAGER)
+    service = make_service(db)
+
+    with pytest.raises(RoleAdministrationForbiddenError):
+        service.search_organisation_users_with_role(
+            access=build_access(db, manager),
+            query="a",
+        )
+
+
+def test_role_management_search_returns_actual_persisted_role(db):
+    """
+    The returned ``role`` must be the real, current value on the
+    ``User`` row -- not a default, not a cached/stale value.
+    """
+
+    org = make_organisation(db)
+    admin = make_user(db, org, username="admin", role=OrgRole.ADMIN)
+    target = make_user(db, org, username="dana", role=OrgRole.MEMBER)
+    service = make_service(db)
+
+    # Promote the target for real, through the existing endpoint, then
+    # confirm the search reflects the new persisted role.
+    service.update_role(
+        access=build_access(db, admin),
+        target_user_id=target.id,
+        requested_role=OrgRole.MANAGER,
+    )
+
+    results = service.search_organisation_users_with_role(
+        access=build_access(db, admin),
+        query="dana",
+    )
+
+    assert len(results) == 1
+    assert results[0].role == OrgRole.MANAGER
+
+
+def test_existing_get_users_search_is_unaffected_and_returns_no_role(db):
+    """
+    Regression guard: the existing, unrelated
+    ``search_organisation_users`` (``GET /users?q=``, used by
+    team-membership search, reachable by any caller) must remain
+    completely unchanged by this addition -- same results, and its
+    ``UserResponse`` objects must not expose ``role`` at all.
+    """
+
+    org = make_organisation(db)
+    make_user(db, org, username="erin", role=OrgRole.ADMIN)
+    service = make_service(db)
+    access = build_access(db, make_user(db, org, username="any_caller"))
+
+    results = service.search_organisation_users(
+        access=access,
+        query="erin",
+    )
+
+    assert len(results) == 1
+    assert results[0].username == "erin"
+    assert not hasattr(results[0], "role")
