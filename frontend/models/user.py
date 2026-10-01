@@ -62,6 +62,35 @@ class UserSearchResult:
 
 
 @dataclass(slots=True)
+class RoleManagementSearchResult:
+    """
+    One user returned by ``GET /users/role-management?q=`` (RBAC Phase
+    C.2, ADMIN-only organisation role-administration search).
+
+    Deliberately a separate model from ``UserSearchResult`` (``GET
+    /users?q=``, used by team-membership search and reachable by any
+    ``TeamRole.MANAGER`` -- it never carries ``role``). ``role`` here is
+    a plain string (``OrgRole``'s value), matching this project's
+    established no-frontend-enum convention for role representation
+    (see ``User.role``/``TeamMembership.role`` above).
+    """
+
+    id: int
+    username: str
+    email: str
+    role: str
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "RoleManagementSearchResult":
+        return cls(
+            id=data["id"],
+            username=data["username"],
+            email=data["email"],
+            role=data["role"],
+        )
+
+
+@dataclass(slots=True)
 class User:
     id: int
     username: str
