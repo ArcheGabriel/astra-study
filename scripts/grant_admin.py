@@ -16,6 +16,23 @@ Safety
 * Does not run automatically during migrations (this is a separate,
   explicit, manually-invoked script; the RBAC foundation migration
   deliberately does not create or promote any user).
+
+Semantic retrieval cache (RBAC/C.3)
+------------------------------------
+This script runs as its own, separate OS process, never inside the
+running FastAPI application. The in-process semantic retrieval cache
+(``app.cache.semantic.SemanticRetrievalCache``, one instance per
+application process -- see
+``app/dependencies/resources.py::get_semantic_cache_resource``) lives
+only in that application process's memory, so this script cannot reach
+or invalidate it -- identical, and for the identical reason, to
+``scripts/reingest_document.py``'s own documented limitation. A user
+promoted to ADMIN here may therefore keep seeing cached retrieval
+results computed under their pre-promotion authorization state (missing
+ORGANISATION-scope documents they are now entitled to) until either
+their next cache-naturally-missing request or
+``settings.SEMANTIC_CACHE_TTL_SECONDS`` elapses -- TTL is the sole
+staleness bound for this specific gap, not any explicit invalidation.
 """
 
 from __future__ import annotations

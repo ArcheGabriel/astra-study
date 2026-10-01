@@ -1,11 +1,15 @@
+import logging
 import time
 
+from app.cache.semantic import SemanticRetrievalCache
 from app.chunking.pipeline import ChunkPipeline
 from app.enums.document import DocumentStatus
 from app.ingestion.factory import ProcessorFactory
 from app.repositories.document import DocumentRepository
 from app.search.hybrid.pipeline import HybridPipeline
 from app.storage.base import BaseStorageService
+
+logger = logging.getLogger(__name__)
 
 
 class IngestionService:
@@ -26,6 +30,7 @@ class IngestionService:
         document_repository: DocumentRepository,
         storage_service: BaseStorageService,
         hybrid_pipeline: HybridPipeline | None = None,
+        semantic_cache: SemanticRetrievalCache | None = None,
     ) -> None:
 
         self.document_repository = document_repository
@@ -38,6 +43,15 @@ class IngestionService:
             hybrid_pipeline
             or HybridPipeline()
         )
+
+        # Optional (RBAC/C.3): a newly-indexed document can make an
+        # existing cached retrieval result for its organisation stale
+        # (it should now be retrievable but isn't reflected in the
+        # cache). Organisation-scoped invalidation is the coarsest, and
+        # therefore always-safe, granularity -- see
+        # SemanticRetrievalCache.invalidate_organisation's docstring.
+        # None (the default) skips invalidation.
+        self.semantic_cache = semantic_cache
 
     def ingest_document(
         self,
@@ -188,7 +202,19 @@ class IngestionService:
                 document_id=document.id,
                 status=DocumentStatus.INDEXED,
             )
-            
+
+            if self.semantic_cache is not None:
+                try:
+                    self.semantic_cache.invalidate_organisation(
+                        document.organisation_id,
+                    )
+                except Exception:
+                    logger.exception(
+                        "Semantic retrieval cache invalidation failed "
+                        "after ingesting document_id=%s.",
+                        document.id,
+                    )
+
             print("Document indexed successfully.")
 
         except Exception as exc:

@@ -1,3 +1,6 @@
+import logging
+
+from app.cache.semantic import SemanticRetrievalCache
 from app.enums.team import TeamRole
 from app.exceptions.document import TeamNotFoundError
 from app.exceptions.team import TeamMembershipOperationForbiddenError
@@ -7,6 +10,8 @@ from app.repositories.team_membership import TeamMembershipRepository
 from app.repositories.user import UserRepository
 from app.retrieval.access import AccessContext
 from app.schemas.team import TeamMemberResponse, TeamRosterMemberResponse
+
+logger = logging.getLogger(__name__)
 
 
 class TeamMembershipService:
@@ -47,10 +52,28 @@ class TeamMembershipService:
         team_membership_repository: TeamMembershipRepository,
         team_repository: TeamRepository,
         user_repository: UserRepository,
+        semantic_cache: SemanticRetrievalCache | None = None,
     ) -> None:
         self.team_membership_repository = team_membership_repository
         self.team_repository = team_repository
         self.user_repository = user_repository
+        # Optional (RBAC/C.3): see UserService's identical field -- a
+        # membership add/remove/promote changes the target user's future
+        # AccessContext.team_ids, so their semantic-retrieval-cache
+        # entries must be invalidated. None (the default) skips this.
+        self.semantic_cache = semantic_cache
+
+    def _invalidate_cache_for(self, user_id: int) -> None:
+        if self.semantic_cache is None:
+            return
+        try:
+            self.semantic_cache.invalidate_user(user_id)
+        except Exception:
+            logger.exception(
+                "Semantic retrieval cache invalidation failed after a "
+                "team membership change for user_id=%s.",
+                user_id,
+            )
 
     def add_member(
         self,
@@ -74,6 +97,8 @@ class TeamMembershipService:
             user_id=user_id,
             team_id=team_id,
         )
+
+        self._invalidate_cache_for(user_id)
 
         return TeamMemberResponse.model_validate(membership)
 
@@ -106,6 +131,8 @@ class TeamMembershipService:
             team_id=team_id,
         )
 
+        self._invalidate_cache_for(user_id)
+
     def promote_member(
         self,
         *,
@@ -128,6 +155,8 @@ class TeamMembershipService:
             user_id=user_id,
             team_id=team_id,
         )
+
+        self._invalidate_cache_for(user_id)
 
         return TeamMemberResponse.model_validate(membership)
 

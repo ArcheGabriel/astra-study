@@ -1,7 +1,9 @@
+import logging
 from pathlib import Path
 
 from fastapi import UploadFile
 
+from app.cache.semantic import SemanticRetrievalCache
 from app.enums.document import DocumentAccessScope, DocumentStatus
 from app.enums.organisation import OrgRole
 from app.enums.team import TeamRole
@@ -22,6 +24,8 @@ from app.search.dense.repository import DenseRepository
 from app.storage.base import BaseStorageService
 from app.validators.document import DocumentValidator
 
+logger = logging.getLogger(__name__)
+
 
 class DocumentService:
     """
@@ -41,12 +45,18 @@ class DocumentService:
         team_membership_repository: TeamMembershipRepository,
         dense_repository: DenseRepository,
         team_repository: TeamRepository,
+        semantic_cache: SemanticRetrievalCache | None = None,
     ) -> None:
         self.document_repository = document_repository
         self.storage_service = storage_service
         self.team_membership_repository = team_membership_repository
         self.dense_repository = dense_repository
         self.team_repository = team_repository
+        # Optional (RBAC/C.3): see IngestionService's identical field --
+        # a deleted document can make an existing cached retrieval
+        # result stale (it should no longer be retrievable). None (the
+        # default) skips invalidation.
+        self.semantic_cache = semantic_cache
 
     async def upload_documents(
         self,
@@ -282,6 +292,18 @@ class DocumentService:
         one of them fails after Qdrant deletion succeeds -- a fully
         atomic multi-system delete is out of scope for this stage; this
         ordering is the safest available without one.
+
+        Semantic retrieval cache (RBAC/C.3): invalidated TWICE -- once
+        before any destructive operation, and once again after the SQL
+        row is gone. The pre-delete call closes the window in which a
+        concurrent retrieval could still serve a pre-existing cached
+        result for this organisation that includes the about-to-be-
+        deleted document; the post-delete call closes the separate
+        window in which a concurrent retrieval could compute and store a
+        *fresh* cached entry (from Qdrant state captured before this
+        deletion actually ran) in between the two. Neither call is a
+        substitute for the other -- see the C.3 audit report this
+        doubling was approved from.
         """
 
         document = self.document_repository.get_by_id(
@@ -290,6 +312,11 @@ class DocumentService:
 
         if document is None or not self._can_delete(document, access):
             raise DocumentNotFoundError()
+
+        self._invalidate_semantic_cache(
+            document=document,
+            stage="before",
+        )
 
         self.dense_repository.delete_by_document_id(
             document.id,
@@ -302,6 +329,40 @@ class DocumentService:
         self.document_repository.delete(
             document,
         )
+
+        self._invalidate_semantic_cache(
+            document=document,
+            stage="after",
+        )
+
+    def _invalidate_semantic_cache(
+        self,
+        *,
+        document: Document,
+        stage: str,
+    ) -> None:
+        """
+        Fail-open semantic retrieval cache invalidation for one
+        organisation. ``stage`` ("before"/"after") only affects the log
+        message on failure -- the invalidation call itself is identical
+        either way (organisation-scoped, per
+        ``SemanticRetrievalCache.invalidate_organisation``).
+        """
+
+        if self.semantic_cache is None:
+            return
+
+        try:
+            self.semantic_cache.invalidate_organisation(
+                document.organisation_id,
+            )
+        except Exception:
+            logger.exception(
+                "Semantic retrieval cache invalidation (%s document "
+                "deletion) failed for document_id=%s.",
+                stage,
+                document.id,
+            )
 
     def download_document(
         self,

@@ -266,9 +266,18 @@ def test_retrieval_service_forwards_access_to_hybrid_service():
     hybrid_service.return_value = []
     reranking_service = MagicMock()
 
+    # RetrievalService computes its own query embedding (RBAC/C.3) for
+    # the semantic-cache lookup, reused for the (mocked) hybrid search
+    # below -- a mocked embedder keeps this test from making a real
+    # OpenAI call; see tests/unit/retrieval/test_service.py::make_service
+    # for the identical pattern.
+    embedder = MagicMock()
+    embedder.embed_query.return_value = [0.1, 0.2, 0.3]
+
     service = RetrievalService(
         hybrid_service=hybrid_service,
         reranking_service=reranking_service,
+        embedder=embedder,
     )
 
     service.retrieve(query="q", access=_ACCESS)

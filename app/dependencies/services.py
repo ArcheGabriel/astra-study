@@ -38,6 +38,7 @@ from app.retrieval.service import RetrievalService
 from app.services.conversation_summary import ConversationSummaryService
 from app.dependencies.resources import get_llm_resource
 from app.dependencies.resources import get_reranking_resource
+from app.dependencies.resources import get_semantic_cache_resource
 
 
 def get_user_service(
@@ -54,6 +55,7 @@ def get_user_service(
         user_repository=user_repository,
         team_membership_repository=team_membership_repository,
         org_manager_team_repository=org_manager_team_repository,
+        semantic_cache=get_semantic_cache_resource(),
     )
 
 
@@ -146,6 +148,7 @@ def get_retrieval_service(
     return RetrievalService(
         hybrid_service=hybrid_service,
         reranking_service=reranking_service,
+        semantic_cache=get_semantic_cache_resource(),
     )
 
 
@@ -220,6 +223,7 @@ def build_conversation_summary_service(
         retrieval_service=RetrievalService(
             hybrid_service=HybridService(),
             reranking_service=get_reranking_resource(),
+            semantic_cache=get_semantic_cache_resource(),
         ),
         generation_service=GenerationService(
             prompt_builder=PromptBuilder(),
@@ -297,6 +301,7 @@ def get_document_service(
         team_membership_repository=team_membership_repository,
         dense_repository=dense_repository,
         team_repository=team_repository,
+        semantic_cache=get_semantic_cache_resource(),
     )
 
 
@@ -315,6 +320,7 @@ def get_ingestion_service(
     return IngestionService(
         document_repository=document_repository,
         storage_service=storage_service,
+        semantic_cache=get_semantic_cache_resource(),
     )
 
 
@@ -347,6 +353,7 @@ def get_team_membership_service(
         team_membership_repository=team_membership_repository,
         team_repository=team_repository,
         user_repository=user_repository,
+        semantic_cache=get_semantic_cache_resource(),
     )
 
 
@@ -368,4 +375,5 @@ def get_org_manager_team_service(
         org_manager_team_repository=org_manager_team_repository,
         team_repository=team_repository,
         user_repository=user_repository,
+        semantic_cache=get_semantic_cache_resource(),
     )

@@ -57,6 +57,8 @@ uv run pytest tests/integration/test_rbac_e2e_acceptance.py -q   # RBAC-10A/10B 
 
 uv run pytest tests/unit/test_generation_grounding.py -q   # generation grounding-contract spec: SYSTEM_PROMPT forbids general-knowledge fallback; zero-context short-circuits before any LLM call
 
+uv run pytest tests/unit/cache tests/unit/retrieval/test_semantic_cache_integration.py tests/unit/test_semantic_cache_service_invalidation.py tests/unit/test_semantic_cache_document_lifecycle.py tests/unit/test_semantic_cache_ai_pipeline.py -q   # semantic retrieval cache (RBAC/C.3): hit/miss/TTL/eviction, RBAC namespace isolation, fail-open, invalidation hooks, rewritten-query/streaming integration
+
 uv run pytest tests/frontend -v   # frontend RBAC logic: User/Team models, TeamService, access-scope validation, upload form-field wiring, team membership management (roster/search/add/remove/promote), organisation role administration (search/promote) -- no Streamlit runtime, no backend/network
 
 uv run python -m evaluation.runner                  # run LangSmith evaluation experiment
@@ -275,6 +277,86 @@ executable spec, verified through the real `GenerationService` → `PromptBuilde
 deterministic fake LLM provider (no OpenAI call), including a test that the same `SYSTEM_PROMPT` is
 sent regardless of whether the retrieved context happens to be relevant, since the code has no way
 to know that at build time.
+
+**Semantic retrieval cache (`app/cache/`, RBAC/C.3)**: `RetrievalService.retrieve` caches the
+*retrieval result* (the already-reranked `RetrievalResult`), never a generated answer -- a cache
+hit skips `HybridService`/Qdrant/`RerankingService` entirely and still flows into the same
+`GenerationService` call every uncached request takes, so strict grounding, citations, and both
+non-streaming and streaming generation are completely unaffected by a cache hit. Final-answer
+caching and query-rewrite caching were deliberately excluded (see the C.3 investigation report):
+caching the LLM-generated answer itself would require solving conversation-context equivalence (a
+genuinely hard problem) and would re-run every RBAC risk at a layer with no independent
+visibility check once served, whereas a retrieval-level cache sits after the rewriter has already
+resolved conversational references into a comparable, standalone query.
+
+- **Insertion point and embedding reuse**: `RetrievalService.retrieve` now computes the query's
+  dense embedding itself (moved up from `HybridService.search`, which gained an optional
+  `dense_vector` parameter -- when supplied, it skips its own `embed_query` call entirely; when
+  omitted, its behavior is byte-for-byte unchanged from before this milestone). That one embedding
+  is used for both the cache lookup and, on a miss, passed straight into `HybridService` -- never a
+  second embedding request solely for the cache.
+- **Semantic matching**: cosine similarity between the current query embedding and each
+  same-namespace cached embedding (`app/cache/semantic.py::_cosine_similarity`), using the existing
+  `text-embedding-3-large` embeddings already computed for retrieval -- no second embedding model.
+  `settings.SEMANTIC_CACHE_SIMILARITY_THRESHOLD` (default `0.97`, deliberately conservative: a hit
+  skips retrieval entirely with no independent per-hit RBAC/freshness check beyond the namespace
+  match, so the threshold trades hit rate for correctness).
+- **RBAC isolation**: every cache entry is isolated to a `Namespace` tuple
+  (`app/cache/models.py`) built from the *exact* fields `AccessContext` carries --
+  `(user_id, organisation_id, role, team_ids, jurisdiction_team_ids)` -- via
+  `build_namespace`. A lookup never considers an entry from a different namespace, regardless of
+  embedding similarity, so cross-user/-team/-organisation/-jurisdiction reuse is structurally
+  impossible; this deliberately includes `user_id` (not just organisation/team/role), trading
+  cache-sharing breadth for an unconditionally safe over-approximation of
+  `DenseRepository._authorization_filter`'s actual branches.
+- **Invalidation**: role promotion (`UserService.update_role`), team-membership
+  add/remove/promote (`TeamMembershipService`), and Org Manager jurisdiction grant/revoke
+  (`OrgManagerTeamService`) each call `SemanticRetrievalCache.invalidate_user` for the affected
+  user immediately after their mutation commits -- each of these changes exactly one user's future
+  `AccessContext`. Document ingestion (`IngestionService.ingest_document`) and deletion
+  (`DocumentService.delete_document`) call `invalidate_organisation` -- the coarsest, always-safe
+  granularity, since every `_authorization_filter` branch is at minimum organisation-scoped. All
+  five services take `semantic_cache` as an *optional* constructor parameter (default `None`,
+  skips invalidation) -- every existing direct construction of these services elsewhere in this
+  project's test suite is unaffected; only `app/dependencies/services.py`'s FastAPI wiring supplies
+  the real, process-wide singleton (`app/dependencies/resources.py::get_semantic_cache_resource`,
+  the same `@lru_cache(maxsize=1)` idiom already used for the LLM/reranker resources --
+  `RetrievalService`/`HybridService` are themselves still constructed fresh per request, so the
+  cache store must live outside both). Two mutation paths run as their own, separate OS processes
+  and therefore cannot reach the running application's in-process cache at all --
+  `scripts/reingest_document.py` and `scripts/grant_admin.py` (CLI-promoting a user to
+  `OrgRole.ADMIN` directly via the database, outside any request the app ever sees). Both
+  limitations are documented in the scripts' own docstrings rather than papered over with a no-op
+  invalidation call; TTL is their only staleness bound.
+- **TTL and bounded size**: `settings.SEMANTIC_CACHE_TTL_SECONDS` (default `3600.0`, one hour) is a
+  safety/staleness-bound mechanism, not the primary correctness mechanism -- explicit invalidation
+  (the five hooks above) remains the primary correctness mechanism for every path it covers. No
+  document/corpus version signal exists anywhere in this codebase to invalidate a cached result
+  precisely, so TTL exists specifically to bound how long a result can outlive an untracked change
+  that explicit invalidation didn't catch -- in practice, today, that means the two process-boundary
+  paths immediately above (`reingest_document.py`, `grant_admin.py`), which have no explicit hook
+  and rely on TTL as their sole staleness bound. (The default was raised from an initial 120s after
+  manual testing showed that value left the cache rarely surviving to a realistic follow-up
+  question, undercutting the feature's own latency/cost purpose -- see the C.3 TTL review.)
+  `settings.SEMANTIC_CACHE_MAX_SIZE` (default `256`) bounds the single in-process store; the oldest
+  entry is evicted first (FIFO) once exceeded -- no external cache infrastructure.
+- **Fail-open**: every cache lookup/store call in `RetrievalService.retrieve` and every
+  invalidation call in the five services above is wrapped in its own `try/except`, logged, and
+  treated as a no-op on failure -- a cache bug can never block or corrupt a retrieval request or an
+  otherwise-successful RBAC/document mutation; the uncached path remains authoritative.
+  `settings.SEMANTIC_CACHE_ENABLED` (default `True`) is a global kill switch.
+- **Observability**: `RetrievalService.retrieve`'s existing LangSmith `run.metadata` (already
+  populated with query/latency/source stats) gained `cache_hit`, and, on a hit,
+  `cache_similarity_score`/`cache_age_seconds` -- no new tracing mechanism.
+- `tests/unit/cache/test_semantic_retrieval_cache.py` is the cache component's own executable spec
+  (hit/miss/TTL/eviction/malformed-entry/namespace-isolation, no RetrievalService involved);
+  `tests/unit/retrieval/test_semantic_cache_integration.py` covers RBAC isolation and fail-open
+  behavior through the real `RetrievalService`; `tests/unit/test_semantic_cache_service_invalidation.py`
+  and `tests/unit/test_semantic_cache_document_lifecycle.py` cover the five invalidation hooks;
+  `tests/unit/test_semantic_cache_ai_pipeline.py` proves the cache operates on the rewritten
+  retrieval query (never the ambiguous raw follow-up), that the original question remains the
+  generation query untouched by caching, and that both streaming and non-streaming generation work
+  transparently on a hit and a miss.
 
 ### Conversation memory (rolling summary + recent window)
 

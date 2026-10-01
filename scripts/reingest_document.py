@@ -42,6 +42,26 @@ Safety
 Stage 5 note: the Stage 5 evaluation MUST NOT call this script. Use
 ``evaluation/chunking_report.py`` for offline analysis.
 
+Semantic retrieval cache (RBAC/C.3)
+------------------------------------
+This script runs as its own, separate OS process (``uv run python -m
+scripts.reingest_document``), never inside the running FastAPI
+application. The in-process semantic retrieval cache
+(``app.cache.semantic.SemanticRetrievalCache``, wired as a single
+``@lru_cache``-held instance per application process -- see
+``app/dependencies/resources.py::get_semantic_cache_resource``) lives
+only in that application process's memory. There is no shared-memory or
+IPC mechanism between this script and a running app instance, so this
+script **cannot** reach or invalidate that cache -- constructing a fresh
+``SemanticRetrievalCache()`` here and calling ``invalidate_organisation``
+on it would silently do nothing (an empty, immediately-discarded
+instance), so no such call is made: that would be a invalidation that
+only *looks* effective. A re-ingested document's organisation therefore
+relies on ``settings.SEMANTIC_CACHE_TTL_SECONDS`` as its only staleness
+bound until this script's limitation is addressed with an actual
+cross-process mechanism (e.g. an admin-only invalidation endpoint the
+script could call over HTTP) -- out of scope for this milestone.
+
 Usage
 -----
     uv run python -m scripts.reingest_document --document-id 42

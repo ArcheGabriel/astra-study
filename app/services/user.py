@@ -1,3 +1,5 @@
+import logging
+
 from sqlalchemy import select
 
 from app.enums.organisation import OrgRole
@@ -10,6 +12,7 @@ from app.exceptions.user import (
     UserNotFoundError,
 )
 
+from app.cache.semantic import SemanticRetrievalCache
 from app.models.organisation import Organisation
 from app.models.user import User
 from app.repositories.org_manager_team import OrgManagerTeamRepository
@@ -52,6 +55,8 @@ DEFAULT_ORGANISATION_SLUG = "default"
 # general-purpose directory.
 USER_SEARCH_RESULT_LIMIT = 20
 
+logger = logging.getLogger(__name__)
+
 
 class UserService:
     """
@@ -63,10 +68,18 @@ class UserService:
         user_repository: UserRepository,
         team_membership_repository: TeamMembershipRepository,
         org_manager_team_repository: OrgManagerTeamRepository,
+        semantic_cache: SemanticRetrievalCache | None = None,
     ):
         self.user_repository = user_repository
         self.team_membership_repository = team_membership_repository
         self.org_manager_team_repository = org_manager_team_repository
+        # Optional (RBAC/C.3): invalidates the target user's semantic
+        # retrieval cache entries after a role change, since a promotion
+        # immediately changes what that user's next AccessContext/
+        # authorization filter resolves to. None (the default) simply
+        # skips invalidation -- existing direct construction of this
+        # service (every test in this project) is unaffected.
+        self.semantic_cache = semantic_cache
 
     def register(
         self,
@@ -310,5 +323,17 @@ class UserService:
 
         self.user_repository.db.commit()
         self.user_repository.db.refresh(target)
+
+        if self.semantic_cache is not None:
+            try:
+                self.semantic_cache.invalidate_user(target.id)
+            except Exception:
+                # Fail-open: a cache-invalidation bug must never fail an
+                # already-committed, otherwise-successful role change.
+                logger.exception(
+                    "Semantic retrieval cache invalidation failed after "
+                    "role change for user_id=%s.",
+                    target.id,
+                )
 
         return RoleManagementUserResponse.model_validate(target)

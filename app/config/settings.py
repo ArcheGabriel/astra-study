@@ -179,6 +179,37 @@ class Settings(BaseSettings):
     RETRIEVAL_TOP_K: int = 5
 
     # ------------------------------------------------------------------
+    # Semantic Retrieval Cache (C.3)
+    # ------------------------------------------------------------------
+    SEMANTIC_CACHE_ENABLED: bool = True
+
+    # Conservative default: a cache HIT skips re-retrieval entirely (no
+    # independent per-hit RBAC/document-freshness check beyond the
+    # namespace match -- see app/cache/semantic.py), so the threshold is
+    # set high enough that only near-duplicate queries reuse a cached
+    # result. This deliberately trades cache-hit rate for correctness.
+    SEMANTIC_CACHE_SIMILARITY_THRESHOLD: float = 0.97
+
+    # 1-hour default (raised from an initial 120s after manual testing
+    # showed the short default left the cache almost never surviving to a
+    # realistic follow-up question -- see the C.3 TTL review report). No
+    # document/corpus version signal exists anywhere in this codebase to
+    # invalidate a cached retrieval result precisely, so TTL remains the
+    # safety net bounding how long a result can outlive an untracked
+    # change; the explicit invalidation hooks on document upload/delete
+    # and role/membership/jurisdiction mutations are the primary
+    # correctness mechanism, not this value. Two mutation paths run
+    # outside the application process and therefore cannot invalidate
+    # this in-process cache at all (`scripts/reingest_document.py`,
+    # `scripts/grant_admin.py` -- see their own docstrings) and rely on
+    # this TTL as their only staleness bound.
+    SEMANTIC_CACHE_TTL_SECONDS: float = 3600.0
+
+    # Bounded, in-process, single-collection cache -- no external
+    # infrastructure. Oldest entry is evicted first once this is exceeded.
+    SEMANTIC_CACHE_MAX_SIZE: int = 256
+
+    # ------------------------------------------------------------------
     # Evaluation
     # ------------------------------------------------------------------
     EVALUATION_USER_ID: int = 5

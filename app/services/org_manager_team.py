@@ -1,3 +1,6 @@
+import logging
+
+from app.cache.semantic import SemanticRetrievalCache
 from app.enums.organisation import OrgRole
 from app.exceptions.document import TeamNotFoundError
 from app.exceptions.team import (
@@ -10,6 +13,8 @@ from app.repositories.team import TeamRepository
 from app.repositories.user import UserRepository
 from app.retrieval.access import AccessContext
 from app.schemas.team import OrgManagerTeamResponse
+
+logger = logging.getLogger(__name__)
 
 
 class OrgManagerTeamService:
@@ -36,10 +41,28 @@ class OrgManagerTeamService:
         org_manager_team_repository: OrgManagerTeamRepository,
         team_repository: TeamRepository,
         user_repository: UserRepository,
+        semantic_cache: SemanticRetrievalCache | None = None,
     ) -> None:
         self.org_manager_team_repository = org_manager_team_repository
         self.team_repository = team_repository
         self.user_repository = user_repository
+        # Optional (RBAC/C.3): see UserService's identical field -- a
+        # jurisdiction grant/revoke changes the target user's future
+        # AccessContext.jurisdiction_team_ids. None (the default) skips
+        # invalidation.
+        self.semantic_cache = semantic_cache
+
+    def _invalidate_cache_for(self, user_id: int) -> None:
+        if self.semantic_cache is None:
+            return
+        try:
+            self.semantic_cache.invalidate_user(user_id)
+        except Exception:
+            logger.exception(
+                "Semantic retrieval cache invalidation failed after a "
+                "jurisdiction change for user_id=%s.",
+                user_id,
+            )
 
     def grant_jurisdiction(
         self,
@@ -65,6 +88,8 @@ class OrgManagerTeamService:
             user_id=user_id,
             team_id=team_id,
         )
+
+        self._invalidate_cache_for(user_id)
 
         return OrgManagerTeamResponse.model_validate(jurisdiction)
 
@@ -120,6 +145,8 @@ class OrgManagerTeamService:
             user_id=user_id,
             team_id=team_id,
         )
+
+        self._invalidate_cache_for(user_id)
 
     def _authorize_admin(
         self,

@@ -82,9 +82,21 @@ def make_service() -> tuple[
 
     reranking_service = MagicMock()
 
+    # RetrievalService now computes the query embedding itself (RBAC/C.3,
+    # reused for both the semantic-cache lookup and, on a miss, passed
+    # into HybridService -- see app/retrieval/service.py). A mocked
+    # embedder keeps these tests from ever making a real OpenAI call.
+    # Each call to make_service() gets its own fresh, private, empty
+    # semantic cache (the default when no cache is injected) -- so every
+    # lookup here is a guaranteed miss and these tests exercise exactly
+    # the same hybrid/reranking path they did before RBAC/C.3.
+    embedder = MagicMock()
+    embedder.embed_query.return_value = [0.1, 0.2, 0.3]
+
     service = RetrievalService(
         hybrid_service=hybrid_service,
         reranking_service=reranking_service,
+        embedder=embedder,
     )
 
     return (
