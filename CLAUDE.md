@@ -347,7 +347,16 @@ resolved conversational references into a comparable, standalone query.
   `settings.SEMANTIC_CACHE_ENABLED` (default `True`) is a global kill switch.
 - **Observability**: `RetrievalService.retrieve`'s existing LangSmith `run.metadata` (already
   populated with query/latency/source stats) gained `cache_hit`, and, on a hit,
-  `cache_similarity_score`/`cache_age_seconds` -- no new tracing mechanism.
+  `cache_similarity_score`/`cache_age_seconds` -- no new tracing mechanism. On a miss,
+  `SemanticRetrievalCache.diagnose_miss` (a second, read-only pass over the same entries
+  `lookup()` just scanned, never on the hot path, never raising) best-effort explains why:
+  `cache_miss_reason` is one of `"empty"`/`"namespace_mismatch"`/`"expired"`/`"below_threshold"`,
+  and only for `"below_threshold"` -- the one case where a real, non-fabricated comparison
+  happened -- `cache_best_similarity_score` (rounded to 4 decimals) reports the actual best
+  cosine similarity found among the non-expired same-namespace entries compared, reusing the
+  embedding already computed for the lookup (no extra embedding call). Both fields are omitted
+  entirely, never fabricated as `None`/`0`, when the cache is disabled or `diagnose_miss` itself
+  fails (wrapped in its own `try/except`, matching the fail-open discipline above).
 - `tests/unit/cache/test_semantic_retrieval_cache.py` is the cache component's own executable spec
   (hit/miss/TTL/eviction/malformed-entry/namespace-isolation, no RetrievalService involved);
   `tests/unit/retrieval/test_semantic_cache_integration.py` covers RBAC isolation and fail-open
