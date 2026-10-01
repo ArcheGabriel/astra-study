@@ -57,7 +57,7 @@ uv run pytest tests/integration/test_rbac_e2e_acceptance.py -q   # RBAC-10A/10B 
 
 uv run pytest tests/unit/test_generation_grounding.py -q   # generation grounding-contract spec: SYSTEM_PROMPT forbids general-knowledge fallback; zero-context short-circuits before any LLM call
 
-uv run pytest tests/frontend -v   # frontend RBAC logic: User/Team models, TeamService, access-scope validation, upload form-field wiring, team membership management (roster/search/add/remove/promote) -- no Streamlit runtime, no backend/network
+uv run pytest tests/frontend -v   # frontend RBAC logic: User/Team models, TeamService, access-scope validation, upload form-field wiring, team membership management (roster/search/add/remove/promote), organisation role administration (search/promote) -- no Streamlit runtime, no backend/network
 
 uv run python -m evaluation.runner                  # run LangSmith evaluation experiment
 uv run python -m evaluation.chunking_report analyze --blocks <blocks.json> --out <report.json>   # offline chunk structural report
@@ -645,8 +645,8 @@ and the document-management API's create/read/delete authorization are all in pl
   `OrgManagerTeamResponse` carries no username, the panel displays existing managers by user id
   only (`"User ID <id>"`) -- the same minimal-exposure precedent RBAC-8's Option A established for
   team-id display, deliberately avoiding an extra per-user lookup API.
-- **Organisation role administration (`POST /users/{user_id}/role`, RBAC Phase C.2, backend-only --
-  no frontend consumer yet)**: the first and only HTTP-reachable way a user's `OrgRole` can ever
+- **Organisation role administration (`POST /users/{user_id}/role`, RBAC Phase C.2)**: the first
+  and only HTTP-reachable way a user's `OrgRole` can ever
   change after registration (the only other path is `scripts/grant_admin.py`, unchanged). Only
   `OrgRole.MANAGER → OrgRole.ADMIN` and `OrgRole.MEMBER → OrgRole.MANAGER` are permitted --
   `MEMBER → ADMIN`, every same-role "transition", and every downward transition are all rejected.
@@ -680,9 +680,28 @@ and the document-management API's create/read/delete authorization are all in pl
   cross-organisation/missing-target enumeration safety, the ADMIN-can-never-be-demoted invariant,
   and that a fresh `AccessContext` reflects the new role); `tests/integration/test_rbac_e2e_acceptance.py`'s
   `test_org_role_promotion_governs_subsequent_authorization` proves both permitted transitions'
-  real-world effect end to end (see its bullet above). No frontend, schema/model, enum, or
-  migration changes were needed or made for this milestone -- `users.role` and the `orgrole` DB
-  enum already supported all three values.
+  real-world effect end to end (see its bullet above). No model, enum, or migration changes were
+  needed or made for this milestone -- `users.role` and the `orgrole` DB enum already supported
+  all three values.
+- **Role-management user search (`GET /users/role-management?q=`, RBAC Phase C.2, additive)**: the
+  role-administration UI (Frontend RBAC Phase C.2 below) needs to show a candidate's *current*
+  `OrgRole` before offering a promotion action -- something `GET /users?q=` deliberately cannot
+  provide, since that endpoint's `UserResponse` is also returned to any `TeamRole.MANAGER` doing
+  ordinary team-membership search (see the RBAC Phase B.0 bullet above), and broadening it would
+  have silently leaked `OrgRole` to a caller with no business seeing it. This is therefore a
+  **separate route with a separate, dedicated response schema** -- not a parameter or field added
+  to the existing search. `RoleManagementUserSearchResult` (`app/schemas/user.py`:
+  `id`/`username`/`email`/`role`) is its own class, distinct from both `UserResponse` (no `role`)
+  and `RoleManagementUserResponse` (the `POST /users/{user_id}/role` mutation response, which has
+  no `email`). `UserService.search_organisation_users_with_role` is `OrgRole.ADMIN`-only --
+  checked first, before the query even runs, since `AccessContext` already carries everything
+  needed -- then reuses `UserRepository.search_by_organisation` **unchanged** (identical matching/
+  ordering/limit/organisation-scoping as `search_organisation_users`); the only difference is that
+  the response additionally carries `role`. `GET /users?q=`, `UserResponse`, and
+  `search_organisation_users` are all untouched by this addition -- verified by a dedicated
+  regression test (`test_existing_get_users_search_is_unaffected_and_returns_no_role` in
+  `tests/unit/test_rbac_c2_role_administration.py`, extended for this addition) asserting the
+  existing endpoint's results still carry no `role` attribute at all.
 
 ### Streaming protocol
 
@@ -842,6 +861,54 @@ no frontend caller at all until this milestone.
   itself is Streamlit-`session_state`-coupled glue code with no existing test harness in this
   project (`sidebar.py` has no test coverage anywhere) and is deliberately not force-tested with a
   new Streamlit-mocking pattern.
+
+**Frontend RBAC Phase C.2** adds the organisation role-administration panel, consuming the new
+`GET /users/role-management?q=` search (see its bullet under "Authorization (RBAC)" above)
+alongside the existing `POST /users/{user_id}/role`.
+
+- `frontend/models/user.py::RoleManagementSearchResult` (`id`/`username`/`email`/`role`, `role` a
+  plain string per this project's established no-frontend-enum convention) mirrors the backend's
+  `RoleManagementUserSearchResult` -- deliberately a separate dataclass from `UserSearchResult`
+  (`GET /users?q=`, still `id`/`username`/`email` only, unchanged).
+- `frontend/api/role_management_service.py::RoleManagementService` -- `search_users(query)`
+  (`GET /users/role-management`, `params={"q": query}`, parsed into `RoleManagementSearchResult`)
+  and `update_role(user_id, role)` (`POST /users/{user_id}/role`, `json={"role": role}`,
+  deliberately returns `None` rather than parsing the backend's `RoleManagementUserResponse` --
+  that response has no `email`, a different shape than `RoleManagementSearchResult`, and the UI
+  is required to re-fetch rather than trust a mutation's own response anyway). Deliberately a
+  separate service file from `frontend/api/user_service.py::UserService` (team-membership search
+  only) and from `OrgManagerService` (jurisdiction, a structurally independent concept) --
+  mirrors the backend's own three-way split.
+- `frontend/role_management.py::available_action(target_role, is_self) -> str | None` -- a pure,
+  Streamlit-free function encoding exactly the backend's `_ALLOWED_ROLE_TRANSITIONS` as a lookup
+  (`"member"` → `"Promote to Manager"`, `"manager"` → `"Promote to Admin"`, `"admin"` → `None`),
+  with `is_self=True` always forcing `None` regardless of role -- never a free-form role selector,
+  never a demotion action, never a `MEMBER`→`ADMIN` shortcut. A UX gate only: the backend
+  independently re-enforces the identical matrix plus the self-modification check on every
+  request. `ACTION_TARGET_ROLE` maps each action label back to the role string to request, so the
+  UI never hand-constructs one.
+- `frontend/ui/role_management.py::render_role_management()` -- gated by the existing
+  `is_org_admin(current_user)` (no new "what is an admin" definition introduced), rendered from
+  `sidebar.py`'s Account area as a sibling `st.expander("Role Administration")` next to
+  `"Org Manager Jurisdiction"` (never nested inside it or inside team-membership management,
+  keeping `OrgRole`/`TeamRole`/jurisdiction visually as well as structurally separate). Search is
+  explicit-button-triggered (mirrors every other search panel in this codebase); each result row
+  shows `username (email) — role` plus at most one `available_action`-derived button. After a
+  successful promotion, the panel re-fetches the same query via `RoleManagementService.search_users`
+  and overwrites the cached results -- never an in-place/optimistic edit of the displayed role,
+  matching `org_manager_management.py`'s identical "always re-fetch, never trust a mutation's own
+  success" discipline. `ApiException` handled via the existing `try: ... except ApiException as
+  exc: st.error(str(exc))` pattern verbatim.
+- No `current_user` refresh is needed anywhere in this milestone: the acting ADMIN can never
+  target themselves (enforced both by `available_action` and by the backend's
+  `SelfRoleModificationForbiddenError`), so the acting ADMIN's own session role can never become
+  stale as a result of this feature -- unlike Phase C.1's team-creation self-affecting mutation,
+  this one only ever affects a *different* user's row in the search results, which is already
+  re-fetched fresh after every promotion.
+- `tests/frontend/test_role_management_service.py` and `test_role_management_authorization.py`
+  extend the existing hand-rolled-fake-client/pure-helper test conventions -- the latter includes
+  an exhaustive sweep over every `(role, is_self)` combination proving no demotion action and no
+  `MEMBER`→`ADMIN` shortcut can ever be produced.
 
 ### Persistence
 

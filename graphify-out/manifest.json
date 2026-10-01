@@ -162,10 +162,10 @@
     "semantic_hash": "a511956c8c95e62e08a70363393b8647"
   },
   "app/api/v1/user.py": {
-    "mtime": 1790787664.4088624,
-    "seen": 1790788136.4570224,
-    "ast_hash": "7ba761f56fa1c69840c5429320ca05d6",
-    "semantic_hash": "7ba761f56fa1c69840c5429320ca05d6"
+    "mtime": 1790846629.119931,
+    "seen": 1790847092.9118621,
+    "ast_hash": "132f1134c9663d4f5ac484de6b4a759c",
+    "semantic_hash": "132f1134c9663d4f5ac484de6b4a759c"
   },
   "app/chunking/__init__.py": {
     "mtime": 1783434807.0438864,
@@ -816,10 +816,10 @@
     "semantic_hash": "2e2488222c2a22546f8bc46303ee6f42"
   },
   "app/schemas/user.py": {
-    "mtime": 1790787664.4168627,
-    "seen": 1790788136.457215,
-    "ast_hash": "cd1fe32e7992c60454bfcec28382ede7",
-    "semantic_hash": "cd1fe32e7992c60454bfcec28382ede7"
+    "mtime": 1790846629.1233206,
+    "seen": 1790847092.9121156,
+    "ast_hash": "282d52208ae05e44ad068fad6140fe49",
+    "semantic_hash": "282d52208ae05e44ad068fad6140fe49"
   },
   "app/search/dense/__init__.py": {
     "mtime": 1784109961.906904,
@@ -966,10 +966,10 @@
     "semantic_hash": "453b26edc921d53d6bb5e021eba8982f"
   },
   "app/services/user.py": {
-    "mtime": 1790787664.4213738,
-    "seen": 1790788136.45726,
-    "ast_hash": "2f8758b253224315e40273dd6b22c33b",
-    "semantic_hash": "2f8758b253224315e40273dd6b22c33b"
+    "mtime": 1790846629.1252646,
+    "seen": 1790847092.9121723,
+    "ast_hash": "51b1f12bb491d8f17909f60e85a22219",
+    "semantic_hash": "51b1f12bb491d8f17909f60e85a22219"
   },
   "app/storage/__init__.py": {
     "mtime": 1783263738.3571424,
@@ -1338,10 +1338,10 @@
     "semantic_hash": "c48b5ffe11bfcdac6ca20461200fc44c"
   },
   "frontend/models/user.py": {
-    "mtime": 1790587574.9312172,
-    "seen": 1790588189.3233984,
-    "ast_hash": "8d5e27eac8ef049dd7e8d261552d0783",
-    "semantic_hash": "8d5e27eac8ef049dd7e8d261552d0783"
+    "mtime": 1790846629.130792,
+    "seen": 1790847092.9123056,
+    "ast_hash": "8ecd22610321a1879afb688ef290ae53",
+    "semantic_hash": "8ecd22610321a1879afb688ef290ae53"
   },
   "frontend/ui/__init__.py": {
     "mtime": 1785429708.0318954,
@@ -1356,10 +1356,10 @@
     "semantic_hash": "3ab62695b1234ded024b214d63af71ac"
   },
   "frontend/ui/sidebar.py": {
-    "mtime": 1790778960.847317,
-    "seen": 1790783331.6377478,
-    "ast_hash": "3d64285454346ff53213288e428f10cd",
-    "semantic_hash": "3d64285454346ff53213288e428f10cd"
+    "mtime": 1790846629.1363182,
+    "seen": 1790847092.9123185,
+    "ast_hash": "fbb2274070e4601ba427ad6ace4a4180",
+    "semantic_hash": "fbb2274070e4601ba427ad6ace4a4180"
   },
   "frontend/ui/sources.py": {
     "mtime": 1790593332.2460628,
@@ -1524,10 +1524,10 @@
     "semantic_hash": "11b17d5ca0e8417ce298a8c208a295c1"
   },
   "CLAUDE.md": {
-    "mtime": 1790783507.5549278,
-    "seen": 1790788136.457532,
-    "ast_hash": "06211929dad74fbf4d42750f24322e00",
-    "semantic_hash": "06211929dad74fbf4d42750f24322e00"
+    "mtime": 1790788308.86746,
+    "seen": 1790847092.9124494,
+    "ast_hash": "e1fd347aee1383cdae68f9950cf293a0",
+    "semantic_hash": "e1fd347aee1383cdae68f9950cf293a0"
   },
   "README.md": {
     "mtime": 1782744009.204418,
@@ -2118,9 +2118,39 @@
     "semantic_hash": "1beaaebb50c790fca88cca69ab1080a6"
   },
   "tests/unit/test_rbac_c2_role_administration.py": {
-    "mtime": 1790787664.426386,
-    "seen": 1790788136.4575257,
-    "ast_hash": "04ca5b5a2a90e3621b48b373bbdb43db",
-    "semantic_hash": "04ca5b5a2a90e3621b48b373bbdb43db"
+    "mtime": 1790846629.1432235,
+    "seen": 1790847092.912442,
+    "ast_hash": "41c9616575a938d67364969f1513daf1",
+    "semantic_hash": "41c9616575a938d67364969f1513daf1"
+  },
+  "frontend/api/role_management_service.py": {
+    "mtime": 1790846629.1277804,
+    "seen": 1790847092.9122822,
+    "ast_hash": "acd9dbad881488c1974294d1809b82de",
+    "semantic_hash": "acd9dbad881488c1974294d1809b82de"
+  },
+  "frontend/role_management.py": {
+    "mtime": 1790846629.13244,
+    "seen": 1790847092.9123073,
+    "ast_hash": "84ac93472b66bafefc82214ba904a5e0",
+    "semantic_hash": "84ac93472b66bafefc82214ba904a5e0"
+  },
+  "frontend/ui/role_management.py": {
+    "mtime": 1790846629.1344397,
+    "seen": 1790847092.9123166,
+    "ast_hash": "e00a4f10988196bfc6b992cf095963d2",
+    "semantic_hash": "e00a4f10988196bfc6b992cf095963d2"
+  },
+  "tests/frontend/test_role_management_authorization.py": {
+    "mtime": 1790846629.1382854,
+    "seen": 1790847092.9123647,
+    "ast_hash": "4d03b7ef631889fa1a76a427298883ac",
+    "semantic_hash": "4d03b7ef631889fa1a76a427298883ac"
+  },
+  "tests/frontend/test_role_management_service.py": {
+    "mtime": 1790846629.1399074,
+    "seen": 1790847092.9123666,
+    "ast_hash": "7ded4a11fbc3326eeaf52e0e7553eb89",
+    "semantic_hash": "7ded4a11fbc3326eeaf52e0e7553eb89"
   }
 }
